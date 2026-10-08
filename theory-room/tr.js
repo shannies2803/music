@@ -39,6 +39,8 @@
     if (room === "aural" || room === "theory") return (C.freeGrades || [1]).indexOf(+g) >= 0 || TR.hasPack(+g);
     if (room === "course-g1-5") return [1, 2, 3, 4, 5].some(TR.hasPack);
     if (room === "course-g6") return TR.hasPack(6);
+    if (room === "course-g7") return TR.hasPack(7);
+    if (room === "course-g8") return TR.hasPack(8);
     return false; // repertoire saving, composers, free practice: family plan only
   };
   TR.planLabel = function () {
@@ -210,7 +212,7 @@
       if (it.type === "mock") return "Grade " + it.grade + " aural mock test";
       if (it.type === "drill") return "Grade " + it.grade + " theory: " + it.label;
       if (it.type === "film") return "Watch the " + it.label + " film";
-      if (it.type === "course") return "Guided course (" + (it.which === "g6" ? "Grade 6" : "Grades 1–5") + "): reach day " + it.days;
+      if (it.type === "course") return "Guided course (" + ({ g6: "Grade 6", g7: "Grade 7", g8: "Grade 8" }[it.which] || "Grades 1–5") + "): reach day " + it.days;
       return "Task";
     },
     link: function (it, lid) {
@@ -219,6 +221,7 @@
       if (it.type === "mock") return BASE + "rooms/aural.html?" + L + "&grade=" + it.grade + "&mock=1";
       if (it.type === "drill") return BASE + "rooms/aural.html?" + L + "&tab=theory&lesson=" + encodeURIComponent(it.id);
       if (it.type === "film") return BASE + "rooms/composers.html#" + encodeURIComponent(it.id);
+      if (it.type === "course" && (it.which === "g7" || it.which === "g8")) return BASE + "rooms/aural.html?" + L + "&tab=theory&course=" + it.which;
       if (it.type === "course") return BASE + "rooms/theory-" + (it.which === "g6" ? "g6" : "g1-5") + ".html?" + L;
       return BASE + "app.html";
     },
@@ -228,6 +231,7 @@
       if (it.type === "mock") return (((p.mocks || {})[it.grade] || {}).n || 0) >= 1;
       if (it.type === "drill") return (((p.tl || {})[it.id] || {}).stars || 0) >= 1;
       if (it.type === "film") return !!(pr.films || {})[it.id];
+      if (it.type === "course" && (it.which === "g7" || it.which === "g8")) return Object.keys(((p.c78 || {})[it.which] || {}).done || {}).length >= (it.days || 1);
       if (it.type === "course") return Object.keys(((pr.courses || {})[it.which] || {}).done || {}).length >= (it.days || 1);
       return false;
     }

@@ -52,7 +52,7 @@
   coursesHTML = function () {
     var cards = COURSES.map(function (c) {
       var room = "course-" + c.id, open = TR.can(room);
-      var need = c.id === "g6" ? "Grade 6 pack" : "Grade 1–5 pack";
+      var need = { g6: "Grade 6 pack", g7: "Grade 7 pack", g8: "Grade 8 pack" }[c.id] || "Grade 1–5 pack";
       var inner = '<div class="kicker">' + esc(c.g) + (open ? "" : " · 🔒") + '</div><h3 style="margin:.2em 0 .3em">' + esc(c.t) + '</h3><span class="muted">' + esc(c.d) + "</span>" +
         (open ? "" : '<div style="margin-top:10px;font-weight:700;color:var(--teal)">Comes with the Family plan or a ' + need + " →</div>");
       return open
@@ -71,6 +71,9 @@
     var q = new URLSearchParams(location.search), g = +q.get("grade"), board = (q.get("board") || "").toLowerCase();
     if (q.get("tab") === "theory" || q.get("tab") === "progress") {
       VIEW.tab = q.get("tab");
+      /* homework and dashboard links can open the Grade 7 and 8 courses */
+      var course = q.get("course");
+      if (course && typeof COURSES !== "undefined" && COURSES.some(function (c) { return c.id === course && c.native; })) { VIEW.course = course; return; }
       /* homework links can open one theory lesson */
       var lesson = q.get("lesson");
       if (lesson && typeof LESSON_BY !== "undefined" && LESSON_BY[lesson]) {

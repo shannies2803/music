@@ -172,7 +172,7 @@
     if (t === "aural") pick = '<label>Test<select id="hwItem">' + options((CAT.aural[g] || []).map(function (x, i) { return [i, x.sec + ". " + x.t]; }), 0) + "</select></label>";
     if (t === "drill") pick = '<label>Lesson<select id="hwItem">' + options((CAT.lessons[g] || []).map(function (x, i) { return [i, x.t + " (" + x.topic + ")"]; }), 0) + "</select></label>";
     if (t === "film") pick = '<label>Film<select id="hwItem">' + options((CAT.films || []).map(function (x, i) { return [i, x.t]; }), 0) + "</select></label>";
-    if (t === "course") pick = '<label>Course<select id="hwWhich">' + options([["g1-5", "Grades 1–5"], ["g6", "Grade 6"]], "g1-5") + '</select></label><label>Reach day<input type="number" id="hwDays" min="1" max="80" value="5"></label>';
+    if (t === "course") pick = '<label>Course<select id="hwWhich">' + options([["g1-5", "Grades 1–5"], ["g6", "Grade 6"], ["g7", "Grade 7"], ["g8", "Grade 8"]], "g1-5") + '</select></label><label>Reach day<input type="number" id="hwDays" min="1" max="80" value="5"></label>';
     var needsGrade = t === "aural" || t === "mock" || t === "drill";
     return '<details class="hw"' + (draft.open ? " open" : "") + ' id="hwBuilder"><summary style="cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center">Set new homework</summary><form class="builder" id="hwForm">' +
       '<div class="row"><label>Title<input type="text" id="hwTitle" maxlength="80" placeholder="Week 1" value="' + esc(draft.title || "") + '"></label><label>Due (optional)<input type="date" id="hwDue" value="' + esc(draft.due || "") + '"></label></div>' +

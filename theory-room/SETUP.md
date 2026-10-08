@@ -10,8 +10,9 @@ Plan on an unhurried morning for steps 1–4. You only edit one file, `config.js
 |---|---|
 | `index.html` | The home page: rooms, plans, teachers, questions |
 | `app.html` | "My rooms": sign in, learners, rooms, buying a plan |
-| `rooms/aural.html` | Aural tests (ABRSM and Trinity, Initial to Grade 8), sight-reading and quick theory drills |
-| `rooms/theory-g1-5.html`, `rooms/theory-g6.html` | The guided theory courses (paid; checked on the server) |
+| `rooms/aural.html` | Aural tests (ABRSM and Trinity, Initial to Grade 8), sight-reading, theory drills (ABRSM and Trinity) and the Grade 7 and 8 guided courses |
+| `rooms/theory-g1-5.html`, `rooms/theory-g6.html` | The Grades 1–5 and Grade 6 guided courses (paid; checked on the server) |
+| `rooms/course-g7.js`, `rooms/course-g8.js` | The Grade 7 and 8 guided courses, which open inside the theory tab (paid; checked on the server) |
 | `rooms/composers.html` | The composer films (Room 4) |
 | `teacher.html` | The class view for teachers |
 | `repertoire/` | The ABRSM & Trinity repertoire guide |
@@ -81,7 +82,7 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 1. Open your site, **Sign in**, and tap the link in the email.
 2. Add a learner, open the aural room: only Grade 1 should be open.
 3. Buy the Family plan with Lemon Squeezy's test card (`4242 4242 4242 4242`, any future date, any CVC). Back on "My rooms" the plan should open within a few seconds.
-4. Open both guided courses; open the aural room's Grade 6.
+4. Open every guided course (Grades 1–5 and 6 on My rooms; Grades 7 and 8 too); open the aural room's Grade 6.
 5. Cancel the test subscription in Lemon Squeezy: the plan should stay open until the end of the paid month.
 6. Buy a test Grade 3 pack on a second account: Grade 3 aural and the Grades 1–5 course should open; Grade 6 should not.
 7. Buy a test teacher licence on a third account, open **My rooms → Open your classes**, make a class, and join it from the first account with the code.
@@ -94,6 +95,12 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - The exam-list numbers come from the repertoire data: run `python3 theory-room/build/make_composers.py` after the lists change.
 - **Making videos for social media**: open `rooms/composers.html?studio=1` in Chrome on a computer, choose a composer, and press *Record 16:9* (YouTube) or *Record 9:16* (Shorts, Reels, TikTok). The film plays once and gives you a video file. Add your own voice-over in any video app.
 
+## The Grade 7 and 8 courses
+
+- The days, written tasks and checklists are in `rooms/course-g7.js` and `rooms/course-g8.js`; the screens and the new suspension and figured-bass drills are in `rooms/course78.js`.
+- Progress is saved with each learner, so teachers can set "reach day N" as homework.
+- They point families to ABRSM's own practice papers for the full papers. Check the day plans against the current ABRSM syllabus each year.
+
 ## Changing things later
 
 - **Prices**: edit `prices` in `config.js` and the prices in Lemon Squeezy, then commit.
@@ -101,11 +108,11 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - **Tests**:
   - `node theory-room/build/test_backend.mjs`: payment rules and the course gate
   - `sh theory-room/build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 theory-room/build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`: every page in a browser, including sight-reading marked from a recording
+  - `python3 theory-room/build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
 
 ## Not built yet
 
 - More composer films, and instrument films.
-- Trinity theory.
+- Guided day-by-day courses for Trinity theory (Trinity has quick drills for every grade already).
 - Photo marking of the Grade 6 composition (the course offers self-marking with a checklist instead).
 - The aural room limits grades inside the page. The guided courses are checked on the server, so they can't be opened without a plan.

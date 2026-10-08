@@ -60,6 +60,12 @@ t("gate: plan, packs and nothing", () => {
   assert.equal(canOpen({ packs: { g4: "2027-05-01" } }, "course-g6", now), false);
   assert.equal(canOpen({ packs: { g6: "2027-05-01" } }, "course-g6", now), true);
   assert.equal(canOpen(null, "course-g1-5", now), false);
+  assert.equal(canOpen({ packs: { g7: "2027-05-01" } }, "course-g7", now), true);
+  assert.equal(canOpen({ packs: { g7: "2027-05-01" } }, "course-g8", now), false);
+  assert.equal(canOpen({ packs: { g6: "2027-05-01" } }, "course-g7", now), false);
+  assert.equal(canOpen({ packs: { g8: "2027-05-01" } }, "course-g8", now), true);
+  assert.equal(canOpen({ packs: { g8: "2026-01-01" } }, "course-g8", now), false);
+  assert.equal(canOpen({ pro_until: "2027-02-01" }, "course-g8", now), true);
 });
 t("webhook signature check", () => {
   const raw = '{"meta":{"event_name":"order_created"}}';

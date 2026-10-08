@@ -1,4 +1,5 @@
-// Checks a family's plan on the server before sending the paid guided courses.
+// Checks a family's plan on the server before sending the paid guided courses
+// (the Grades 1–5 and 6 course pages, and the Grade 7 and 8 course files the aural room loads).
 // The rest of the site is public; the aural room limits itself in the page.
 // Needs Netlify environment variables SUPABASE_URL and SUPABASE_ANON_KEY.
 // With neither set (preview), every page is served as normal.
@@ -11,6 +12,8 @@ export function canOpen(profile, need, now = new Date(), classes = [], learner =
   if (live(profile.pro_until) || live(profile.teacher_until)) return true;
   const packs = profile.packs || {};
   if (need === "course-g6") return live(packs.g6);
+  if (need === "course-g7") return live(packs.g7);
+  if (need === "course-g8") return live(packs.g8);
   return [1, 2, 3, 4, 5].some((g) => live(packs["g" + g]));
 }
 
@@ -26,7 +29,7 @@ export default async (request, context) => {
   if (!SUPA || !ANON) return context.next();
 
   const url = new URL(request.url);
-  const need = /theory-g6/.test(url.pathname) ? "course-g6" : "course-g1-5";
+  const need = /theory-g6/.test(url.pathname) ? "course-g6" : /course-g7/.test(url.pathname) ? "course-g7" : /course-g8/.test(url.pathname) ? "course-g8" : "course-g1-5";
   const back = (why) => Response.redirect(new URL("/app.html?need=" + why + "&next=" + encodeURIComponent(url.pathname + url.search), url), 302);
 
   const token = cookie(request, "tr_at");
@@ -50,4 +53,4 @@ export default async (request, context) => {
   return res;
 };
 
-export const config = { path: ["/rooms/theory-g1-5*", "/rooms/theory-g6*"] };
+export const config = { path: ["/rooms/theory-g1-5*", "/rooms/theory-g6*", "/rooms/course-g7*", "/rooms/course-g8*"] };
