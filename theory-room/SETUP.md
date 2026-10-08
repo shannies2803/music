@@ -10,7 +10,7 @@ Plan on an unhurried morning for steps 1–4. You only edit one file, `config.js
 |---|---|
 | `index.html` | The home page: rooms, plans, teachers, questions |
 | `app.html` | "My rooms": sign in, learners, rooms, buying a plan |
-| `rooms/aural.html` | Aural tests and quick theory drills, Grades 1–8 |
+| `rooms/aural.html` | Aural tests (ABRSM and Trinity, Initial to Grade 8), sight-reading and quick theory drills |
 | `rooms/theory-g1-5.html`, `rooms/theory-g6.html` | The guided theory courses (paid; checked on the server) |
 | `rooms/composers.html` | The composer films (Room 4) |
 | `teacher.html` | The class view for teachers |
@@ -101,7 +101,7 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - **Tests**:
   - `node theory-room/build/test_backend.mjs`: payment rules and the course gate
   - `sh theory-room/build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 theory-room/build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`: every page in a browser
+  - `python3 theory-room/build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`: every page in a browser, including sight-reading marked from a recording
 
 ## Not built yet
 
