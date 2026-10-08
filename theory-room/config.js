@@ -32,7 +32,7 @@ window.TR_CONFIG = {
 
   maxLearners: 3,
   freeComposers: ["beethoven"],  // composer films anyone can watch
-  freeGrades: [1]              // grades open without a plan (theory drills and aural)
+  freeGrades: [0, 1]           // grades open without a plan (0 = Initial; theory drills and aural)
 };
 
 /* The repertoire guide reads its own settings from RH_CONFIG. Keep these in step with the above. */

@@ -194,7 +194,7 @@ def aural():
     s = rep(s, "const g = P().auralGrade || 5; const T = GRADES[g].tests.find",
             "let g = P().auralGrade || 5; if (!gradeAuralOpen(P(), g) && window.TR_FIRST_OPEN) g = TR_FIRST_OPEN(P()); const T = GRADES[g].tests.find", label=L)
     # product rules (plans, learner name, deep links) load after the app
-    s = rep(s, "</body>", '<script src="aural-tr.js"></script>\n</body>', label=L)
+    s = rep(s, "</body>", '<script src="aural-tr.js"></script>\n<script src="boards.js"></script>\n</body>', label=L)
     i = s.find("<script>")
     s = s[:i] + TR_HEAD + "\n" + s[i:]
     open(os.path.join(OUT, "aural.html"), "w", encoding="utf-8").write(s)

@@ -93,7 +93,7 @@
         Object.keys(p.days || {}).forEach(function (k) { seen(k); if (k >= weekAgo) out.week += (p.days[k].q || 0); });
         var starred = 0; Object.keys(p.sk || {}).forEach(function (id) { var lv = p.sk[id].lv || {}; Object.keys(lv).forEach(function (L) { if (lv[L] >= 1) starred++; }); });
         out.drills = Object.keys(p.tl || {}).filter(function (k) { return (p.tl[k].stars || 0) >= 1; }).length;
-        var mk = p.mocks || {}, gs = Object.keys(mk).map(Number).sort(function (a, b) { return b - a; });
+        var mk = p.mocks || {}, gs = Object.keys(mk).filter(function (k) { return /^\d+$/.test(k); }).map(Number).sort(function (a, b) { return b - a; });
         out.aural = { grade: p.auralGrade || null, starred: starred, mock: gs.length ? { g: gs[0], best: mk[gs[0]].best, n: mk[gs[0]].n } : null };
       }
       var m = /^progress\/(g1-5|g6)$/.exec(r.path);
