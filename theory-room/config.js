@@ -16,7 +16,8 @@ window.TR_CONFIG = {
     monthly: "",               // Family plan, monthly subscription
     yearly: "",                // Family plan, yearly subscription
     packLow: "",               // Grade pack, Grades 1–5 (one-off, 12 months)
-    packHigh: ""               // Grade pack, Grades 6–8 (one-off, 12 months)
+    packHigh: "",              // Grade pack, Grades 6–8 (one-off, 12 months)
+    teacher: ""                // Teacher licence, yearly subscription
   },
   billingUrl: "",              // Lemon Squeezy customer portal, e.g. "https://yourstore.lemonsqueezy.com/billing"
 
@@ -30,6 +31,7 @@ window.TR_CONFIG = {
   },
 
   maxLearners: 3,
+  freeComposers: ["beethoven"],  // composer films anyone can watch
   freeGrades: [1]              // grades open without a plan (theory drills and aural)
 };
 

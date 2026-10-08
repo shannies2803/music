@@ -126,6 +126,36 @@ async def main():
             if errs: bad(f"repertoire: {errs[:3]}")
             await ctx.close()
 
+            # teacher: the class view with the example class
+            ctx, pg, errs = await page_for(b, 1200, preview="teacher")
+            await pg.goto(URL + "teacher.html"); await pg.wait_for_timeout(900)
+            t = await pg.inner_text("main")
+            for want in ["Example class", "DEMO42", "Example: Aisha", "Needs a nudge", "Grade 5 mock best 82%", "Last mini mock 63/75"]:
+                if want not in t: bad(f"teacher: missing {want!r}")
+            await pg.click("details.faq summary"); await pg.fill("#className", "Tuesday group"); await pg.click("#newClass button"); await pg.wait_for_timeout(300)
+            if "Tuesday group" not in await pg.inner_text(".classes"): bad("teacher: new class not made")
+            await pg.screenshot(path=f"{SHOTS}/teacher.png", full_page=True)
+            if errs: bad(f"teacher: {errs[:3]}")
+            await ctx.close()
+            ctx, pg, errs = await page_for(b, 390, dark=True, preview="teacher")
+            await pg.goto(URL + "teacher.html"); await pg.wait_for_timeout(900); await overflow(pg, "teacher 390")
+            await pg.screenshot(path=f"{SHOTS}/teacher-390.png", full_page=True); await ctx.close()
+
+            # family: join a class with its code, then every aural grade opens for that learner
+            ctx, pg, errs = await page_for(b, 1200, preview="free")
+            await pg.goto(URL + "app.html"); await pg.wait_for_timeout(700)
+            await pg.click("summary:has-text(\"Join a teacher's class\")")
+            await pg.fill("#classCode", "nope"); await pg.click("#joinForm button"); await pg.wait_for_timeout(200)
+            if "No class has that code" not in await pg.inner_text("#joinMsg"): bad("join: wrong code message")
+            await pg.fill("#classCode", "demo42"); await pg.click("#joinForm button"); await pg.wait_for_timeout(300)
+            main = await pg.inner_text("main")
+            if "Learner 1's class: Example class" not in main or "In Example class" not in main: bad("join: class not shown")
+            if "Open: all grades, with your class" not in main: bad("join: rooms not opened by class")
+            await pg.goto(URL + "rooms/aural.html?learner=l1&grade=7"); await pg.wait_for_timeout(1500)
+            if "Grade 7 aural tests" not in await pg.inner_text("#main"): bad("class learner: Grade 7 not open")
+            if errs: bad(f"join: {errs[:3]}")
+            await ctx.close()
+
             for f in ["privacy.html", "terms.html"]:
                 ctx, pg, errs = await page_for(b, 390)
                 await pg.goto(URL + f); await pg.wait_for_timeout(400); await overflow(pg, f)

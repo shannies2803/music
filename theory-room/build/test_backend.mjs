@@ -69,4 +69,15 @@ t("webhook signature check", () => {
   assert.equal(validSignature(raw, "", "s3cret"), false);
   assert.equal(validSignature(raw + " ", sig, "s3cret"), false);
 });
+t("teacher licence sets teacher dates and seats, not the family plan", () => {
+  const p = decide({ event: "subscription_created", attributes: { status: "active", renews_at: "2028-01-10T00:00:00Z", variant_id: 777 }, env: { ...env, LS_VARIANT_TEACHER: "777", LS_TEACHER_SEATS: "20" }, now });
+  assert.equal(p.teacher_until, "2028-01-13T00:00:00.000Z"); assert.equal(p.teacher_seats, 20); assert.equal(p.pro_until, undefined);
+});
+t("gate: teacher's own access and a learner in a class", () => {
+  assert.equal(canOpen({ teacher_until: "2027-06-01" }, "course-g6", now), true);
+  const classes = [{ learner_id: "L1", until: "2027-06-01" }, { learner_id: "L2", until: "2026-06-01" }];
+  assert.equal(canOpen({}, "course-g1-5", now, classes, "L1"), true);
+  assert.equal(canOpen({}, "course-g1-5", now, classes, "L2"), false);
+  assert.equal(canOpen(null, "course-g6", now, classes, "L1"), true);
+});
 console.log(`\n${n} checks passed`);

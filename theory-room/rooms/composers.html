@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Composers | The Theory Room</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../site.css">
+<script>window.TR_ROOM = 1;</script>
+<script src="../config.js"></script>
+<script src="../tr.js"></script>
+<style>
+  /* Layout: a shelf of composer cards, then the film player with its controls, transcript and quiz beneath. */
+  main { padding-block: 24px 60px; }
+  main > .wrap { display: grid; gap: 28px; }
+  .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .film { font: inherit; text-align: left; display: grid; gap: 4px; padding: 14px 16px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; min-width: 0; position: relative; }
+  .film:hover { border-color: var(--accent); }
+  .film[aria-current="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .film b { font-family: var(--f-display); font-size: 19px; }
+  .film .meta { font-size: 14px; color: var(--muted); }
+  .film .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .tag { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
+  .tag.draft { border-color: var(--warn); color: var(--warn); }
+  .tag.free { border-color: var(--accent); color: var(--accent); }
+  .stage { display: grid; gap: 12px; }
+  .screen { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; background: #111; border-radius: var(--radius); overflow: hidden; }
+  .screen.portrait { aspect-ratio: 9 / 16; max-width: 420px; margin-inline: auto; }
+  .screen canvas { width: 100%; height: 100%; display: block; }
+  .screen .lock { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 12px; padding: 20px; background: rgba(10, 14, 26, .82); color: #f3f5f9; }
+  .screen .lock a { color: #9fe3d8; font-weight: 700; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .scenes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .scenes button { font: inherit; font-size: 13px; min-height: 36px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--muted); cursor: pointer; }
+  .scenes button[aria-current="true"] { border-color: var(--accent); color: var(--ink); font-weight: 700; }
+  .below { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  @media (max-width: 820px) { .below { grid-template-columns: 1fr; } }
+  .transcript { display: grid; gap: 10px; }
+  .transcript p { max-width: 62ch; }
+  .quiz { border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; background: var(--sheet); display: grid; gap: 10px; }
+  .quiz button { font: inherit; text-align: left; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--page); color: var(--ink); cursor: pointer; }
+  .quiz button.right { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .quiz button.wrong { border-color: var(--warn); }
+  .pieces { display: grid; gap: 6px; margin: 0; padding-left: 18px; }
+  .studio { border: 1px dashed var(--brass); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; }
+  .studio a.dl { font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+    <div style="display:grid;gap:10px">
+      <p class="kicker">Room 4 · Composers</p>
+      <h1 style="font-size:clamp(34px,5.4vw,56px)">Meet the composers behind your exam pieces</h1>
+      <p class="lede">One-minute films: where they lived, what their music sounds like, three things to know, and how often they turn up on the ABRSM and Trinity lists. Each ends with a quick quiz.</p>
+    </div>
+    <div class="shelf" id="shelf" role="list"></div>
+    <div class="stage" id="stage">
+      <div class="screen" id="screen"><canvas id="cv" width="1280" height="720" aria-label="Composer film"></canvas></div>
+      <div class="controls">
+        <button class="btn go small" id="play" type="button">▶ Play</button>
+        <button class="btn small" id="restart" type="button">Start again</button>
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="narrate"> Read it aloud</label>
+        <div class="scenes" id="scenes" role="group" aria-label="Jump to part"></div>
+      </div>
+    </div>
+    <div class="below">
+      <div class="transcript" id="transcript"></div>
+      <div style="display:grid;gap:16px">
+        <div class="quiz" id="quiz"></div>
+        <div id="studio"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="composers.js"></script>
+<script src="composers-stats.js"></script>
+<script>
+(function () {
+  "use strict";
+  var esc = TR.esc, C = TR.C;
+  var FILMS = window.COMPOSERS, STATS = window.COMPOSER_STATS || {};
+  var studio = /studio/.test(location.search + location.hash);
+  var cv = document.getElementById("cv"), g = cv.getContext("2d");
+  var film = null, scenes = [], total = 0, mode = "land";
+  var playing = false, startAt = 0, offset = 0, lastScene = -1, raf = 0;
+  var actx = null, master = null, voices = [], recDest = null;
+
+  /* ---------- access ---------- */
+  function canWatch(f) { return TR.access.pro || (C.freeComposers || ["beethoven"]).indexOf(f.id) >= 0; }
+
+  /* ---------- the film's parts ---------- */
+  function themeLen(f) { var end = 0; f.theme.notes.forEach(function (n) { end = Math.max(end, n[1] + n[2]); }); return end * 60 / f.theme.bpm; }
+  function build(f) {
+    var s = STATS[f.id], list = f.famous.join(", ");
+    scenes = [
+      { id: "title", label: "Who", dur: 5, say: f.name + ". " + f.born + " to " + f.died + ". " + f.era + " composer from " + f.country + "." },
+      { id: "where", label: "Where", dur: 7, say: f.where },
+      { id: "sound", label: "Listen", dur: themeLen(f) + 2.4, say: f.sound },
+      { id: "fact", k: 0, label: "Fact 1", dur: 5.5, say: f.facts[0] },
+      { id: "fact", k: 1, label: "Fact 2", dur: 5.5, say: f.facts[1] },
+      { id: "fact", k: 2, label: "Fact 3", dur: 5.5, say: f.facts[2] },
+      { id: "famous", label: "Famous pieces", dur: 6, say: "Famous pieces: " + list + "." },
+      { id: "exams", label: "On the lists", dur: 8, say: s ? f.short + " has " + s.n + " places on the ABRSM and Trinity lists, for " + s.insts + " instruments, from " + s.lo + " to " + s.hi + "." : "" },
+      { id: "quiz", label: "Quiz", dur: 9, say: f.quiz.q + " " + f.quiz.options.join(", or ") + "?" },
+      { id: "end", label: "End", dur: 4.5, say: "Find " + f.short + "'s pieces in the repertoire room." }
+    ];
+    var t = 0; scenes.forEach(function (sc) { sc.t0 = t; t += sc.dur; }); total = t;
+  }
+
+  /* ---------- drawing helpers ---------- */
+  var W = 1280, H = 720;
+  function size() {
+    W = mode === "land" ? 1280 : 1080; H = mode === "land" ? 720 : 1920;
+    cv.width = W; cv.height = H;
+    document.getElementById("screen").classList.toggle("portrait", mode !== "land");
+  }
+  var U = function () { return mode === "land" ? 1 : 1.18; };     // type scale
+  var PAD = function () { return mode === "land" ? 96 : 84; };
+  function font(px, w, fam) { g.font = (w || 400) + " " + Math.round(px * U()) + "px " + (fam === "mono" ? "'IBM Plex Mono', monospace" : fam === "body" ? "'Atkinson Hyperlegible', sans-serif" : "'Bricolage Grotesque', sans-serif"); }
+  function wrap(text, maxW) {
+    var words = String(text).split(" "), lines = [], line = "";
+    words.forEach(function (w) { var test = line ? line + " " + w : w; if (g.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test; });
+    if (line) lines.push(line); return lines;
+  }
+  function text(str, x, y, opts) {
+    opts = opts || {}; var lines = wrap(str, opts.max || (W - 2 * PAD())), lh = opts.lh || parseInt(g.font.match(/(\d+)px/)[1], 10) * 1.22;
+    lines.forEach(function (l, i) { g.fillText(l, x, y + i * lh); }); return y + lines.length * lh;
+  }
+  function ease(x) { x = Math.max(0, Math.min(1, x)); return 1 - Math.pow(1 - x, 3); }
+  function fadeIn(lt, delay) { var a = ease((lt - (delay || 0)) / .6); g.globalAlpha = a; return (1 - a) * 18; }
+  function roundRect(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function staveBackdrop(t, col) {
+    g.save(); g.globalAlpha = .13; g.strokeStyle = col; g.lineWidth = 2;
+    var top = H * (mode === "land" ? .855 : .9), gap = mode === "land" ? 12 : 16, drift = (t * 18) % 400;
+    for (var i = 0; i < 5; i++) { g.beginPath(); g.moveTo(0, top + i * gap); g.lineTo(W, top + i * gap); g.stroke(); }
+    g.fillStyle = col;
+    for (var k = -1; k < 8; k++) { var x = k * 200 - drift + 100, y = top + ((k * 37) % 5) * gap / 2; g.beginPath(); g.ellipse(x, y, 11, 8, -0.35, 0, Math.PI * 2); g.fill(); }
+    g.restore();
+  }
+  function kicker(str, y, c) { font(20, 500, "mono"); g.fillStyle = c.accent; g.fillText(str.toUpperCase(), PAD(), y); }
+
+  /* ---------- one frame ---------- */
+  function draw(t) {
+    var f = film, c = f.colours, i = sceneAt(t), sc = scenes[i], lt = t - sc.t0, s = STATS[f.id];
+    g.globalAlpha = 1; g.fillStyle = c.bg; g.fillRect(0, 0, W, H);
+    staveBackdrop(t, c.ink);
+    g.textBaseline = "alphabetic"; g.textAlign = "left";
+    var x = PAD(), maxW = W - 2 * PAD(), land = mode === "land", dy;
+    g.fillStyle = c.ink; g.save(); if (!land) g.translate(0, 200);  /* portrait: sit the words nearer the middle */
+
+    if (sc.id === "title") {
+      dy = fadeIn(lt, 0); kicker("The Theory Room · Composers", (land ? 150 : 420) + dy, c);
+      dy = fadeIn(lt, .3); g.fillStyle = c.ink; font(land ? 92 : 96, 700);
+      var yEnd = text(f.name, x, (land ? 270 : 600) + dy, { max: maxW });
+      dy = fadeIn(lt, .9); font(34, 400, "body"); g.fillStyle = c.ink;
+      g.fillText(f.born + "–" + f.died + " · " + f.country, x, yEnd + 30 + dy);
+      dy = fadeIn(lt, 1.3); font(24, 500, "mono"); var era = f.era.toUpperCase(), ew = g.measureText(era).width + 36;
+      g.strokeStyle = c.accent; g.lineWidth = 2; roundRect(x, yEnd + 70 + dy, ew, 48 * U(), 24 * U()); g.stroke();
+      g.fillStyle = c.accent; g.fillText(era, x + 18, yEnd + 70 + 33 * U() + dy);
+    }
+    if (sc.id === "where") {
+      dy = fadeIn(lt, 0); kicker("When and where", (land ? 120 : 380) + dy, c);
+      var y0 = land ? 250 : 640, x0 = x, x1 = W - PAD(), yr = function (y) { return x0 + (y - 1600) / 400 * (x1 - x0); };
+      var eras = [["Baroque", 1600, 1750], ["Classical", 1750, 1820], ["Romantic", 1820, 1900], ["Modern", 1900, 2000]];
+      g.globalAlpha = ease(lt / .6);
+      eras.forEach(function (e, k) {
+        g.fillStyle = c.ink; g.globalAlpha = ease(lt / .6) * (k % 2 ? .1 : .18); g.fillRect(yr(e[1]), y0, yr(e[2]) - yr(e[1]), 64 * U());
+        g.globalAlpha = ease(lt / .6) * .85; font(land ? 20 : 24, 500, "mono"); g.fillText(e[0].toUpperCase(), yr(e[1]) + 10, y0 + 40 * U());
+      });
+      font(land ? 18 : 22, 400, "mono"); g.globalAlpha = .7;
+      [1600, 1700, 1800, 1900, 2000].forEach(function (y) { g.textAlign = y === 2000 ? "right" : "left"; g.fillText(String(y), yr(y), y0 + 100 * U()); });
+      g.textAlign = "left";
+      var grow = ease((lt - .6) / 1.6), bx = yr(f.born), bw = (yr(f.died) - yr(f.born)) * grow;
+      g.globalAlpha = 1; g.fillStyle = c.accent; roundRect(bx, y0 - 30 * U(), Math.max(bw, 4), 22 * U(), 11 * U()); g.fill();
+      if (grow > .95) { font(land ? 24 : 28, 650); g.fillText(f.short + " " + f.born + "–" + f.died, Math.min(bx, W - PAD() - 360), y0 - 48 * U()); }
+      dy = fadeIn(lt, 1.6); g.fillStyle = c.ink; font(land ? 38 : 46, 400, "body");
+      text(f.where, x, (land ? 470 : 1000) + dy, { max: maxW });
+    }
+    if (sc.id === "sound") {
+      dy = fadeIn(lt, 0); kicker("Listen", (land ? 110 : 330) + dy, c);
+      g.fillStyle = c.ink; font(land ? 40 : 46, 650); var ty = text(f.theme.title, x, (land ? 170 : 420) + dy, { max: maxW });
+      var notes = f.theme.notes, beats = 0, lo = 127, hi = 0;
+      notes.forEach(function (n) { beats = Math.max(beats, n[1] + n[2]); lo = Math.min(lo, n[0]); hi = Math.max(hi, n[0]); });
+      var rx = x, ry = Math.max(ty + 20, land ? 250 : 560), rw = maxW, rh = land ? 250 : 520, span = Math.max(12, hi - lo + 3);
+      var nowBeat = (lt - .8) * f.theme.bpm / 60;
+      g.globalAlpha = ease(lt / .6) * .25; g.strokeStyle = c.ink; g.lineWidth = 1;
+      for (var k = 0; k < 5; k++) { var sy = ry + rh * (k + 1) / 6; g.beginPath(); g.moveTo(rx, sy); g.lineTo(rx + rw, sy); g.stroke(); }
+      notes.forEach(function (n) {
+        var nx = rx + n[1] / beats * rw, nw = Math.max(8, n[2] / beats * rw - 4), ny = ry + rh - (n[0] - lo + 1.5) / span * rh, on = nowBeat >= n[1] && nowBeat < n[1] + n[2], past = nowBeat >= n[1] + n[2];
+        g.globalAlpha = ease(lt / .6) * (on ? 1 : past ? .55 : .3); g.fillStyle = on || past ? c.accent : c.ink;
+        roundRect(nx, ny - 7 * U(), nw, 14 * U(), 7 * U()); g.fill();
+      });
+      if (nowBeat > 0 && nowBeat < beats) { var px = rx + nowBeat / beats * rw; g.globalAlpha = .8; g.fillStyle = c.accent; g.fillRect(px - 1.5, ry, 3, rh); }
+      dy = fadeIn(lt, 1.2); g.fillStyle = c.ink; font(land ? 30 : 38, 400, "body");
+      text(f.sound, x, ry + rh + (land ? 60 : 110) + dy, { max: maxW });
+    }
+    if (sc.id === "fact") {
+      dy = fadeIn(lt, 0); kicker("Three things to know", (land ? 130 : 420) + dy, c);
+      font(land ? 120 : 150, 700); g.fillStyle = c.accent; g.fillText((sc.k + 1) + "/3", x, (land ? 270 : 640) + dy);
+      dy = fadeIn(lt, .4); g.fillStyle = c.ink; font(land ? 50 : 58, 650);
+      text(f.facts[sc.k], x, (land ? 380 : 820) + dy, { max: maxW });
+    }
+    if (sc.id === "famous") {
+      dy = fadeIn(lt, 0); kicker("Famous pieces", (land ? 140 : 440) + dy, c);
+      f.famous.forEach(function (p, k) {
+        dy = fadeIn(lt, .4 + k * .7); var yy = (land ? 250 : 620) + k * (land ? 110 : 190) + dy;
+        g.fillStyle = c.accent; g.fillRect(x, yy - 34 * U(), 10, 44 * U());
+        g.fillStyle = c.ink; font(land ? 50 : 60, 650); text(p, x + 34, yy, { max: maxW - 34 });
+      });
+    }
+    if (sc.id === "exams" && s) {
+      dy = fadeIn(lt, 0); kicker("On your exam lists", (land ? 120 : 400) + dy, c);
+      var count = Math.round(s.n * ease((lt - .2) / 1.4));
+      g.fillStyle = c.accent; font(land ? 150 : 190, 700); g.fillText(String(count), x, (land ? 270 : 640) + dy);
+      g.fillStyle = c.ink; font(land ? 34 : 40, 400, "body");
+      var ey = text("places on the ABRSM and Trinity lists", x, (land ? 330 : 730) + dy, { max: maxW });
+      dy = fadeIn(lt, 1.6); font(land ? 26 : 32, 500, "mono"); g.globalAlpha *= .85;
+      ey = text("ABRSM " + s.abrsm + " · Trinity " + s.trinity + " · " + s.insts + " instruments · " + s.lo + " to " + s.hi, x, ey + 30 + dy, { max: maxW });
+      s.examples.slice(0, land ? 2 : 3).forEach(function (e, k) {
+        dy = fadeIn(lt, 2.6 + k * .8); g.fillStyle = c.ink; font(land ? 26 : 32, 400, "body");
+        ey = text((e.lvl === "G0" ? "Initial" : e.lvl[0] === "G" ? "Grade " + e.lvl[1] : "Diploma") + " " + e.inst + " (" + e.board + "): " + e.t, x, ey + 26 + dy, { max: maxW });
+      });
+    }
+    if (sc.id === "quiz") {
+      dy = fadeIn(lt, 0); kicker("Quick quiz", (land ? 110 : 380) + dy, c);
+      g.fillStyle = c.ink; font(land ? 44 : 54, 650); var qy = text(f.quiz.q, x, (land ? 180 : 500) + dy, { max: maxW });
+      var reveal = lt > 6;
+      f.quiz.options.forEach(function (o, k) {
+        dy = fadeIn(lt, .5 + k * .4); var bh = 76 * U(), yy = qy + 30 + k * (bh + 18), right = k === f.quiz.answer;
+        g.lineWidth = 3; g.strokeStyle = reveal && right ? c.accent : c.ink; g.globalAlpha *= reveal && !right ? .35 : 1;
+        roundRect(x, yy + dy, maxW, bh, 16); g.stroke();
+        if (reveal && right) { g.fillStyle = c.accent; g.globalAlpha = .18; g.fill(); g.globalAlpha = 1; }
+        g.fillStyle = reveal && right ? c.accent : c.ink; font(land ? 32 : 38, reveal && right ? 700 : 400, "body");
+        g.fillText(String.fromCharCode(65 + k) + "   " + o + (reveal && right ? "   ✓" : ""), x + 28, yy + bh * .64 + dy);
+      });
+      if (!reveal) { g.globalAlpha = .7; g.fillStyle = c.ink; font(24, 500, "mono"); g.fillText("ANSWER IN " + Math.ceil(6 - lt), x, H - (land ? 40 : 380)); }
+    }
+    if (sc.id === "end") {
+      dy = fadeIn(lt, 0); g.fillStyle = c.ink; font(land ? 76 : 88, 700); g.fillText("The Theory Room", x, (land ? 300 : 820) + dy);
+      dy = fadeIn(lt, .5); font(land ? 34 : 40, 400, "body");
+      text("Find " + f.short + "'s exam pieces in Room 3 · Repertoire.", x, (land ? 380 : 940) + dy, { max: maxW });
+      dy = fadeIn(lt, 1); font(24, 500, "mono"); g.fillStyle = c.accent; g.fillText("COMPOSER FILMS · SEASON 1", x, (land ? 470 : 1100) + dy);
+    }
+    g.restore(); g.globalAlpha = 1;
+    if (!film.checked) { font(18, 500, "mono"); g.fillStyle = c.ink; g.globalAlpha = .55; g.textAlign = "right"; g.fillText("DRAFT · NOT YET CHECKED", W - 24, 36); g.textAlign = "left"; g.globalAlpha = 1; }
+    // progress line
+    g.fillStyle = c.accent; g.globalAlpha = .9; g.fillRect(0, H - 6, W * Math.min(1, t / total), 6); g.globalAlpha = 1;
+  }
+  function sceneAt(t) { for (var i = scenes.length - 1; i >= 0; i--) if (t >= scenes[i].t0) return i; return 0; }
+
+  /* ---------- sound: a simple piano made in the browser ---------- */
+  function audio() {
+    if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); master = actx.createGain(); master.gain.value = .5; master.connect(actx.destination); }
+    if (actx.state === "suspended") actx.resume();
+    return actx;
+  }
+  function note(m, when, dur, vel, staccato) {
+    var f0 = 440 * Math.pow(2, (m - 69) / 12), out = actx.createGain(), lp = actx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = Math.min(9000, f0 * 7); lp.connect(master); out.connect(lp);
+    var len = staccato ? Math.min(dur, .22) : dur + .5, peak = .22 * (vel == null ? .7 : vel);
+    out.gain.setValueAtTime(0.0001, when); out.gain.exponentialRampToValueAtTime(peak, when + .008);
+    out.gain.exponentialRampToValueAtTime(peak * .35, when + Math.min(.4, len * .5)); out.gain.exponentialRampToValueAtTime(0.0001, when + len);
+    [[1, 1], [2, .45], [3, .2], [4, .08]].forEach(function (p) {
+      var o = actx.createOscillator(), gn = actx.createGain(); o.type = "sine"; o.frequency.value = f0 * p[0]; gn.gain.value = p[1];
+      o.connect(gn); gn.connect(out); o.start(when); o.stop(when + len + .05); voices.push(o);
+    });
+  }
+  function playTheme(fromBeatTime) {
+    audio(); var th = film.theme, spb = 60 / th.bpm, base = actx.currentTime + Math.max(0, fromBeatTime);
+    th.notes.forEach(function (n) { note(n[0], base + n[1] * spb, n[2] * spb, n[3], th.staccato); });
+  }
+  function hush() { voices.forEach(function (o) { try { o.stop(); } catch (e) {} }); voices = []; try { speechSynthesis.cancel(); } catch (e) {} }
+  function say(str) {
+    if (!document.getElementById("narrate").checked || !str || !window.speechSynthesis) return;
+    try { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(str); var v = speechSynthesis.getVoices().filter(function (v) { return /^en(-|_)(GB|SG|AU|US)/i.test(v.lang); })[0]; if (v) u.voice = v; u.rate = .98; speechSynthesis.speak(u); } catch (e) {}
+  }
+
+  /* ---------- playing ---------- */
+  function now() { return playing ? (performance.now() - startAt) / 1000 + offset : offset; }
+  function tick() {
+    var t = now();
+    if (t >= total) { t = total - .001; stop(true); }
+    var i = sceneAt(t);
+    if (i !== lastScene) {
+      lastScene = i; markScene(i);
+      if (playing) { say(scenes[i].say); if (scenes[i].id === "sound" && t - scenes[i].t0 < .8) playTheme(.8 - (t - scenes[i].t0)); }
+    }
+    draw(t);
+    if (playing) raf = requestAnimationFrame(tick);
+  }
+  function start() { if (!canWatch(film)) return; audio(); playing = true; startAt = performance.now(); lastScene = -1; setPlayLabel(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); }
+  function stop(ended) {
+    offset = ended ? 0 : now(); playing = false; hush(); setPlayLabel(); cancelAnimationFrame(raf);
+    if (ended) { offset = total - .001; draw(offset); offset = 0; lastScene = -1; if (rec) rec.stop(); }
+  }
+  function seek(t) { var was = playing; if (playing) stop(); offset = t; lastScene = -1; if (was) start(); else { markScene(sceneAt(t)); draw(t); } }
+  function setPlayLabel() { document.getElementById("play").textContent = playing ? "❚❚ Pause" : "▶ Play"; }
+  function markScene(i) { document.querySelectorAll("#scenes button").forEach(function (b, k) { b.setAttribute("aria-current", String(k === i)); }); }
+
+  /* ---------- making a video file (owner's studio: add ?studio=1 to the address) ---------- */
+  var rec = null;
+  function record(m) {
+    if (!window.MediaRecorder || !cv.captureStream) { studioMsg("This browser can't record video. Try Chrome on a computer."); return; }
+    if (playing) stop();
+    mode = m; size(); seek(0);
+    audio(); if (!recDest) { recDest = actx.createMediaStreamDestination(); master.connect(recDest); }
+    var stream = new MediaStream(cv.captureStream(30).getVideoTracks().concat(recDest.stream.getAudioTracks()));
+    var type = ["video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].filter(function (t) { return MediaRecorder.isTypeSupported(t); })[0];
+    var chunks = []; rec = new MediaRecorder(stream, type ? { mimeType: type, videoBitsPerSecond: 6e6 } : undefined);
+    rec.ondataavailable = function (e) { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = function () {
+      var blob = new Blob(chunks, { type: rec.mimeType || "video/webm" }), ext = /mp4/.test(blob.type) ? "mp4" : "webm";
+      var url = URL.createObjectURL(blob);
+      studioMsg('Ready: <a class="dl" href="' + url + '" download="' + film.id + "-" + (m === "land" ? "16x9" : "9x16") + "." + ext + '">Download the video (' + Math.round(blob.size / 1e5) / 10 + " MB, " + ext + ")</a>. Add your own voice-over in any video app before posting.");
+      rec = null;
+    };
+    rec.start(500); studioMsg("Recording… keep this tab open until the film ends (" + Math.round(total) + " seconds).");
+    start();
+  }
+  function studioMsg(h) { var el = document.getElementById("studioMsg"); if (el) el.innerHTML = h; }
+
+  /* ---------- page ---------- */
+  function shelf() {
+    document.getElementById("shelf").innerHTML = FILMS.map(function (f) {
+      var open = canWatch(f), free = (C.freeComposers || ["beethoven"]).indexOf(f.id) >= 0;
+      return '<button class="film" role="listitem" data-film="' + f.id + '" aria-current="' + (film && film.id === f.id) + '"><b>' + esc(f.short) + '</b><span class="meta">' + f.born + "–" + f.died + " · " + esc(f.era) + "</span>" +
+        '<span class="tags">' + (free && !TR.access.pro ? '<span class="tag free">Free</span>' : "") + (open ? "" : '<span class="tag">🔒 Family plan</span>') + (f.checked ? "" : '<span class="tag draft">Draft</span>') + "</span></button>";
+    }).join("");
+  }
+  function choose(id) {
+    if (playing) stop();
+    film = FILMS.filter(function (f) { return f.id === id; })[0] || FILMS[0];
+    build(film); offset = 0; lastScene = -1;
+    try { history.replaceState(null, "", "#" + film.id + (studio ? "-studio" : "")); } catch (e) {}
+    shelf();
+    document.getElementById("scenes").innerHTML = scenes.map(function (sc, i) { return '<button type="button" data-scene="' + i + '">' + esc(sc.label) + "</button>"; }).join("");
+    var lock = document.querySelector(".screen .lock"); if (lock) lock.remove();
+    if (!canWatch(film)) {
+      var d = document.createElement("div"); d.className = "lock";
+      d.innerHTML = "<b style='font-size:20px'>The " + esc(film.short) + " film comes with the Family plan.</b><span>The Beethoven film is free to watch now.</span><a href='../app.html#plans' target='_top'>See plans</a>";
+      document.getElementById("screen").appendChild(d);
+    }
+    document.getElementById("play").disabled = !canWatch(film);
+    draw(0); markScene(0);
+    var s = STATS[film.id];
+    document.getElementById("transcript").innerHTML = '<h2 style="font-size:26px">' + esc(film.name) + "</h2>" +
+      scenes.filter(function (sc) { return sc.say && sc.id !== "quiz" && sc.id !== "end"; }).map(function (sc) { return "<p>" + esc(sc.say) + "</p>"; }).join("") +
+      (s ? '<h3 style="margin-top:8px">Some of ' + esc(film.short) + "'s exam pieces</h3><ul class='pieces'>" + s.examples.map(function (e) {
+        var href = "../repertoire/index.html?inst=" + encodeURIComponent(e.inst) + "&lvl=" + e.lvl + "&board=" + e.board + "&q=" + encodeURIComponent(film.short);
+        return '<li><a href="' + href + '">' + esc(e.t) + "</a> <span class='muted'>· " + esc(e.inst) + ", " + (e.lvl === "G0" ? "Initial" : e.lvl[0] === "G" ? "Grade " + e.lvl[1] : "diploma") + " (" + e.board + ")</span></li>";
+      }).join("") + "</ul>" : "") + (film.checked ? "" : '<p class="note">Draft: these facts and the music are waiting for a final check.</p>');
+    var qz = film.quiz;
+    document.getElementById("quiz").innerHTML = '<p class="kicker">Quick quiz</p><b>' + esc(qz.q) + "</b>" + qz.options.map(function (o, i) { return '<button type="button" data-opt="' + i + '">' + String.fromCharCode(65 + i) + ". " + esc(o) + "</button>"; }).join("") + '<p class="msg" id="quizMsg" role="status"></p>';
+    document.getElementById("studio").innerHTML = studio ? '<div class="studio"><b>Studio: make a video for social media</b><div class="row"><button class="btn small" type="button" data-rec="land">Record 16:9 (YouTube)</button><button class="btn small" type="button" data-rec="port">Record 9:16 (Shorts, Reels, TikTok)</button></div><p class="msg" id="studioMsg">The film plays through once while it records. Sound comes from the theme; the narration voice isn\'t recorded, so add your own voice-over afterwards.</p></div>' : "";
+  }
+
+  document.getElementById("shelf").addEventListener("click", function (e) { var b = e.target.closest("[data-film]"); if (b) { choose(b.dataset.film); document.getElementById("stage").scrollIntoView({ behavior: "smooth", block: "start" }); } });
+  document.getElementById("play").addEventListener("click", function () { if (playing) stop(); else start(); });
+  document.getElementById("restart").addEventListener("click", function () { seek(0); if (!playing) start(); });
+  document.getElementById("scenes").addEventListener("click", function (e) { var b = e.target.closest("[data-scene]"); if (b) seek(scenes[+b.dataset.scene].t0); });
+  document.getElementById("quiz").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-opt]"); if (!b) return; var i = +b.dataset.opt, ok = i === film.quiz.answer;
+    document.querySelectorAll("#quiz [data-opt]").forEach(function (x, k) { x.classList.toggle("right", k === film.quiz.answer && (ok || k === film.quiz.answer)); x.classList.toggle("wrong", k === i && !ok); });
+    document.getElementById("quizMsg").textContent = ok ? "Yes! Well done." : "Not quite. The answer is " + film.quiz.options[film.quiz.answer] + ".";
+  });
+  document.getElementById("studio").addEventListener("click", function (e) { var b = e.target.closest("[data-rec]"); if (b) record(b.dataset.rec); });
+  cv.addEventListener("click", function () { if (canWatch(film)) { if (playing) stop(); else start(); } });
+
+  var first = (location.hash.replace("#", "").replace("-studio", "")) || (C.freeComposers || ["beethoven"])[0];
+  size(); choose(first);
+  /* canvas text doesn't make the browser fetch web fonts, so ask for each one the films use */
+  if (document.fonts && document.fonts.load) Promise.all(["700 40px 'Bricolage Grotesque'", "650 40px 'Bricolage Grotesque'", "400 30px 'Atkinson Hyperlegible'", "700 30px 'Atkinson Hyperlegible'", "500 20px 'IBM Plex Mono'"].map(function (f) { return document.fonts.load(f).catch(function () {}); }))
+    .then(function () { if (!playing) draw(offset); });
+  TR.ready.then(function () { choose(film.id); });
+  TR.onChange(function () { choose(film.id); });
+})();
+</script>
+</body>
+</html>

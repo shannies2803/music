@@ -12,6 +12,8 @@ Plan on an unhurried morning for steps 1–4. You only edit one file, `config.js
 | `app.html` | "My rooms": sign in, learners, rooms, buying a plan |
 | `rooms/aural.html` | Aural tests and quick theory drills, Grades 1–8 |
 | `rooms/theory-g1-5.html`, `rooms/theory-g6.html` | The guided theory courses (paid; checked on the server) |
+| `rooms/composers.html` | The composer films (Room 4) |
+| `teacher.html` | The class view for teachers |
 | `repertoire/` | The ABRSM & Trinity repertoire guide |
 | `config.js` | **The only file you edit**: your links, keys and prices |
 | `tr.js`, `site.css` | Shared code and look (no need to touch) |
@@ -42,13 +44,14 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
    - **Family plan**: a subscription with two variants, *Monthly* and *Yearly*.
    - **Grade pack, Grades 1–5**: a single payment. (The family picks the grade on your site; it travels with the order.)
    - **Grade pack, Grades 6–8**: a single payment.
+   - **Teacher licence**: a yearly subscription.
 3. For each product: **Share** → copy the checkout link into `config.js` → `checkout`. For the Family plan, use the Monthly variant's link for `monthly` and the Yearly variant's for `yearly`.
 4. In each product's settings, set the *redirect after purchase* to `https://YOURDOMAIN/app.html?paid=1`.
 5. **Settings → Webhooks → +**:
    - URL: `https://YOURDOMAIN/.netlify/functions/lemon-webhook`
    - Signing secret: make up a long random password and keep it for step 4
    - Events: `order_created`, `order_refunded`, and every `subscription_…` event
-6. Note the **variant IDs** of the two grade packs and of the yearly plan (Products → the product → the variant's ⋯ menu → Copy ID).
+6. Note the **variant IDs** of the two grade packs, the yearly plan and the teacher licence (Products → the product → the variant's ⋯ menu → Copy ID).
 7. Copy your customer portal link (**Settings → General**, "Customer portal") into `config.js` → `billingUrl`, so families can change or cancel.
 8. Keep **Test mode** on until step 5 works.
 
@@ -67,6 +70,8 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
    | `LS_VARIANT_PACK_LOW` | variant ID of the Grades 1–5 pack |
    | `LS_VARIANT_PACK_HIGH` | variant ID of the Grades 6–8 pack |
    | `LS_VARIANT_YEARLY` | variant ID of the yearly Family plan |
+   | `LS_VARIANT_TEACHER` | variant ID of the teacher licence |
+   | `LS_TEACHER_SEATS` | students per teacher licence (15 unless you change it) |
 
 4. **Domain management**: add your domain and follow Netlify's instructions at your domain seller.
 5. Commit your edited `config.js` to GitHub; Netlify redeploys by itself.
@@ -79,18 +84,29 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 4. Open both guided courses; open the aural room's Grade 6.
 5. Cancel the test subscription in Lemon Squeezy: the plan should stay open until the end of the paid month.
 6. Buy a test Grade 3 pack on a second account: Grade 3 aural and the Grades 1–5 course should open; Grade 6 should not.
-7. Turn Lemon Squeezy's Test mode off. You're live.
+7. Buy a test teacher licence on a third account, open **My rooms → Open your classes**, make a class, and join it from the first account with the code.
+8. Turn Lemon Squeezy's Test mode off. You're live.
+
+## The composer films
+
+- They live in `rooms/composers.js`. Each film starts with `checked: false` and shows **Draft** until you've checked the facts and the music; then change it to `checked: true`.
+- Which film is free: `freeComposers` in `config.js`.
+- The exam-list numbers come from the repertoire data: run `python3 theory-room/build/make_composers.py` after the lists change.
+- **Making videos for social media**: open `rooms/composers.html?studio=1` in Chrome on a computer, choose a composer, and press *Record 16:9* (YouTube) or *Record 9:16* (Shorts, Reels, TikTok). The film plays once and gives you a video file. Add your own voice-over in any video app.
 
 ## Changing things later
 
 - **Prices**: edit `prices` in `config.js` and the prices in Lemon Squeezy, then commit.
 - **The rooms**: they're made from the family versions in the repo root (`index.html`, `theory-faye.html`, `theory-philip.html`). After changing those, run `python3 theory-room/build/make_rooms.py`. It stops with a message if any family name or date would reach the public site.
-- **Tests**: `node theory-room/build/test_backend.mjs` (payment rules) and `python3 theory-room/build/e2e_preview.py` (every page in a browser, preview mode).
+- **Tests**:
+  - `node theory-room/build/test_backend.mjs`: payment rules and the course gate
+  - `sh theory-room/build/test_db.sh`: the database set-up and who can see what (needs Postgres)
+  - `python3 theory-room/build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`: every page in a browser
 
 ## Not built yet
 
-- Teacher licences and the class view (the home page invites teachers to the pilot by email for now).
-- The Composers room.
+- Setting homework for a class (teachers can see progress, not yet assign work).
+- More composer films, and instrument films.
 - Trinity theory.
 - Photo marking of the Grade 6 composition (the course offers self-marking with a checklist instead).
 - The aural room limits grades inside the page. The guided courses are checked on the server, so they can't be opened without a plan.

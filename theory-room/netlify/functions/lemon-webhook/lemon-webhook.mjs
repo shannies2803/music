@@ -7,6 +7,8 @@
 //   LS_VARIANT_PACK_LOW    variant ID of the Grades 1–5 pack product
 //   LS_VARIANT_PACK_HIGH   variant ID of the Grades 6–8 pack product
 //   LS_VARIANT_YEARLY      variant ID of the yearly Family plan (optional; only for the label)
+//   LS_VARIANT_TEACHER     variant ID of the teacher licence (a yearly subscription)
+//   LS_TEACHER_SEATS       how many learners one teacher licence covers (default 15)
 import crypto from "node:crypto";
 import { decide } from "./decide.mjs";
 
@@ -46,7 +48,8 @@ export default async (req) => {
   if (!rows.length) return json(202, { ok: false, note: "no account for this payment yet", event });
   const profile = rows[0];
 
-  const env = { LS_VARIANT_PACK_LOW: process.env.LS_VARIANT_PACK_LOW, LS_VARIANT_PACK_HIGH: process.env.LS_VARIANT_PACK_HIGH, LS_VARIANT_YEARLY: process.env.LS_VARIANT_YEARLY };
+  const env = { LS_VARIANT_PACK_LOW: process.env.LS_VARIANT_PACK_LOW, LS_VARIANT_PACK_HIGH: process.env.LS_VARIANT_PACK_HIGH, LS_VARIANT_YEARLY: process.env.LS_VARIANT_YEARLY,
+    LS_VARIANT_TEACHER: process.env.LS_VARIANT_TEACHER, LS_TEACHER_SEATS: process.env.LS_TEACHER_SEATS };
   if (event && event.startsWith("subscription_")) custom.subscription_id = body.data && body.data.id;
   const patch = decide({ event, attributes, custom, profile, env });
   if (!patch) return json(200, { ok: true, event, changed: false });

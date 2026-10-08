@@ -3,10 +3,12 @@
 // Needs Netlify environment variables SUPABASE_URL and SUPABASE_ANON_KEY.
 // With neither set (preview), every page is served as normal.
 
-export function canOpen(profile, need, now = new Date()) {
-  if (!profile) return false;
+export function canOpen(profile, need, now = new Date(), classes = [], learner = null) {
   const live = (d) => !!d && new Date(d) > now;
-  if (live(profile.pro_until)) return true;
+  // a learner in a teacher's class, while the teacher's licence lasts
+  if (learner && classes.some((c) => c.learner_id === learner && live(c.until))) return true;
+  if (!profile) return false;
+  if (live(profile.pro_until) || live(profile.teacher_until)) return true;
   const packs = profile.packs || {};
   if (need === "course-g6") return live(packs.g6);
   return [1, 2, 3, 4, 5].some((g) => live(packs["g" + g]));
@@ -33,9 +35,15 @@ export default async (request, context) => {
   const u = await fetch(SUPA + "/auth/v1/user", { headers });
   if (!u.ok) return back("login");
   const user = await u.json();
-  const p = await fetch(SUPA + "/rest/v1/profiles?id=eq." + encodeURIComponent(user.id) + "&select=pro_until,packs", { headers });
+  const p = await fetch(SUPA + "/rest/v1/profiles?id=eq." + encodeURIComponent(user.id) + "&select=pro_until,packs,teacher_until", { headers });
   const rows = p.ok ? await p.json() : [];
-  if (!canOpen(rows[0], need)) return back("plan");
+  let classes = [];
+  const learner = cookie(request, "tr_l");
+  if (!canOpen(rows[0], need) && learner) {
+    const r = await fetch(SUPA + "/rest/v1/rpc/my_classes", { method: "POST", headers: { ...headers, "content-type": "application/json" }, body: "{}" });
+    classes = r.ok ? await r.json() : [];
+  }
+  if (!canOpen(rows[0], need, new Date(), classes, learner)) return back("plan");
 
   const res = await context.next();
   res.headers.set("cache-control", "private, no-store");

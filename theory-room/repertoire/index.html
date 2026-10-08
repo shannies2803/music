@@ -353,6 +353,7 @@ let stars=new Set();
 let sb=null, user=null, isPro=false, pushT=null, pulling=false;
 try{const v=localStorage.getItem("rh-stars"); if(v) stars=new Set(JSON.parse(v));}catch(e){}
 try{const v=JSON.parse(localStorage.getItem("rh-filters4")||"null"); if(v) Object.assign(state,v,{q:""});}catch(e){}
+try{const u=new URLSearchParams(location.search);["inst","lvl","board","q"].forEach(k=>{if(u.get(k))state[k]=u.get(k);});}catch(e){}
 function save(){if(typeof persist==="function"&&profiles&&profiles.me) persist(); cloudPush();try{localStorage.setItem("rh-stars",JSON.stringify([...(profiles.me?profiles.me.stars:stars)]));const s=Object.assign({},state);delete s.q;localStorage.setItem("rh-filters4",JSON.stringify(s));}catch(e){}}
 
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -752,6 +753,7 @@ async function initCloud(){
   document.getElementById("acct").addEventListener("click",async ev=>{ if(ev.target.id==="signout"){await sb.auth.signOut(); user=null; isPro=false; renderAcct();} });
   renderAcct();
 }
+if(state.q) document.getElementById("q").value=state.q;
 let tmr; document.getElementById("q").addEventListener("input",ev=>{clearTimeout(tmr);tmr=setTimeout(()=>{state.q=ev.target.value;render();},150);});
 render();
 readShare();

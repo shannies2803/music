@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>My Rooms · The Theory Room</title>
 <meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -53,7 +54,7 @@
   var C = TR.C, P = C.prices || {}, esc = TR.esc;
   var app = document.getElementById("app");
   var q = new URLSearchParams(location.search);
-  var packGrade = 5, note = "", manageOpen = false;
+  var packGrade = 5, note = "", manageOpen = false, classOpen = false;
   if (q.get("need") === "plan") note = "That room comes with a plan. Choose one below, or open a room that's free.";
   if (q.get("need") === "login") note = "Sign in to open that room.";
   if (q.get("paid")) note = "Thank you! Your plan opens as soon as the payment is confirmed. This usually takes a few seconds.";
@@ -76,18 +77,24 @@
     var a = TR.access, paid = TR.isPaid(), L = TR.learner;
     var learners = TR.learners.map(function (l) { return '<button class="learner" data-learner="' + esc(l.id) + '" aria-pressed="' + (L && l.id === L.id) + '">' + esc(l.name) + "</button>"; }).join("");
     var canAdd = TR.learners.length < (C.maxLearners || 3);
+    var inClass = L && TR.inClass(L.id), allOpen = a.pro || inClass;
+    var openAll = allOpen ? (inClass && !a.pro ? "Open: all grades, with your class →" : "Open: all grades →") : "Open: " + (paid ? "Grade 1 and your pack →" : "Grade 1 free →");
+    var myClasses = L ? TR.classesFor(L.id) : [];
     var rooms = [
-      roomCard({ door: "ROOM 1 · THEORY", t: "Quick theory drills", d: "Short lessons and fresh questions for Grades 1–8.", href: "rooms/aural.html" + lid() + (lid() ? "&" : "?") + "tab=theory", open: true, openText: a.pro ? "Open: all grades →" : "Open: " + (paid ? "Grade 1 and your pack →" : "Grade 1 free →") }),
+      roomCard({ door: "ROOM 1 · THEORY", t: "Quick theory drills", d: "Short lessons and fresh questions for Grades 1–8.", href: "rooms/aural.html" + lid() + (lid() ? "&" : "?") + "tab=theory", open: true, openText: openAll }),
       roomCard({ door: "ROOM 1 · THEORY", t: "Guided course: Grades 1–5", d: "A day-by-day plan with picture lessons, practice papers, mocks and a page for the grown-up.", href: "rooms/theory-g1-5.html" + lid(), open: TR.can("course-g1-5"), lockText: "Family plan or a Grade 1–5 pack →" }),
       roomCard({ door: "ROOM 1 · THEORY", t: "Guided course: Grade 6", d: "Four-part harmony, figured bass, harmonising melodies, composing and score questions.", href: "rooms/theory-g6.html" + lid(), open: TR.can("course-g6"), lockText: "Family plan or a Grade 6 pack →" }),
-      roomCard({ door: "ROOM 2 · AURAL", t: "Aural tests", d: "Every ABRSM aural test with new music each time, sung answers marked by microphone, and mocks.", href: "rooms/aural.html" + lid(), open: true, openText: a.pro ? "Open: all grades →" : "Open: " + (paid ? "Grade 1 and your pack →" : "Grade 1 free →") }),
+      roomCard({ door: "ROOM 2 · AURAL", t: "Aural tests", d: "Every ABRSM aural test with new music each time, sung answers marked by microphone, and mocks.", href: "rooms/aural.html" + lid(), open: true, openText: openAll }),
       roomCard({ door: "ROOM 3 · REPERTOIRE", t: "Exam pieces, ABRSM and Trinity", d: "Every list for every instrument and voice. Saving and checking programmes comes with the Family plan.", href: "repertoire/", open: true, openText: a.pro ? "Open: everything →" : "Open: browse free →" }),
-      '<div class="room soon"><span class="door">ROOM 4 · COMING 2027</span><h3>Composers</h3><p class="muted" style="font-size:15.5px">Short films about the composers behind the exam pieces.</p></div>'
+      roomCard({ door: "ROOM 4 · COMPOSERS", t: "Composer films", d: "One-minute films on Bach, Vivaldi, Haydn, Mozart, Beethoven, Brahms and Grieg, each with a quiz.", href: "rooms/composers.html", open: true, openText: a.pro ? "Open: every film →" : "Open: Beethoven free →" })
     ].join("");
     var price = function (k, d) { return esc(P[k] || d); };
     var buyMonthly = TR.checkoutUrl("monthly"), buyYearly = TR.checkoutUrl("yearly");
+    var buyTeacher = TR.checkoutUrl("teacher");
+    var teacherCard = a.teacher ? "" : '<div class="room"><span class="door">FOR TEACHERS · A YEAR</span><h3>Teacher licence</h3><p class="muted" style="font-size:15.5px">Up to 15 students get theory and aural, and you see their progress in a class view. ' + price("teacher", "S$99") + ' a year.</p>' +
+      '<div class="row"><a class="btn small" data-buy="teacher" href="' + esc(buyTeacher || "#") + '"' + (buyTeacher && buyTeacher !== "#preview" ? ' target="_blank" rel="noopener"' : "") + '>Get a teacher licence</a></div></div>';
     var plans = a.pro
-      ? '<p>You have the <b>Family plan</b>: every room and every grade.' + (C.billingUrl ? ' <a href="' + esc(C.billingUrl) + '" target="_blank" rel="noopener">Change or cancel your plan</a>.' : "") + "</p>"
+      ? '<p>' + (a.teacher ? "You have a <b>teacher licence</b>: every room for you, and theory and aural for up to " + (a.seats || 15) + " students in your classes." : "You have the <b>Family plan</b>: every room and every grade.") + (C.billingUrl ? ' <a href="' + esc(C.billingUrl) + '" target="_blank" rel="noopener">Change or cancel your plan</a>.' : "") + "</p>" + (a.teacher ? "" : "")
       : '<div class="buy">' +
         '<div class="room" style="background:var(--accent-soft)"><span class="door">FAMILY PLAN</span><h3>Every room, every grade</h3><p class="muted" style="font-size:15.5px">Up to 3 learners. Both guided courses, every aural grade and mock, and saving exam programmes.</p>' +
           '<div class="row"><a class="btn go small" data-buy="monthly" href="' + esc(buyMonthly || "#") + '"' + (buyMonthly && buyMonthly !== "#preview" ? ' target="_blank" rel="noopener"' : "") + ">" + price("monthly", "S$15") + " a month</a>" +
@@ -95,17 +102,22 @@
         '<div class="room"><span class="door">GRADE PACK · 12 MONTHS</span><h3>One grade, paid once</h3><p class="muted" style="font-size:15.5px">Theory and aural for one grade. A Grade 1–5 pack also opens the guided Grades 1–5 course.</p>' +
           '<div class="packpick" role="group" aria-label="Which grade?">' + [1, 2, 3, 4, 5, 6, 7, 8].map(function (g) { return '<button type="button" data-pack="' + g + '" aria-pressed="' + (g === packGrade) + '">' + g + "</button>"; }).join("") + "</div>" +
           '<a class="btn small" id="buyPack" data-buy="pack" href="#">Grade ' + packGrade + " pack · " + price(packGrade <= 5 ? "packLow" : "packHigh", packGrade <= 5 ? "S$49" : "S$69") + "</a></div>" +
-        "</div>" + (TR.configured && !C.checkout.monthly ? '<p class="banner warn">Payments aren\'t switched on yet. Add the checkout links in config.js (see SETUP.md).</p>' : "");
+        teacherCard + "</div>" + (TR.configured && !C.checkout.monthly ? '<p class="banner warn">Payments aren\'t switched on yet. Add the checkout links in config.js (see SETUP.md).</p>' : "");
 
     return '<div class="hello"><p class="muted" style="font-size:15px">' + (TR.configured ? "Signed in as " + esc(TR.user.email) : "Preview: not signed in") + "</p>" +
       '<h1 style="font-size:clamp(32px,5vw,48px)">' + (L ? "Practising today: " + esc(L.name) : "Your rooms") + "</h1>" +
       '<span class="status ' + (paid ? "" : "free") + '">' + esc(TR.planLabel()) + "</span>" +
-      (note ? '<p class="banner">' + esc(note) + "</p>" : "") + "</div>" +
+      (note ? '<p class="banner">' + esc(note) + "</p>" : "") +
+      (a.teacher ? '<p class="banner"><b>Teacher licence.</b> <a href="teacher.html">Open your classes →</a></p>' : "") + "</div>" +
       '<div style="display:grid;gap:12px"><h2 style="font-size:24px">Who\'s practising?</h2><div class="learners" role="group" aria-label="Learners">' + learners + "</div>" +
       '<details class="manage"' + (manageOpen ? " open" : "") + '><summary style="cursor:pointer;font-weight:700">Add or rename learners</summary>' +
         (canAdd ? '<form id="addForm"><label class="kicker" for="newName" style="flex-basis:100%">New learner (first name or nickname)</label><input type="text" id="newName" maxlength="40" required><button class="btn small" type="submit">Add learner</button></form>' : '<p class="muted">You have ' + TR.learners.length + " learners, the most one plan holds.</p>") +
         (L ? '<form id="renameForm"><label class="kicker" for="rename" style="flex-basis:100%">Rename ' + esc(L.name) + '</label><input type="text" id="rename" maxlength="40" value="' + esc(L.name) + '"><button class="btn small" type="submit">Save name</button>' + (TR.learners.length > 1 ? '<button class="btn small" type="button" id="removeBtn">Remove ' + esc(L.name) + "</button>" : "") + "</form>" : "") +
-        '<p class="msg" id="learnMsg" role="status"></p><p class="note">Each learner keeps their own progress. Use a first name or a nickname; we don\'t need anything else about your child.</p></details></div>' +
+        '<p class="msg" id="learnMsg" role="status"></p><p class="note">Each learner keeps their own progress. Use a first name or a nickname; we don\'t need anything else about your child.</p></details>' +
+      (L ? '<details class="manage"' + (classOpen || myClasses.length ? " open" : "") + '><summary style="cursor:pointer;font-weight:700">' + (myClasses.length ? esc(L.name) + "'s class: " + esc(myClasses.map(function (c) { return c.class_name; }).join(", ")) : "Join a teacher's class") + "</summary>" +
+        myClasses.map(function (c) { return '<p class="row" style="gap:8px">' + esc(c.class_name) + (TR.inClass(L.id) ? ' <span class="status">Theory and aural open</span>' : ' <span class="status free">Class licence has ended</span>') + ' <button class="btn small" type="button" data-leave="' + esc(c.class_id) + '">Leave</button></p>'; }).join("") +
+        '<form id="joinForm"><label class="kicker" for="classCode" style="flex-basis:100%">Class code from your teacher</label><input type="text" id="classCode" maxlength="12" autocomplete="off" style="text-transform:uppercase"><button class="btn small" type="submit">Join for ' + esc(L.name) + "</button></form>" +
+        '<p class="msg" id="joinMsg" role="status"></p><p class="note">Your teacher sees ' + esc(L.name) + "'s name and progress in theory and aural, nothing else. Leave the class at any time.</p></details>" : "") + "</div>" +
       '<div style="display:grid;gap:14px"><h2 style="font-size:24px">Rooms</h2><div class="rooms">' + rooms + "</div></div>" +
       '<div id="plans" style="display:grid;gap:14px;scroll-margin-top:20px"><h2 style="font-size:24px">' + (a.pro ? "Your plan" : "Open more rooms") + "</h2>" + plans + '<p class="msg" id="buyMsg" role="status"></p></div>';
   }
@@ -129,6 +141,11 @@
       catch (err) { msg.className = "msg err"; msg.textContent = "That didn't send: " + (err.message || "please try again") + "."; btn.disabled = false; }
     }
     if (f.id === "addForm") { try { await TR.addLearner(document.getElementById("newName").value); } catch (err) { setMsg("learnMsg", err.message); } }
+    if (f.id === "joinForm" && TR.learner) {
+      classOpen = true;
+      try { var nm = await TR.joinClass(document.getElementById("classCode").value, TR.learner.id); var m2 = document.getElementById("joinMsg"); if (m2) { m2.className = "msg"; m2.textContent = "Joined " + nm + "."; } }
+      catch (err) { setMsg("joinMsg", err.message); }
+    }
     if (f.id === "renameForm" && TR.learner) { try { await TR.renameLearner(TR.learner.id, document.getElementById("rename").value); } catch (err) { setMsg("learnMsg", err.message); } }
   });
   function setMsg(id, t) { var el = document.getElementById(id); if (el) { el.className = "msg err"; el.textContent = t; } }
@@ -136,6 +153,7 @@
   app.addEventListener("click", async function (e) {
     var t = e.target.closest("button, a"); if (!t) return;
     if (t.dataset.learner) { TR.setLearner(t.dataset.learner); return; }
+    if (t.dataset.leave) { try { await TR.leaveClass(t.dataset.leave, TR.learner.id); } catch (err) { setMsg("joinMsg", err.message); } return; }
     if (t.dataset.pack) { packGrade = +t.dataset.pack; render(); var b = document.getElementById("buyPack"); if (b) b.focus(); return; }
     if (t.id === "removeBtn") {
       if (t.dataset.sure !== "1") { t.dataset.sure = "1"; t.textContent = "Tap again to remove " + TR.learner.name + " and their progress"; return; }

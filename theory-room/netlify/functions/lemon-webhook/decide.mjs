@@ -20,6 +20,10 @@ export function decide({ event, attributes = {}, custom = {}, profile = {}, env 
     } else {
       return null;
     }
+    if (env.LS_VARIANT_TEACHER && String(a.variant_id) === String(env.LS_VARIANT_TEACHER)) {
+      // a teacher licence: the class view, plus the rooms for up to LS_TEACHER_SEATS learners in the teacher's classes
+      return { teacher_until: until.toISOString(), teacher_seats: Number(env.LS_TEACHER_SEATS) || 15 };
+    }
     const yearly = env.LS_VARIANT_YEARLY && String(a.variant_id) === String(env.LS_VARIANT_YEARLY);
     return {
       pro_until: until.toISOString(),

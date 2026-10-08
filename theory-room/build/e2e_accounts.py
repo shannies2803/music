@@ -46,7 +46,8 @@ export function createClient() {
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
       signInWithOtp: async () => ({ error: null }), signOut: async () => { localStorage.setItem("fake-out", "1"); return { error: null }; }
     },
-    from: q
+    from: q,
+    rpc: async (name) => ({ data: name === "my_classes" || name === "teacher_classes" ? [] : null, error: null })
   };
 }
 """
