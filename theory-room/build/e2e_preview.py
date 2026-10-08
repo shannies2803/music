@@ -1,0 +1,140 @@
+"""Browser check of the whole site in preview mode (no Supabase, no payments).
+   python3 theory-room/build/e2e_preview.py   (serves theory-room/ on port 8770)"""
+import asyncio, os, subprocess, sys, time, json
+from playwright.async_api import async_playwright
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+SHOTS = os.path.join(os.environ.get("SHOTS", "/tmp/tr-shots")); os.makedirs(SHOTS, exist_ok=True)
+URL = "http://127.0.0.1:8770/"
+problems = []
+
+def bad(msg): problems.append(msg); print("FAIL", msg)
+
+async def page_for(b, width=1200, dark=False, preview=None):
+    ctx = await b.new_context(viewport={"width": width, "height": 900}, color_scheme="dark" if dark else "light")
+    pg = await ctx.new_page()
+    errs = []
+    pg.on("pageerror", lambda e: errs.append("pageerror: " + str(e)))
+    pg.on("console", lambda m: errs.append("console: " + m.text) if m.type == "error" and "favicon" not in m.text and "Failed to load resource" not in m.text else None)
+    if preview:
+        await pg.goto(URL + "privacy.html")
+        await pg.evaluate(f"() => {{ localStorage.setItem('tr-preview', '{preview}'); }}")
+    return ctx, pg, errs
+
+async def overflow(pg, name):
+    w = await pg.evaluate("() => document.documentElement.scrollWidth - window.innerWidth")
+    if w > 1: bad(f"{name}: page scrolls sideways by {w}px")
+
+async def main():
+    srv = subprocess.Popen([sys.executable, "-m", "http.server", "8770", "--bind", "127.0.0.1"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(1)
+    try:
+        async with async_playwright() as p:
+            b = await p.chromium.launch()
+            # home page, desktop light / phone dark
+            for w, dark in [(1200, False), (390, True)]:
+                ctx, pg, errs = await page_for(b, w, dark)
+                await pg.goto(URL); await pg.wait_for_timeout(900)
+                await pg.screenshot(path=f"{SHOTS}/home-{w}{'-dark' if dark else ''}.png", full_page=True)
+                await overflow(pg, f"home {w}")
+                if not await pg.locator("#tr-preview").count(): bad("home: no preview bar")
+                if errs: bad(f"home {w}: {errs[:3]}")
+                await ctx.close()
+
+            # dashboard as a free family
+            ctx, pg, errs = await page_for(b, 1200, preview="free")
+            await pg.goto(URL + "app.html"); await pg.wait_for_timeout(700)
+            txt = await pg.inner_text("main")
+            for s in ["Practising today: Learner 1", "Free", "Guided course: Grades 1–5", "Family plan or a Grade 1–5 pack"]:
+                if s not in txt: bad(f"dashboard free: missing {s!r}")
+            await pg.click("details.manage summary")
+            await pg.fill("#newName", "Ava"); await pg.click("#addForm button"); await pg.wait_for_timeout(200)
+            if "Ava" not in await pg.inner_text(".learners"): bad("dashboard: learner not added")
+            await pg.click("[data-learner]:has-text('Ava')"); await pg.wait_for_timeout(200)
+            if "Practising today: Ava" not in await pg.inner_text("main"): bad("dashboard: learner switch")
+            await pg.click("[data-pack='7']"); await pg.wait_for_timeout(100)
+            if "Grade 7 pack · S$69" not in await pg.inner_text("#buyPack"): bad("dashboard: pack price for grade 7")
+            await pg.click("#buyPack"); await pg.wait_for_timeout(100)
+            if "Preview mode" not in await pg.inner_text("#buyMsg"): bad("dashboard: preview checkout message")
+            await pg.screenshot(path=f"{SHOTS}/app-free.png", full_page=True)
+            if errs: bad(f"dashboard: {errs[:3]}")
+            await ctx.close()
+
+            # phone dashboard, paid
+            ctx, pg, errs = await page_for(b, 390, dark=True, preview="paid")
+            await pg.goto(URL + "app.html"); await pg.wait_for_timeout(700)
+            if "Family plan" not in await pg.inner_text("main"): bad("dashboard paid: plan label")
+            await overflow(pg, "app 390"); await pg.screenshot(path=f"{SHOTS}/app-paid-390-dark.png", full_page=True)
+            if errs: bad(f"dashboard paid: {errs[:3]}")
+            await ctx.close()
+
+            # aural room, free family: grade 2 locked, free practice hidden; deep link to grade 3 is refused
+            ctx, pg, errs = await page_for(b, 1200, preview="free")
+            await pg.goto(URL + "rooms/aural.html?learner=l1&board=abrsm&grade=3"); await pg.wait_for_timeout(1500)
+            main = await pg.inner_text("#main")
+            if "Grade 1 aural tests" not in main: bad("aural free: not on Grade 1")
+            if not await pg.locator("a.gbtn.tr-lock").count(): bad("aural free: no locked grade links")
+            if "Free practice — every skill" in main: bad("aural free: free practice visible")
+            if not await pg.locator("#tr-roombar").count(): bad("aural: no room bar")
+            await pg.screenshot(path=f"{SHOTS}/aural-free.png", full_page=True)
+            await pg.click("[data-tab=theory]"); await pg.wait_for_timeout(300)
+            th = await pg.inner_text("#main")
+            if "Guided course: Grades 1–5" not in th or "Comes with the Family plan" not in th: bad("aural free: theory courses lock text")
+            await pg.screenshot(path=f"{SHOTS}/theory-tab-free.png", full_page=True)
+            if errs: bad(f"aural free: {errs[:3]}")
+            await ctx.close()
+
+            # aural room, paid: deep link opens Grade 6, free practice there
+            ctx, pg, errs = await page_for(b, 390, preview="paid")
+            await pg.goto(URL + "rooms/aural.html?learner=l1&board=trinity&grade=6"); await pg.wait_for_timeout(1500)
+            main = await pg.inner_text("#main")
+            if "Grade 6 aural tests" not in main: bad("aural paid: deep link didn't open Grade 6")
+            if "Free practice" not in main: bad("aural paid: free practice missing")
+            if await pg.locator("a.gbtn.tr-lock").count(): bad("aural paid: locked grades shown")
+            await overflow(pg, "aural 390")
+            await pg.click("[data-act=gtest] >> nth=0"); await pg.wait_for_timeout(500)
+            if not await pg.locator("#ex").count(): bad("aural paid: test didn't start")
+            await pg.screenshot(path=f"{SHOTS}/aural-paid-390.png", full_page=True)
+            if errs: bad(f"aural paid: {errs[:3]}")
+            name = await pg.evaluate("() => P().name")
+            if name != "Learner 1": bad(f"aural: player name is {name!r}")
+            await ctx.close()
+
+            # guided courses
+            for f, want in [("theory-g1-5.html", "Guided theory course · Grades 1–5"), ("theory-g6.html", "Guided theory course · Grade 6")]:
+                ctx, pg, errs = await page_for(b, 1200, preview="paid")
+                await pg.goto(URL + "rooms/" + f + "?learner=l1"); await pg.wait_for_timeout(1500)
+                title = await pg.title()
+                if want not in title: bad(f"{f}: title {title!r}")
+                body = await pg.inner_text("body")
+                for w in ["Faye", "Philip", "Mum"]:
+                    if w in body: bad(f"{f}: shows {w!r}")
+                await pg.screenshot(path=f"{SHOTS}/{f}.png")
+                await pg.evaluate("() => { const b = [...document.querySelectorAll('button, a')].find(x => /Practice corner|Learner view|kid/i.test(x.textContent)); if (b) b.click(); }")
+                await pg.wait_for_timeout(400)
+                await pg.screenshot(path=f"{SHOTS}/{f}-kid.png")
+                if errs: bad(f"{f}: {errs[:3]}")
+                await ctx.close()
+
+            # repertoire
+            ctx, pg, errs = await page_for(b, 1200, preview="free")
+            await pg.goto(URL + "repertoire/"); await pg.wait_for_timeout(2500)
+            if not await pg.locator("#tr-roombar").count(): bad("repertoire: no room bar")
+            href = await pg.evaluate("() => { const a = document.querySelector('.courses a'); return a ? a.getAttribute('href') : null; }")
+            if not href or not href.startswith("../rooms/aural.html?board="): bad(f"repertoire: aural link {href!r}")
+            await pg.screenshot(path=f"{SHOTS}/repertoire.png")
+            if errs: bad(f"repertoire: {errs[:3]}")
+            await ctx.close()
+
+            for f in ["privacy.html", "terms.html"]:
+                ctx, pg, errs = await page_for(b, 390)
+                await pg.goto(URL + f); await pg.wait_for_timeout(400); await overflow(pg, f)
+                if errs: bad(f"{f}: {errs[:3]}")
+                await ctx.close()
+            await b.close()
+    finally:
+        srv.terminate()
+    print("\nPROBLEMS:", len(problems)); [print(" -", x) for x in problems]
+    sys.exit(1 if problems else 0)
+
+asyncio.run(main())

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacy · The Theory Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<!-- Owner: read this through before launch and change anything that isn't true for how you run the site. -->
+<header class="wrap top"><a class="logo" href="./">The Theory Room</a><nav><a href="./">Home</a><a href="app.html">My rooms</a></nav></header>
+<main class="wrap" style="padding-block:20px 60px">
+  <div class="prose">
+    <p class="kicker">Privacy</p>
+    <h1 style="font-size:clamp(32px,5vw,46px)">What we keep, and why</h1>
+    <p>The Theory Room is used mostly by children, so we keep as little as we can. This notice follows Singapore's Personal Data Protection Act (PDPA).</p>
+    <h2 style="font-size:24px;margin-top:10px">What we keep</h2>
+    <ul>
+      <li><b>The grown-up's email address</b>, to sign in and to send receipts.</li>
+      <li><b>A first name or nickname for each learner</b>, chosen by the grown-up.</li>
+      <li><b>Progress</b>: answers, scores, stars and saved exam programmes, so they follow the learner to any device.</li>
+      <li><b>Plan details</b>: which plan you have and when it ends. Card details go to our payment provider and never reach us.</li>
+    </ul>
+    <h2 style="font-size:24px;margin-top:10px">What we don't keep</h2>
+    <ul>
+      <li><b>Singing.</b> When a learner sings an answer, the sound is marked inside their own browser. It is never recorded or uploaded.</li>
+      <li>No photos, birthdays, schools or addresses, and no advertising trackers.</li>
+    </ul>
+    <h2 style="font-size:24px;margin-top:10px">Who handles it for us</h2>
+    <ul>
+      <li><b>Supabase</b> stores accounts and progress.</li>
+      <li><b>Lemon Squeezy</b> takes payments and handles sales tax as the seller of record.</li>
+      <li><b>Netlify</b> hosts the website.</li>
+    </ul>
+    <h2 style="font-size:24px;margin-top:10px">Your choices</h2>
+    <p>You can rename or remove a learner on the dashboard at any time; removing a learner deletes their progress. To see everything we hold about your family, or to close your account and delete it all, email us from the address you sign in with. We reply within 30 days.</p>
+    <p class="note" id="contact">Contact: see the bottom of the home page.</p>
+  </div>
+</main>
+<script src="config.js"></script>
+<script>(function(){ var m = (window.TR_CONFIG||{}).contactEmail; if (m) document.getElementById("contact").textContent = "Contact: " + m; })();</script>
+</body>
+</html>

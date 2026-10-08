@@ -1,0 +1,28 @@
+# The Theory Room on Netlify.
+# In Netlify: Add new site → Import from GitHub → this repo → Base directory: theory-room
+# Nothing to build: the site is plain files. Functions live in netlify/functions and
+# netlify/edge-functions, where Netlify looks for them by default.
+[build]
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+# keep the build scripts and database set-up off the public site
+[[redirects]]
+  from = "/build/*"
+  to = "/404"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "microphone=(self), camera=(), geolocation=()"

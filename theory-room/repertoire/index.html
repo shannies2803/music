@@ -1,0 +1,761 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Exam Repertoire · The Theory Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: filter bar over a single reading column; each exam is a section with its rules folded and its repertoire as a rated, categorised table. */
+:root{
+  --paper:#f3f4f6; --sheet:#ffffff; --ink:#1d2330; --muted:#5b6474; --rule:#d9dde5; --rule-soft:#eceef2;
+  --rosin:#a3541c; --rosin-soft:#f6e7da;
+  --abrsm:#8a2338; --abrsm-soft:#f6e3e7; --trinity:#1f6a6a; --trinity-soft:#dff0ef;
+  --warn:#8a6100; --warn-soft:#fbf0d2; --star:#c98a10; --star-off:#d5d9e0;
+  --per0:#7a5a12; --per1:#2f6aa8; --per2:#8a2f5c; --per3:#6a4fa3; --per4:#2b7a4b; --per5:#b0461f; --per6:#55606e;
+  --f-display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#14171d; --sheet:#1c2028; --ink:#e7e9ee; --muted:#9aa3b2; --rule:#2e3440; --rule-soft:#252a33;
+  --rosin:#e39a5c; --rosin-soft:#3a2a1e;
+  --abrsm:#f08aa0; --abrsm-soft:#3b2027; --trinity:#6fcfc8; --trinity-soft:#173332;
+  --warn:#e8c068; --warn-soft:#3a3018; --star:#f1b93c; --star-off:#3a404c;
+  --per0:#e0bd6a; --per1:#86b6ee; --per2:#ec8fbe; --per3:#b9a2f0; --per4:#7fd39f; --per5:#f2946b; --per6:#a7b0bd; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#14171d; --sheet:#1c2028; --ink:#e7e9ee; --muted:#9aa3b2; --rule:#2e3440; --rule-soft:#252a33;
+  --rosin:#e39a5c; --rosin-soft:#3a2a1e;
+  --abrsm:#f08aa0; --abrsm-soft:#3b2027; --trinity:#6fcfc8; --trinity-soft:#173332;
+  --warn:#e8c068; --warn-soft:#3a3018; --star:#f1b93c; --star-off:#3a404c;
+  --per0:#e0bd6a; --per1:#86b6ee; --per2:#ec8fbe; --per3:#b9a2f0; --per4:#7fd39f; --per5:#f2946b; --per6:#a7b0bd; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 64px}
+a{color:var(--rosin)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--rosin);outline-offset:2px}
+header.top{padding-block:36px 20px;display:grid;gap:10px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,5vw,48px);line-height:1.05;margin:0;text-wrap:balance}
+h1 em{font-style:italic;color:var(--rosin);font-weight:500}
+.lede{max-width:70ch;color:var(--muted);margin:0}
+.family{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.family button{font:inherit;font-size:14px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+.family button b{color:var(--rosin)}
+.family button:hover{border-color:var(--rosin)}
+
+.bar{background:var(--paper);border-bottom:1px solid var(--rule);padding-block:10px;display:grid;gap:8px;z-index:5}
+@media (min-width:760px){.bar{position:sticky;top:env(safe-area-inset-top,0px)}}
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--sheet)}
+.seg button{font:inherit;font-size:14px;border:0;background:transparent;color:var(--ink);padding:6px 11px;cursor:pointer;border-right:1px solid var(--rule)}
+.seg button:last-child{border-right:0}
+.lvlsel{display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lvlsel select{font-size:15px;text-transform:none;letter-spacing:0;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);font-weight:600}
+.search{flex:1 1 220px;min-width:0;display:flex}
+input[type=search],select{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink)}
+.search input{width:100%;font-size:15px}
+.refine label{display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.refine select{text-transform:none;letter-spacing:0;font-weight:400}
+.refine button.reset{font:inherit;font-size:13px;background:none;border:0;color:var(--rosin);cursor:pointer;text-decoration:underline;padding:0}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.ladder{margin-top:22px;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;overflow-x:auto}
+.ladder table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+.ladder th,.ladder td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--rule)}
+.ladder tr:last-child td{border-bottom:0}
+.ladder thead th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ladder td:first-child{font-family:var(--f-display);font-weight:700;font-size:17px;white-space:nowrap}
+.ladder td b{display:block}
+.ladder summary{cursor:pointer;padding:12px 14px;font-weight:600}
+.key{padding:0 14px 14px;display:grid;gap:8px;font-size:14px;color:var(--muted);max-width:90ch}
+.key p{margin:0}
+
+.shortlist{margin-top:22px;border:1px dashed var(--star);border-radius:10px;padding:14px 16px;background:var(--sheet)}
+.shortlist h2{font-family:var(--f-display);font-size:20px;margin:0 0 6px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.shortlist ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.shortlist li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;border-top:1px solid var(--rule-soft);padding-top:8px}
+.shortlist li:first-child{border-top:0;padding-top:0}
+.shortlist .empty{color:var(--muted);font-size:14px;margin:0}
+.tot{font-family:var(--f-mono);font-size:13px;color:var(--rosin);font-variant-numeric:tabular-nums}
+
+section.exam{margin-top:38px;scroll-margin-top:170px}
+.examhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.examhead h2{font-family:var(--f-display);font-weight:700;font-size:clamp(24px,3.4vw,32px);margin:0;line-height:1.1}
+.board{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px}
+.board.ABRSM{background:var(--abrsm-soft);color:var(--abrsm)}
+.board.Trinity{background:var(--trinity-soft);color:var(--trinity)}
+.syl{font-size:14px;color:var(--muted);margin:8px 0 0;max-width:80ch}
+.overview{margin:10px 0 0;max-width:75ch}
+.comps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:14px}
+.comp{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;min-width:0;font-size:14px}
+.comp .k{font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.comp .k span{font-family:var(--f-mono);font-weight:500;color:var(--rosin);font-size:13px;font-variant-numeric:tabular-nums}
+.comp p{margin:4px 0 0;color:var(--muted);white-space:pre-line}
+details.rules{margin-top:12px;background:var(--sheet);border:1px solid var(--rule);border-radius:8px}
+details.rules summary{cursor:pointer;padding:10px 12px;font-weight:600;font-size:15px}
+.rulebody{padding:0 14px 12px;display:grid;gap:12px}
+.rulebody h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.rulebody p{margin:0;white-space:pre-line;font-size:15px;max-width:80ch}
+.rulebody ul{margin:0;padding-left:18px;font-size:13px;word-break:break-all}
+
+.mix{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;align-items:center}
+.mix .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:4px}
+.pchip{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:999px;padding:2px 10px 2px 8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.pchip[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
+.pchip b{font-family:var(--f-mono);font-weight:500;font-size:12px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.p0{background:var(--per0)}.p1{background:var(--per1)}.p2{background:var(--per2)}.p3{background:var(--per3)}.p4{background:var(--per4)}.p5{background:var(--per5)}.p6{background:var(--per6)}
+
+.listhead{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin:22px 0 6px}
+.listhead h3{font-family:var(--f-display);font-size:20px;margin:0}
+.listhead span{color:var(--muted);font-size:14px}
+.tablewrap{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;overflow-x:auto}
+table.rep{border-collapse:collapse;width:100%;font-size:14.5px}
+table.rep th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap}
+table.rep td{padding:10px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+table.rep tr:last-child td{border-bottom:0}
+td.n{width:2.2em;color:var(--muted);font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums;padding-top:12px}
+td.piece{min-width:0}
+.comp-name{font-weight:700}
+.cdates{color:var(--muted);font-size:13px;font-weight:400;margin-left:4px}
+.work{display:block}
+.mvt{display:block;color:var(--muted);font-size:13.5px}
+.desc{display:block;margin-top:4px;font-size:14px;max-width:62ch}
+.pub{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:block;margin-top:3px}
+.note{display:block;font-size:13px;color:var(--muted);font-style:italic}
+.more{margin-top:4px;font-size:13px}
+.more summary{cursor:pointer;color:var(--muted)}
+.more p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.tag.check{background:var(--warn-soft);color:var(--warn)}
+.tag.fam{background:var(--rosin-soft);color:var(--rosin)}
+.tag.low{background:var(--rule-soft);color:var(--muted)}
+td.per{white-space:nowrap;font-size:13.5px}
+td.per .yr{display:block;color:var(--muted);font-family:var(--f-mono);font-size:12px}
+td.mins{font-family:var(--f-mono);font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.diff{display:inline-flex;gap:3px;vertical-align:middle}
+.diff i{width:8px;height:14px;border-radius:2px;background:var(--star-off)}
+.diff i.on{background:var(--ink)}
+.dlab{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap}
+.stars{color:var(--star);letter-spacing:1px;white-space:nowrap;font-size:15px}
+.stars .off{color:var(--star-off)}
+.why{display:block;font-size:12.5px;color:var(--muted);max-width:22ch}
+.styles{display:flex;flex-wrap:wrap;gap:4px;max-width:24ch}
+.sty{font-size:12px;border:1px solid var(--rule);border-radius:4px;padding:0 6px;color:var(--muted);white-space:nowrap}
+td.links{white-space:nowrap;text-align:right;width:1%}
+.links a{display:inline-block;font-size:12.5px;font-weight:600;text-decoration:none;border:1px solid var(--rule);border-radius:6px;padding:3px 8px;margin:0 0 4px 4px;color:var(--ink)}
+.links a:hover{border-color:var(--rosin);color:var(--rosin)}
+.links .nofree{display:block;font-size:11.5px;color:var(--muted);margin:2px 0 4px}
+.starbtn{font:inherit;border:0;background:transparent;cursor:pointer;font-size:18px;line-height:1;color:var(--star-off);padding:2px 4px;margin-left:4px;vertical-align:-2px}
+.starbtn[aria-pressed="true"]{color:var(--star)}
+.lname{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;display:block}
+.none{padding:40px 0;color:var(--muted)}
+.also{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:6px;align-items:baseline;font-size:12.5px}
+.also .lab{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ovl{border-radius:4px;padding:0 6px;font-weight:600;white-space:nowrap}
+.ovl.ABRSM{background:var(--abrsm-soft);color:var(--abrsm)}
+.ovl.Trinity{background:var(--trinity-soft);color:var(--trinity)}
+.ovl i{font-style:normal;font-weight:400;opacity:.85}
+.sharedsum{margin-top:10px;font-size:14px;color:var(--muted)}
+.sharedsum b{color:var(--ink)}
+.recs{margin-top:6px;font-size:13px}
+.recs summary{cursor:pointer;color:var(--rosin);font-weight:600}
+.recs ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.recs li{display:grid;gap:1px}
+.recs .who{font-weight:700}
+.recs .rnote{color:var(--muted)}
+.recs .rl a{font-size:12px;margin-right:8px}
+.prog{border-top:1px solid var(--rule);padding-top:12px;margin-top:12px}
+.prog:first-of-type{border-top:0;margin-top:4px;padding-top:0}
+.prog h3{font-size:16px;margin:0 0 8px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.checks{margin:10px 0 0!important;font-size:14px;gap:4px!important}
+.checks li{display:block!important;border:0!important;padding:0!important}
+.checks li span[aria-hidden]{display:inline-block;width:1.4em;font-weight:700;text-align:center}
+.checks li.ok span[aria-hidden]{color:var(--trinity)}
+.checks li.bad{color:var(--warn)} .checks li.bad span[aria-hidden]{color:var(--warn)}
+.checks li.info{color:var(--muted)}
+.checks details summary{cursor:pointer;display:inline}
+.checks details p{margin:4px 0 0 1.4em;max-width:80ch}
+.ptools{display:inline-flex;gap:8px;margin-left:auto}
+.ptools button,.ownform button,.ownx{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:6px;padding:3px 10px;cursor:pointer}
+.ptools button:hover,.ownform button:hover{border-color:var(--rosin);color:var(--rosin)}
+.ownx{padding:0 6px;color:var(--muted)}
+.ownform{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ownform input{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);color:var(--ink)}
+.ownform input[name=t]{flex:1 1 220px;min-width:0}
+.ownform input[name=m]{width:5.5em}
+@media print{
+  body.printing header.top,body.printing .bar,body.printing .ladder,body.printing main,body.printing .foot,body.printing .ownform,body.printing .ptools,body.printing .starbtn,body.printing .links a,body.printing .checks .info details{display:none!important}
+  body.printing .shortlist{border:0;padding:0}
+  body{background:#fff;color:#000}
+}
+.sharebar,.acct{margin-top:22px;border:1px solid var(--rule);border-radius:10px;padding:12px 16px;background:var(--sheet);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px}
+.sharebar{border-color:var(--rosin);background:var(--rosin-soft)}
+.acct+.shortlist,.sharebar+.acct{margin-top:10px}
+.acct .who{color:var(--muted)}
+.acct button,.sharebar button,.acct a.btn{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:6px;padding:4px 10px;cursor:pointer;text-decoration:none}
+.acct a.btn.pro,.sharebar button.yes{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:600}
+.acct input{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);flex:1 1 200px;min-width:0}
+.acct .sync{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.courses{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.courses .btn{font-size:14px;font-weight:600;text-decoration:none;border:1px solid var(--rosin);color:var(--rosin);background:var(--rosin-soft);border-radius:8px;padding:6px 12px}
+.courses .btn:hover{background:var(--sheet)}
+.profbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:4px 0 12px;font-size:14px}
+.profbar label{display:flex;gap:6px;align-items:center;font-weight:600}
+.profbar button,.profbar summary,.planbar input,.plan button,[data-open]{font:inherit;font-size:13px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);border-radius:6px;padding:3px 10px;cursor:pointer}
+.profbar button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.profbar .quiet{color:var(--muted)}
+.addstu{display:inline-block}.addstu summary{list-style:none;display:inline-block}
+.addstu form{display:flex;gap:6px;margin-top:6px}
+.addstu input{font:inherit;font-size:14px;padding:4px 8px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink)}
+.planbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px;font-size:14px}
+.planbar label{display:flex;gap:6px;align-items:center;font-weight:600}
+.plan{margin-top:10px}.planhead{margin:0 0 6px;font-size:14px}
+table.plantbl{border-collapse:collapse;width:100%;font-size:14px}
+.plantbl th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule)}
+.plantbl td{padding:8px 10px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+.plantbl td:first-child{white-space:nowrap;font-family:var(--f-mono);font-size:12.5px}
+.stuex{display:inline-block;margin:2px 6px 2px 0;padding:1px 8px;border-radius:999px;font-size:12.5px}
+.stuex.ok{background:var(--trinity-soft);color:var(--trinity)}.stuex.bad{background:var(--warn-soft);color:var(--warn)}
+@media print{body.printing .profbar,body.printing .planbar input{display:none!important} body.printing .planbar label{font-weight:400}}
+.disclaim{font-size:13px;color:var(--muted);max-width:80ch;margin:0;border-left:3px solid var(--rule);padding-left:10px}
+.foot{margin-top:48px;font-size:13px;color:var(--muted);max-width:80ch;display:grid;gap:6px}
+mark{background:var(--rosin-soft);color:inherit;padding:0 1px}
+
+/* Phone: each row becomes a stacked card */
+@media (max-width:820px){
+  table.rep thead{display:none}
+  table.rep,table.rep tbody,table.rep tr,table.rep td{display:block;width:auto}
+  table.rep tr{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;padding:12px;border-bottom:1px solid var(--rule-soft)}
+  table.rep tr:last-child{border-bottom:0}
+  table.rep td{border:0;padding:0}
+  td.n{grid-row:span 1}
+  td.piece{grid-column:2}
+  td.per,td.mins,td.dif,td.rate,td.sty,td.links{grid-column:2;text-align:left}
+  td.per .yr{display:inline;margin-left:6px}
+  .meta-inline{display:flex}
+  td.links{white-space:normal}
+  .links a{margin:0 4px 4px 0}
+  .why,.styles{max-width:none}
+  td.mins::before{content:"About ";font-family:var(--f-body);color:var(--muted)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">ABRSM · Trinity · Initial to Diploma</div>
+  <h1>ABRSM &amp; Trinity <em>Repertoire</em></h1>
+  <p class="lede">Current graded exam lists from both boards, Initial to Grade 8, for strings, harp, woodwind, brass, percussion, guitar, piano, organ, keyboard and singing, plus the ARSM, LRSM and FRSM and ATCL, LTCL and FTCL performance diplomas for every instrument and voice that has them. Each piece has a note, its length, period, difficulty within the grade, playing style and a rating, with links to scores and recordings. Filter or regroup the lists, see which pieces both boards set, and star pieces to build a programme that is checked against the exam’s rules.</p>
+  <p class="disclaim">This is an independent, unofficial guide. It is not affiliated with, endorsed by or connected to ABRSM or Trinity College London. Repertoire lists and syllabus requirements are the copyright of the exam boards. Always check the board’s current official syllabus before choosing pieces or entering for an exam.</p>
+  <div class="family" aria-label="Popular lists">
+    <button type="button" data-jump="abrsm-g8-piano|trinity-g8-piano"><b>Piano</b> · Grade 8</button>
+    <button type="button" data-jump="abrsm-g8-violin|trinity-g8-violin"><b>Violin</b> · Grade 8</button>
+    <button type="button" data-jump="abrsm-g8-flute|trinity-g8-flute"><b>Flute</b> · Grade 8</button>
+    <button type="button" data-jump="abrsm-g5-clarinet|trinity-g5-clarinet"><b>Clarinet</b> · Grade 5</button>
+    <button type="button" data-jump="abrsm-g5-singing|trinity-g5-singing"><b>Singing</b> · Grade 5</button>
+    <button type="button" data-jump="abrsm-arsm-piano|trinity-atcl-piano"><b>Piano</b> · ARSM &amp; ATCL</button>
+  </div>
+</header>
+
+<div class="bar" role="region" aria-label="Filters">
+  <div class="row">
+    <label class="lvlsel" for="f-inst">Instrument <select id="f-inst"></select></label>
+    <label class="lvlsel" for="f-lvl">Level <select id="f-lvl"></select></label>
+    <div class="seg" id="f-board" role="group" aria-label="Board">
+      <button type="button" data-v="all">Both</button><button type="button" data-v="ABRSM">ABRSM</button><button type="button" data-v="Trinity">Trinity</button>
+    </div>
+    <div class="search"><input id="q" type="search" placeholder="Search composer, piece, style, BWV, op…" aria-label="Search pieces"></div>
+  </div>
+  <div class="row refine">
+    <label for="s-group">Group by <select id="s-group"><option value="list">Exam list</option><option value="period">Period</option><option value="diff">Difficulty</option><option value="style">Playing style</option><option value="rating">Rating</option></select></label>
+    <label for="s-sort">Sort <select id="s-sort"><option value="list">List order</option><option value="rating">Highest rated</option><option value="easy">Easiest first</option><option value="hard">Hardest first</option><option value="short">Shortest first</option><option value="long">Longest first</option><option value="old">Oldest first</option></select></label>
+    <label for="s-period">Period <select id="s-period"><option value="">Any</option></select></label>
+    <label for="s-diff">Difficulty <select id="s-diff"><option value="">Any</option><option value="lo">Easier end (1–2)</option><option value="mid">Typical (3)</option><option value="hi">Harder end (4–5)</option></select></label>
+    <label for="s-style">Style <select id="s-style"><option value="">Any</option></select></label>
+    <label for="s-rate">Rating <select id="s-rate"><option value="">Any</option><option value="3">3★ and up</option><option value="4">4★ and up</option><option value="5">5★ only</option></select></label>
+    <label for="s-shared">Shared <select id="s-shared"><option value="">Any</option><option value="board">Set by both boards</option><option value="any">On another list too</option></select></label>
+    <label for="s-free">Scores <select id="s-free"><option value="">Any</option><option value="free">Free on IMSLP</option></select></label>
+    <button type="button" class="reset" id="reset">Clear filters</button>
+  </div>
+  <div class="count" id="count"></div>
+</div>
+
+<div class="ladder">
+<details id="ladder">
+<summary>The two boards side by side, and how to read the ratings</summary>
+<table>
+<thead><tr><th>Level</th><th>ABRSM</th><th>Trinity</th></tr></thead>
+<tbody>
+<tr><td>Grade 8</td>
+<td><b>150 marks · pass 100 · merit 120 · distinction 130</b>3 pieces (one from each of Lists A, B, C), scales &amp; arpeggios, sight-reading, aural. Grades 6–8 (Practical or Performance) need a pass at ABRSM Grade 5 or above in Music Theory, Practical Musicianship or a solo Jazz instrument, or an accepted alternative. Performance Grade option: 4 pieces (3 from Lists A, B, C plus 1 own choice) filmed as a recital, 150 marks, no scales, sight-reading or aural.</td>
+<td><b>100 marks · pass 60 · merit 75 · distinction 87</b>3 pieces, technical work, sight-reading plus aural or improvisation. No theory requirement. Digital options: Technical Work pathway, or Repertoire-only (4 pieces at 25 marks each; singing Grades 6–8: 5 songs at 20).</td></tr>
+<tr><td>Level 4</td>
+<td><b>ARSM</b>30-minute performance (±2 min), at least 20 min from the ARSM list plus up to 10 min own choice. No written part. In person or video. Marked out of 50: pass 34, merit 40, distinction 45. Needs Grade 8 (ABRSM Practical or Performance Grade, or an accepted equivalent such as Trinity) on the same or a closely related instrument.</td>
+<td><b>ATCL</b>32–38 min recital plus a written programme (4 of the 100 marks are for the programme and its planning; no programme notes). Marked out of 100: pass 60, distinction 80 (no merit). In person or video. No prerequisite.</td></tr>
+<tr><td>Level 6</td>
+<td><b>LRSM</b>45-minute (±10%) filmed recital (half or more from the list) plus a 2,000-word written piece or a 10-minute spoken video. Marked out of 75: pass 50, merit 60, distinction 68. Needs Grade 8; ARSM not required first.</td>
+<td><b>LTCL</b>37–43 min recital, out of 100: pass 60, distinction 80. Written programme as for ATCL; no programme notes. In person or video. No prerequisite; ATCL not needed first.</td></tr>
+<tr><td>Level 7</td>
+<td><b>FRSM</b>55-minute (±10%) filmed recital plus 3,500 words or a 17-minute spoken video. Same marking as LRSM. LRSM not required first.</td>
+<td><b>FTCL</b>42–48 min recital, in person or video, with written programme notes on every piece. Result is Approved or Not Approved (no marks). No formal prerequisite, but Trinity strongly advises LTCL or equivalent first.</td></tr>
+</tbody></table>
+<div class="key">
+<p><b>Difficulty</b> is relative to the level the piece is set at: 1 is at the easier end of that list, 3 is typical, 5 is at the top end. It compares pieces within one list only, not across levels.</p>
+<p><b>Rating</b> is our judgement of the piece as an exam choice: how good the music is, how well it shows a player off, and how well the result rewards the preparation time. 5★ pieces are standouts; 3★ is a solid choice. It is a guide for shortlisting, not a board ranking.</p>
+<p><b>Length</b> is a typical performance time for exactly what is set (that movement or those movements). Players vary by a minute or so either way.</p>
+<p>Pieces tagged <span class="tag low">LESS-KNOWN</span> are new or rarely recorded; our notes on these are provisional, so listen to a recording or look at the score before choosing.</p>
+</div>
+</details>
+</div>
+
+<div class="sharebar" id="sharebar" hidden></div>
+<div class="acct" id="acct" hidden></div>
+<div class="shortlist" id="shortlist"></div>
+<main id="out"></main>
+
+<div class="foot">
+  <p><b>This is an independent, unofficial guide. It is not affiliated with, endorsed by or connected to ABRSM or Trinity College London. Repertoire lists and syllabus requirements are the copyright of the exam boards. Always check the board’s current official syllabus before choosing pieces or entering for an exam.</b></p>
+  <p>Compiled October 2026. Lists and requirements were compiled from the boards' published syllabuses, repertoire pages and diploma repertoire lists. A few entries, marked <span class="tag check">CHECK</span>, could not be confirmed against an official copy. ABRSM's DipABRSM performance diploma has been withdrawn; the performance route is now ARSM → LRSM → FRSM.</p>
+  <p><b>Score</b> opens the piece's own page on IMSLP (checked to exist). <b>IMSLP</b> opens the composer's IMSLP page where the exact work has no page of its own. Music by composers who died less than 70 years ago is usually still in copyright in the UK and EU, so a free score is unlikely; use <b>Buy</b>. Copyright rules differ by country. <b>Listen</b> searches YouTube for the piece.</p>
+  <p><b>Recordings to hear</b> lists named recordings (about 1,600, so far only for the violin, flute and cello Grade 8 and diploma pieces) chosen to show different approaches, each with a one-line note. Each opens a search for that performer on YouTube, Spotify or Apple Music. Many new or rarely played pieces have no listed recording yet. <b>Also set by</b> shows where the same piece, or another part of the same work, appears on another list or board.</p>
+</div>
+</div>
+
+<script>window.RH_CONFIG=window.RH_CONFIG||{};</script>
+<script src="../config.js"></script><script>window.TR_ROOM = 1;</script><script src="../tr.js"></script>
+<script>
+const PERSONAL=/*PERSONAL*/false;
+const IDX = {"exams":[{"id":"abrsm-g0-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G0","name":"Initial"},{"id":"abrsm-g1-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g0-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G0","name":"Initial"},{"id":"abrsm-g1-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g0-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G0","name":"Initial"},{"id":"abrsm-g1-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g0-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G0","name":"Initial"},{"id":"abrsm-g1-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-doublebass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-trumpetcornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-eflattenorhorn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g6-basstrombone","board":"ABRSM","inst":"Bass trombone","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-basstrombone","board":"ABRSM","inst":"Bass trombone","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-basstrombone","board":"ABRSM","inst":"Bass trombone","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-euphoniumbaritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-percussioncombined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g0-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G0","name":"Initial (2025 & 2026 lists)"},{"id":"abrsm-g1-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G1","name":"Grade 1 (2025 & 2026 lists)"},{"id":"abrsm-g2-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G2","name":"Grade 2 (2025 & 2026 lists)"},{"id":"abrsm-g3-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G3","name":"Grade 3 (2025 & 2026 lists)"},{"id":"abrsm-g4-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G4","name":"Grade 4 (2025 & 2026 lists)"},{"id":"abrsm-g5-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G5","name":"Grade 5 (2025 & 2026 lists)"},{"id":"abrsm-g6-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G6","name":"Grade 6 (2025 & 2026 lists)"},{"id":"abrsm-g7-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G7","name":"Grade 7 (2025 & 2026 lists)"},{"id":"abrsm-g8-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G8","name":"Grade 8 (2025 & 2026 lists)"},{"id":"trinity-g0-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G0","name":"Initial"},{"id":"trinity-g1-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G0","name":"Initial"},{"id":"trinity-g1-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G0","name":"Initial"},{"id":"trinity-g1-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-jazzflute","board":"Trinity","inst":"Jazz flute","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-jazzclarinet","board":"Trinity","inst":"Jazz clarinet","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-jazzsaxophone","board":"Trinity","inst":"Jazz saxophone","family":"Woodwind","lvl":"G8","name":"Grade 8"},{"id":"trinity-g6-eflatsopranocornet","board":"Trinity","inst":"E♭ soprano cornet","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-eflatsopranocornet","board":"Trinity","inst":"E♭ soprano cornet","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-eflatsopranocornet","board":"Trinity","inst":"E♭ soprano cornet","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G0","name":"Initial"},{"id":"trinity-g1-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-trumpetcornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-eflattenorhorn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G0","name":"Initial"},{"id":"trinity-g1-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g6-basstrombone","board":"Trinity","inst":"Bass trombone","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-basstrombone","board":"Trinity","inst":"Bass trombone","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-basstrombone","board":"Trinity","inst":"Bass trombone","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G0","name":"Initial"},{"id":"trinity-g1-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-euphoniumbaritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G0","name":"Initial"},{"id":"trinity-g1-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-snaredrum","board":"Trinity","inst":"Snare drum","family":"Percussion","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G0","name":"Initial"},{"id":"trinity-g1-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-timpani","board":"Trinity","inst":"Timpani","family":"Percussion","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G0","name":"Initial"},{"id":"trinity-g1-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-tunedpercussion","board":"Trinity","inst":"Tuned percussion","family":"Percussion","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G0","name":"Initial"},{"id":"trinity-g1-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-drumkit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G0","name":"Initial"},{"id":"trinity-g1-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G0","name":"Initial"},{"id":"trinity-g0-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G0","name":"Initial"},{"id":"trinity-g1-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G1","name":"Grade 1"},{"id":"trinity-g1-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G2","name":"Grade 2"},{"id":"trinity-g2-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G3","name":"Grade 3"},{"id":"trinity-g3-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G4","name":"Grade 4"},{"id":"trinity-g4-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G5","name":"Grade 5"},{"id":"trinity-g5-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G6","name":"Grade 6"},{"id":"trinity-g6-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G7","name":"Grade 7"},{"id":"trinity-g7-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"G8","name":"Grade 8"},{"id":"trinity-g8-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G0","name":"Initial"},{"id":"trinity-g1-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G0","name":"Initial"},{"id":"trinity-g1-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-acousticguitar","board":"Trinity","inst":"Acoustic guitar","family":"Guitar","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G0","name":"Initial"},{"id":"trinity-g1-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-electronickeyboard","board":"Trinity","inst":"Electronic keyboard","family":"Keyboard","lvl":"G8","name":"Grade 8"},{"id":"trinity-g1-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G0","name":"Initial"},{"id":"trinity-g1-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-doublebass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G0","name":"Initial"},{"id":"trinity-g1-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G0","name":"Initial"},{"id":"trinity-g1-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"trinity-g0-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G0","name":"Initial"},{"id":"trinity-g1-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G1","name":"Grade 1"},{"id":"trinity-g2-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G2","name":"Grade 2"},{"id":"trinity-g3-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G3","name":"Grade 3"},{"id":"trinity-g4-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G4","name":"Grade 4"},{"id":"trinity-g5-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G5","name":"Grade 5"},{"id":"trinity-g6-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G6","name":"Grade 6"},{"id":"trinity-g7-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G7","name":"Grade 7"},{"id":"trinity-g8-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g4-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g1-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G1","name":"Grade 1"},{"id":"abrsm-g2-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G2","name":"Grade 2"},{"id":"abrsm-g3-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G3","name":"Grade 3"},{"id":"abrsm-g4-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G4","name":"Grade 4"},{"id":"abrsm-g5-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G5","name":"Grade 5"},{"id":"abrsm-g6-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G6","name":"Grade 6"},{"id":"abrsm-g7-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G7","name":"Grade 7"},{"id":"abrsm-g8-singingformusicaltheatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"G8","name":"Grade 8"},{"id":"abrsm-g0-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G0","name":"Initial (2027 & 2028 lists)"},{"id":"abrsm-g1-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G1","name":"Grade 1 (2027 & 2028 lists)"},{"id":"abrsm-g2-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G2","name":"Grade 2 (2027 & 2028 lists)"},{"id":"abrsm-g3-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G3","name":"Grade 3 (2027 & 2028 lists)"},{"id":"abrsm-g4-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G4","name":"Grade 4 (2027 & 2028 lists)"},{"id":"abrsm-g5-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G5","name":"Grade 5 (2027 & 2028 lists)"},{"id":"abrsm-g6-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G6","name":"Grade 6 (2027 & 2028 lists)"},{"id":"abrsm-g7-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G7","name":"Grade 7 (2027 & 2028 lists)"},{"id":"abrsm-g8-piano-2027","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"G8","name":"Grade 8 (2027 & 2028 lists)"},{"id":"abrsm-arsm-euphonium-baritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-double-bass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-eb-tenor-horn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-percussion-combined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-singing-for-musical-theatre","board":"ABRSM","inst":"Singing for musical theatre","family":"Voice","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-trumpet-cornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"L4","name":"ARSM"},{"id":"abrsm-arsm-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"L4","name":"ARSM"},{"id":"abrsm-frsm-euphonium-baritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-double-bass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-eb-tenor-horn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-percussion-combined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-bass-trombone","board":"ABRSM","inst":"Bass trombone","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-trumpet-cornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"L7","name":"FRSM"},{"id":"abrsm-frsm-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"L7","name":"FRSM"},{"id":"abrsm-lrsm-euphonium-baritone","board":"ABRSM","inst":"Euphonium & baritone","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-bassoon","board":"ABRSM","inst":"Bassoon","family":"Woodwind","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-cello","board":"ABRSM","inst":"Cello","family":"Strings","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-clarinet","board":"ABRSM","inst":"Clarinet","family":"Woodwind","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-double-bass","board":"ABRSM","inst":"Double bass","family":"Strings","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-eb-tenor-horn","board":"ABRSM","inst":"E♭ tenor horn","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-flute","board":"ABRSM","inst":"Flute","family":"Woodwind","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-guitar","board":"ABRSM","inst":"Guitar","family":"Guitar","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-harp","board":"ABRSM","inst":"Harp","family":"Harp","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-harpsichord","board":"ABRSM","inst":"Harpsichord","family":"Keyboard","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-horn","board":"ABRSM","inst":"Horn","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-oboe","board":"ABRSM","inst":"Oboe","family":"Woodwind","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-organ","board":"ABRSM","inst":"Organ","family":"Keyboard","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-percussion-combined","board":"ABRSM","inst":"Percussion (combined)","family":"Percussion","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-piano","board":"ABRSM","inst":"Piano","family":"Keyboard","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-recorder","board":"ABRSM","inst":"Recorder","family":"Woodwind","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-saxophone","board":"ABRSM","inst":"Saxophone","family":"Woodwind","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-singing","board":"ABRSM","inst":"Singing","family":"Voice","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-trombone","board":"ABRSM","inst":"Trombone","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-bass-trombone","board":"ABRSM","inst":"Bass trombone","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-trumpet-cornet","board":"ABRSM","inst":"Trumpet & cornet","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-tuba","board":"ABRSM","inst":"Tuba","family":"Brass","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-viola","board":"ABRSM","inst":"Viola","family":"Strings","lvl":"L6","name":"LRSM"},{"id":"abrsm-lrsm-violin","board":"ABRSM","inst":"Violin","family":"Strings","lvl":"L6","name":"LRSM"},{"id":"trinity-atcl-euphonium-baritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-euphonium-baritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-euphonium-baritone","board":"Trinity","inst":"Euphonium & baritone","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-bass-trombone","board":"Trinity","inst":"Bass trombone","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-bass-trombone","board":"Trinity","inst":"Bass trombone","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-bass-trombone","board":"Trinity","inst":"Bass trombone","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-bassoon","board":"Trinity","inst":"Bassoon","family":"Woodwind","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-cello","board":"Trinity","inst":"Cello","family":"Strings","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-clarinet","board":"Trinity","inst":"Clarinet","family":"Woodwind","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-double-bass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-double-bass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-double-bass","board":"Trinity","inst":"Double bass","family":"Strings","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-drum-kit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-drum-kit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-drum-kit","board":"Trinity","inst":"Drum kit","family":"Percussion","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-flute","board":"Trinity","inst":"Flute","family":"Woodwind","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-guitar","board":"Trinity","inst":"Guitar","family":"Guitar","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-harp","board":"Trinity","inst":"Harp","family":"Harp","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-harpsichord","board":"Trinity","inst":"Harpsichord","family":"Keyboard","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-harpsichord","board":"Trinity","inst":"Harpsichord","family":"Keyboard","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-harpsichord","board":"Trinity","inst":"Harpsichord","family":"Keyboard","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-horn","board":"Trinity","inst":"Horn","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-oboe","board":"Trinity","inst":"Oboe","family":"Woodwind","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-organ","board":"Trinity","inst":"Organ","family":"Keyboard","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-percussion-combined","board":"Trinity","inst":"Percussion (combined)","family":"Percussion","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-percussion-combined","board":"Trinity","inst":"Percussion (combined)","family":"Percussion","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-percussion-combined","board":"Trinity","inst":"Percussion (combined)","family":"Percussion","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-piano","board":"Trinity","inst":"Piano","family":"Keyboard","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-recorder","board":"Trinity","inst":"Recorder","family":"Woodwind","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-saxophone","board":"Trinity","inst":"Saxophone","family":"Woodwind","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-singing","board":"Trinity","inst":"Singing","family":"Voice","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-eb-tenor-horn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-eb-tenor-horn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-eb-tenor-horn","board":"Trinity","inst":"E♭ tenor horn","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-trombone","board":"Trinity","inst":"Trombone","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-trumpet-cornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-trumpet-cornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-trumpet-cornet","board":"Trinity","inst":"Trumpet & cornet","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-tuba","board":"Trinity","inst":"Tuba","family":"Brass","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-viola","board":"Trinity","inst":"Viola","family":"Strings","lvl":"L7","name":"FTCL"},{"id":"trinity-atcl-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"L4","name":"ATCL"},{"id":"trinity-ltcl-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"L6","name":"LTCL"},{"id":"trinity-ftcl-violin","board":"Trinity","inst":"Violin","family":"Strings","lvl":"L7","name":"FTCL"}],"PER":["Baroque","Classical","Romantic","Late Romantic & Impressionist","20th century","Contemporary","Traditional & early music"],"STY":["Lyrical / singing tone","Virtuosic / showpiece","Fast passagework","Dance rhythms","Double stops & chords","High positions","Thumb position","Spiccato & bow agility","Ornamentation","Wide leaps","Breath control & long phrases","Articulation & double tonguing","Extended techniques","Rhythmic complexity","Folk / jazz influence","Unaccompanied","Contemporary sound world","Expressive rubato"],"files":{"Violin":"violin.json","Viola":"viola.json","Cello":"cello.json","Double bass":"double-bass.json","Recorder":"recorder.json","Flute":"flute.json","Oboe":"oboe.json","Clarinet":"clarinet.json","Bassoon":"bassoon.json","Saxophone":"saxophone.json","Horn":"horn.json","Trumpet & cornet":"trumpet-cornet.json","E♭ tenor horn":"eb-tenor-horn.json","Trombone":"trombone.json","Bass trombone":"bass-trombone.json","Euphonium & baritone":"euphonium-baritone.json","Tuba":"tuba.json","Percussion (combined)":"percussion-combined.json","Harp":"harp.json","Guitar":"guitar.json","Piano":"piano.json","Jazz flute":"jazz-flute.json","Jazz clarinet":"jazz-clarinet.json","Jazz saxophone":"jazz-saxophone.json","E♭ soprano cornet":"eb-soprano-cornet.json","Snare drum":"snare-drum.json","Timpani":"timpani.json","Tuned percussion":"tuned-percussion.json","Drum kit":"drum-kit.json","Singing":"singing.json","Acoustic guitar":"acoustic-guitar.json","Electronic keyboard":"electronic-keyboard.json","Organ":"organ.json","Harpsichord":"harpsichord.json","Singing for musical theatre":"singing-for-musical-theatre.json"}};
+// The page carries only the exam index; each instrument's lists, notes, overlaps and recordings load from data/<file>.json when needed.
+const {PER,STY}=IDX; const E={},C={},OV={},REC={};
+const DATA={exams:IDX.exams};
+const EXBY=Object.fromEntries(IDX.exams.map(e=>[e.id,e]));
+const loaded=new Set(), loading=new Map();
+function fileFor(inst){return IDX.files[inst];}
+function loadFile(f){
+  if(loaded.has(f)) return Promise.resolve();
+  if(!loading.has(f)) loading.set(f,fetch("data/"+f).then(r=>{if(!r.ok) throw new Error(r.status);return r.json();}).then(d=>{
+    Object.assign(E,d.E);Object.assign(C,d.C);Object.assign(OV,d.OV);Object.assign(REC,d.REC);
+    for(const x of d.exams) Object.assign(EXBY[x.id],x);
+    loaded.add(f);}).catch(err=>{loading.delete(f);throw err;}));
+  return loading.get(f);
+}
+function ensure(insts){return Promise.all([...new Set(insts.map(fileFor).filter(Boolean))].map(loadFile));}
+const isLoaded=inst=>loaded.has(fileFor(inst));
+function ovFor(exam,li,i){return (OV&&OV[exam.id+"|"+li+"|"+i])||[];}
+function otherBoard(exam,li,i){return ovFor(exam,li,i).some(o=>EXBY[o[0]]&&EXBY[o[0]].board!==exam.board);}
+const LVLNAME={G0:"Initial",G1:"Grade 1",G2:"Grade 2",G3:"Grade 3",G4:"Grade 4",G5:"Grade 5",G6:"Grade 6",G7:"Grade 7",G8:"Grade 8",L4:"Level 4 diploma",L6:"Level 6 diploma",L7:"Level 7 diploma"};
+const DIFFNAME=["","Easier end","Easier","Typical","Harder","Top end"];
+const DEF={inst:"Violin",lvl:"G8",board:"all",q:"",group:"list",sort:"list",period:"",diff:"",style:"",rate:"",free:"",shared:""};
+const state=Object.assign({},DEF);
+let stars=new Set();
+let sb=null, user=null, isPro=false, pushT=null, pulling=false;
+try{const v=localStorage.getItem("rh-stars"); if(v) stars=new Set(JSON.parse(v));}catch(e){}
+try{const v=JSON.parse(localStorage.getItem("rh-filters4")||"null"); if(v) Object.assign(state,v,{q:""});}catch(e){}
+function save(){if(typeof persist==="function"&&profiles&&profiles.me) persist(); cloudPush();try{localStorage.setItem("rh-stars",JSON.stringify([...(profiles.me?profiles.me.stars:stars)]));const s=Object.assign({},state);delete s.q;localStorage.setItem("rh-filters4",JSON.stringify(s));}catch(e){}}
+
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const info=p=>E[p[6]]||null;
+const compName=p=>{const e=info(p);return (e&&e.fx)||p[0];};
+function compInfo(p){return C[compName(p)]||C[p[0]]||null;}
+function ytLink(p,inst){const q=[compName(p).replace(/\b(arr|ed|trans)\..*$/i,""),p[1],p[2],inst].join(" ").replace(/\s+/g," ");return "https://www.youtube.com/results?search_query="+encodeURIComponent(q);}
+function buyLink(p,inst){const c=compInfo(p);const sn=(c&&c.full?c.full.split(" ").pop():compName(p));return "https://www.prestomusic.com/sheet-music/search?search_query="+encodeURIComponent(sn+" "+p[1]+" "+inst);}
+function links(p,inst){
+  const e=info(p); let s="";
+  if(e&&e.u){ s+=`<a href="${esc(e.u)}" target="_blank" rel="noopener" title="${e.uk==="work"?"Free score: this work on IMSLP":"Free scores: this composer on IMSLP (no page for this exact work)"}">${e.uk==="work"?"Score":"IMSLP"}</a>`; }
+  s+=`<a href="${ytLink(p,inst)}" target="_blank" rel="noopener">Listen</a><a href="${buyLink(p,inst)}" target="_blank" rel="noopener">Buy</a>`;
+  if(e&&!e.u) s+=`<span class="nofree">${e.pd?"No free score found":"In copyright: buy the score"}</span>`;
+  return s;
+}
+function famTag(){return "";}
+function hl(s,q){s=esc(s); if(!q) return s; const i=s.toLowerCase().indexOf(q); return i<0?s:s.slice(0,i)+"<mark>"+s.slice(i,i+q.length)+"</mark>"+s.slice(i+q.length);}
+const stars5=r=>`<span class="stars" aria-label="${r} out of 5">${"★".repeat(r)}<span class="off">${"★".repeat(5-r)}</span></span>`;
+const diffBar=d=>`<span class="diff" aria-label="Difficulty ${d} of 5">${[1,2,3,4,5].map(i=>`<i class="${i<=d?"on":""}"></i>`).join("")}</span><span class="dlab">${DIFFNAME[d]}</span>`;
+const mins=m=>m==null?"":(Math.round(m*2)/2).toString().replace(".5","½")+" min";
+function yearNum(y){const m=String(y||"").match(/\d{4}/);return m?+m[0]:9999;}
+
+function passes(p){
+  const e=info(p); const q=state.q.trim().toLowerCase();
+  if(q){const c=compInfo(p);const hay=[p[0],p[1],p[2],p[3],p[4],e&&e.d,c&&c.full,e&&e.st.map(i=>STY[i]).join(" "),e&&PER[e.p]].join(" ").toLowerCase(); if(!hay.includes(q)) return false;}
+  if(!e) return !(state.period||state.diff||state.style||state.rate||state.free);
+  if(state.period!==""&&e.p!==+state.period) return false;
+  if(state.diff==="lo"&&e.df>2) return false;
+  if(state.diff==="mid"&&e.df!==3) return false;
+  if(state.diff==="hi"&&e.df<4) return false;
+  if(state.style!==""&&!e.st.includes(+state.style)) return false;
+  if(state.rate&&e.r<+state.rate) return false;
+  if(state.free&&!(e.u)) return false;
+  return true;
+}
+function sorter(a,b){
+  const ea=info(a.p)||{},eb=info(b.p)||{};
+  switch(state.sort){
+    case "rating": return (eb.r||0)-(ea.r||0)||a.ord-b.ord;
+    case "easy": return (ea.df||9)-(eb.df||9)||a.ord-b.ord;
+    case "hard": return (eb.df||0)-(ea.df||0)||a.ord-b.ord;
+    case "short": return (ea.m||99)-(eb.m||99)||a.ord-b.ord;
+    case "long": return (eb.m||0)-(ea.m||0)||a.ord-b.ord;
+    case "old": return yearNum(ea.y)-yearNum(eb.y)||(ea.p??9)-(eb.p??9)||a.ord-b.ord;
+  }
+  return a.ord-b.ord;
+}
+function groupsFor(exam){
+  const all=[]; let ord=0;
+  exam.lists.forEach(([lname,ldesc,pieces],li)=>pieces.forEach((p,i)=>all.push({p,li,i,lname,ord:ord++})));
+  const rows=all.filter(r=>passes(r.p)&&(!state.shared||(state.shared==='board'?otherBoard(exam,r.li,r.i):ovFor(exam,r.li,r.i).length>0)));
+  const g=new Map(); const add=(k,label,desc,r)=>{if(!g.has(k)) g.set(k,{label,desc,rows:[]}); g.get(k).rows.push(r);};
+  for(const r of rows){
+    const e=info(r.p);
+    if(state.group==="list"){ const L=exam.lists[r.li]; add("L"+r.li,L[0],L[1],r); }
+    else if(!e) add("zz","Not categorised","",r);
+    else if(state.group==="period") add("P"+e.p,PER[e.p],"",r);
+    else if(state.group==="diff") add("D"+e.df,`Difficulty ${e.df} · ${DIFFNAME[e.df]}`,"",r);
+    else if(state.group==="rating") add("R"+(9-e.r),`${e.r}★`,"",r);
+    else if(state.group==="style"){ if(!e.st.length) add("S99","Other","",r); for(const s of e.st) add("S"+String(s).padStart(2,"0"),STY[s],"",r); }
+  }
+  const keys=[...g.keys()].sort();
+  return {total:all.length, shown:rows.length, groups:(state.group==="list"?[...g.keys()]:keys).map(k=>g.get(k)), all};
+}
+function sharedSum(exam,G){
+  let nb=0,na=0; G.all.forEach(r=>{const o=ovFor(exam,r.li,r.i); if(o.length) na++; if(otherBoard(exam,r.li,r.i)) nb++;});
+  if(!na) return "";
+  const other=exam.board==="ABRSM"?"Trinity":"ABRSM";
+  return `<p class="sharedsum"><b>${nb}</b> of these ${G.all.length} pieces are also set by ${other}${na>nb?`, and <b>${na-nb}</b> more appear on another ${exam.board} list`:""}. Use <b>Shared</b> to show them.</p>`;
+}
+function rowHTML(exam,r,showList){
+  const p=r.p,e=info(p),c=compInfo(p),id=exam.id+"|"+r.li+"|"+r.i,q=state.q.trim().toLowerCase();
+  const cname=compName(p);
+  const bio=c&&(c.full||c.bio)?`<details class="more"><summary>About ${esc(c.full||cname)}</summary><p>${esc([c.dates,c.country].filter(Boolean).join(" · "))}${c.dates||c.country?". ":""}${esc(c.bio)}</p></details>`:"";
+  return `<tr>
+    <td class="n">${r.i+1}</td>
+    <td class="piece">${showList?`<span class="lname">${esc(r.lname)}</span>`:""}<span class="comp-name">${hl(cname,q)}</span>${c&&c.dates?`<span class="cdates">${esc(c.dates)}</span>`:""}${famTag(exam.id,r.lname,p)}${p[5]?'<span class="tag check" title="Confirm on the board’s own list">CHECK</span>':""}${e&&e.cf==="low"?'<span class="tag low" title="New or rarely recorded: notes are approximate">LESS-KNOWN</span>':""}
+      <span class="work">${hl(p[1],q)}</span>${p[2]?`<span class="mvt">${hl(p[2],q)}</span>`:""}
+      ${e?`<span class="desc">${hl(e.d,q)}</span>`:""}
+      ${alsoHTML(exam,r)}${recHTML(p,exam.inst)}
+      ${p[3]?`<span class="pub">${hl(p[3],q)}</span>`:""}${p[4]&&!/student/i.test(p[4])?`<span class="note">${hl(p[4],q)}</span>`:""}${bio}</td>
+    <td class="per">${e?`<span class="dot p${e.p}"></span> ${esc(PER[e.p])}<span class="yr">${esc(e.y)}</span>`:""}</td>
+    <td class="mins">${e?mins(e.m):""}</td>
+    <td class="dif">${e?diffBar(e.df):""}</td>
+    <td class="rate">${e?stars5(e.r)+`<span class="why">${esc(e.rw)}</span>`:""}</td>
+    <td class="sty">${e?`<div class="styles">${e.st.map(s=>`<span class="sty">${esc(STY[s])}</span>`).join("")}</div>`:""}</td>
+    <td class="links">${links(p,exam.inst)}<button type="button" class="starbtn" data-star="${esc(id)}" aria-pressed="${stars.has(id)}" aria-label="Add to shortlist">★</button></td></tr>`;
+}
+function exLabel(x,list){return `${x.board} ${x.name}${x.lvl[0]==="G"?" · "+list:""}`;}
+function alsoHTML(exam,r){
+  const o=ovFor(exam,r.li,r.i); if(!o.length) return "";
+  const seen=new Set(); const chips=[];
+  for(const [eid,list,same] of o){const x=EXBY[eid]; if(!x) continue; const lab=exLabel(x,list); const key=lab+same; if(seen.has(key)) continue; seen.add(key);
+    chips.push(`<span class="ovl ${x.board}" title="${same?"Same piece":"Same work; a different movement or the complete work is set"}">${esc(lab)}${same?"":" <i>· other mvt / complete</i>"}</span>`);}
+  return `<span class="also"><span class="lab">Also set by</span>${chips.join("")}</span>`;
+}
+function recHTML(p,inst){
+  const R=REC&&REC[(p[6]||"").split("|")[0]]; if(!R||!R.length) return "";
+  const q=s=>encodeURIComponent(s.replace(/\s+/g," "));
+  const cn=compInfo(p); const sur=(cn&&cn.full?cn.full:compName(p)).replace(/\(.*?\)/g,"").replace(/,?\s*\b(arr|ed|trans)\..*$/i,"").trim().split(/\s+/).pop();
+  const fromIn=s=>{const i=(s||"").toLowerCase().indexOf("from ");return i>=0?s.slice(i+5):"";};
+  const work=(fromIn(p[2])||fromIn(p[1])||p[1]).replace(/\(.*?\)/g,"").replace(/,?\s*\b(arr|ed|trans)\..*$/i,"");
+  const base=sur+" "+work;
+  return `<details class="recs"><summary>${R.length} recording${R.length===1?"":"s"} to hear</summary><ul>${R.map(x=>`<li><span class="who">${esc(x.who)}</span>${x.note?`<span class="rnote">${esc(x.note)}</span>`:""}<span class="rl"><a href="https://www.youtube.com/results?search_query=${q(x.who.split(/[(,;]/)[0]+" "+base)}" target="_blank" rel="noopener">YouTube</a><a href="https://open.spotify.com/search/${q(x.who.split(/[(,;]/)[0]+" "+base)}" target="_blank" rel="noopener">Spotify</a><a href="https://music.apple.com/search?term=${q(x.who.split(/[(,;]/)[0]+" "+base)}" target="_blank" rel="noopener">Apple Music</a></span></li>`).join("")}</ul></details>`;
+}
+const THEAD=`<thead><tr><th>#</th><th>Piece</th><th>Period</th><th>Length</th><th>Difficulty</th><th>Rating</th><th>Playing style</th><th></th></tr></thead>`;
+
+let renderTok=0;
+function render(){
+  document.getElementById("f-lvl").value=state.lvl; document.getElementById("f-inst").value=state.inst;
+  for(const [id,key] of [["f-board","board"]])
+    document.querySelectorAll("#"+id+" button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===state[key]));
+  for(const k of ["group","sort","period","diff","style","rate","free","shared"]) document.getElementById("s-"+k).value=state[k];
+  const want=state.inst==="all"?Object.keys(IDX.files):[state.inst];
+  const missing=want.filter(i=>!isLoaded(i));
+  if(missing.length){
+    document.getElementById("out").innerHTML=`<p class="none">Loading ${state.inst==="all"?"every instrument (about 12 MB, may take a moment)":esc(state.inst)}…</p>`;
+    document.getElementById("count").textContent="Loading…";
+    const tok=++renderTok;
+    ensure(want).then(()=>{if(tok===renderTok) render();}).catch(()=>{document.getElementById("out").innerHTML=`<p class="none">Couldn’t load the lists. Check your connection and <a href="#" onclick="render();return false">try again</a>.</p>`;});
+    renderShort(); return;
+  }
+  const exams=DATA.exams.filter(e=>e.lists&&(state.inst==="all"||e.inst===state.inst)&&(state.lvl==="all"||e.lvl===state.lvl||(state.lvl==="grades"&&e.lvl[0]==="G")||(state.lvl==="dips"&&e.lvl[0]==="L"))&&(state.board==="all"||e.board===state.board));
+  const filtering=state.q.trim()||state.period||state.diff||state.style||state.rate||state.free||state.shared;
+  let html="",nP=0,nE=0;
+  for(const exam of exams){
+    const G=groupsFor(exam);
+    if(filtering&&!G.shown) continue;
+    nE++; nP+=G.shown;
+    let body="";
+    for(const g of G.groups){
+      g.rows.sort(sorter);
+      const tm=g.rows.reduce((t,r)=>t+((info(r.p)||{}).m||0),0);
+      body+=`<div class="listhead"><h3>${state.group==="period"?`<span class="dot p${PER.indexOf(g.label)}"></span> `:""}${esc(g.label)}</h3><span>${g.rows.length} piece${g.rows.length===1?"":"s"}${g.desc?" · "+esc(g.desc):""}</span></div>
+      <div class="tablewrap"><table class="rep">${THEAD}<tbody>${g.rows.map(r=>rowHTML(exam,r,state.group!=="list")).join("")}</tbody></table></div>`;
+    }
+    // period mix chips
+    const pc=new Array(PER.length).fill(0); G.all.forEach(r=>{const e=info(r.p); if(e) pc[e.p]++;});
+    const mix=`<div class="mix"><span class="lbl">Periods</span>${pc.map((n,i)=>n?`<button type="button" class="pchip" data-period="${i}" aria-pressed="${state.period===String(i)}"><span class="dot p${i}"></span>${esc(PER[i])} <b>${n}</b></button>`:"").join("")}</div>`;
+    const comps=exam.comps.filter(c=>c[2]||c[1]).map(c=>`<div class="comp"><div class="k">${esc(c[0])}${c[1]?`<span>${esc(c[1])}</span>`:""}</div><p>${esc(c[2])}</p></div>`).join("");
+    const secs=exam.sections.filter(s=>s[1]).map(s=>`<div><h3>${esc(s[0])}</h3><p>${esc(s[1])}</p></div>`).join("");
+    const src=exam.sources.length?`<div><h3>Sources</h3><ul>${exam.sources.map(u=>`<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></li>`).join("")}</ul></div>`:"";
+    const title=`${exam.inst} ${exam.name}`;
+    html+=`<section class="exam" id="${exam.id}">
+      <div class="examhead"><h2>${esc(title)}</h2><span class="board ${exam.board}">${exam.board}</span><span class="eyebrow">${LVLNAME[exam.lvl]||""}</span></div>
+      ${exam.full?`<p class="syl"><b>${esc(exam.full)}</b> · ${esc(exam.syllabus)}</p>`:`<p class="syl">${esc(exam.syllabus)}</p>`}
+      ${exam.overview?`<p class="overview">${esc(exam.overview)}</p>`:""}
+      ${filtering?"":`<div class="comps">${comps}</div>
+      <details class="rules"><summary>Full requirements${exam.lvl[0]==="G"?": scales, sight-reading, aural, other rules":""}</summary><div class="rulebody">${secs}${src}</div></details>`}
+      ${filtering?"":courseHTML(exam)}${sharedSum(exam,G)}${mix}${body||`<p class="none">No pieces in this list match the filters.</p>`}</section>`;
+  }
+  document.getElementById("out").innerHTML=html||`<p class="none">Nothing matches. Clear some filters, or set Level and Instrument to All.</p>`;
+  document.getElementById("count").textContent=`${nE} exam${nE===1?"":"s"} · ${nP} pieces shown`;
+  renderShort();
+}
+function findPiece(id){const [eid,li,i]=id.split("|");const e=EXBY[eid];if(!e||!e.lists)return null;const l=e.lists[+li];const p=l&&l[2][+i];return p?{e,l,p}:null;}
+// ---------- Programme builder: starred pieces grouped by exam, checked against that exam's rules ----------
+let own={}; try{own=JSON.parse(localStorage.getItem("rh-own")||"{}")||{};}catch(e){}
+// ---------- Profiles: "Me" plus one per student. stars/own always hold the active profile's programme. ----------
+let profiles={}, active="me", view="prog";
+try{profiles=JSON.parse(localStorage.getItem("rh-profiles")||"null")||{}; active=localStorage.getItem("rh-active")||"me";}catch(e){}
+if(!profiles.me) profiles.me={name:"Me",stars:[...stars],own,dates:{}};
+if(!profiles[active]) active="me";
+function useProfile(id){ storeProfile(); active=id; const P=profiles[id]; stars=new Set(P.stars||[]); own=P.own||{}; P.dates=P.dates||{}; persist(); }
+function storeProfile(){ const P=profiles[active]; if(P){P.stars=[...stars]; P.own=own;} }
+function persist(){ storeProfile(); try{localStorage.setItem("rh-profiles",JSON.stringify(profiles)); localStorage.setItem("rh-active",active);}catch(e){} }
+useProfile(active);
+function saveOwn(){persist(); cloudPush();}
+const proLocked=()=>!!sb&&!isPro;
+function goProHTML(what){const c=checkoutLink(); return `<p class="empty">${what} are part of <b>Pro</b>.${c?` <a href="${esc(c)}" target="_blank" rel="noopener">Go Pro</a>`:user?"":" Sign in above first."}</p>`;}
+// Programme length (min,max in minutes) and how much must come from the list. ABRSM counts transitions in the time.
+const DIPRULE={
+  "ABRSM|ARSM":{min:28,max:32,label:"30 min (±2)",listMin:20,listTxt:"at least 20 min from the list"},
+  "ABRSM|LRSM":{min:40.5,max:49.5,label:"45 min (±10%)",listShare:.5,listTxt:"at least half from the list (more own choice needs ABRSM's approval)"},
+  "ABRSM|FRSM":{min:49.5,max:60.5,label:"55 min (±10%)",listShare:.5,listTxt:"at least half from the list (more own choice needs ABRSM's approval)"},
+  "Trinity|ATCL":{min:32,max:38,label:"32–38 min",approval:true},
+  "Trinity|LTCL":{min:37,max:43,label:"37–43 min",approval:true},
+  "Trinity|FTCL":{min:42,max:48,label:"42–48 min",approval:true}};
+const ok=(b,t)=>`<li class="${b?"ok":"bad"}"><span aria-hidden="true">${b?"✓":"!"}</span> ${t}</li>`;
+function progChecks(e,items,ownItems){
+  const out=[]; const m=x=>(info(x.p)||{}).m||0;
+  if(e.lvl[0]==="L"){
+    const R=DIPRULE[e.board+"|"+e.name]; if(!R) return "";
+    const listMin=items.reduce((t,x)=>t+m(x),0), ownMin=ownItems.reduce((t,o)=>t+(+o.m||0),0), tot=listMin+ownMin;
+    out.push(ok(tot>=R.min&&tot<=R.max,`Length about <b>${Math.round(tot)} min</b> · needs ${R.label}${tot<R.min?` — about ${Math.ceil(R.min-tot)} min short`:tot>R.max?` — about ${Math.ceil(tot-R.max)} min over`:""}`));
+    if(R.listMin!=null) out.push(ok(listMin>=R.listMin,`${Math.round(listMin)} min from the list · ${R.listTxt}`));
+    if(R.listShare!=null) out.push(ok(!tot||listMin>=R.listShare*tot,`${tot?Math.round(100*listMin/tot):0}% from the list · ${R.listTxt}`));
+    const works=items.length+ownItems.length, minW=/Singing|Percussion/.test(e.inst)?3:2;
+    if(R.approval){ out.push(ok(works>=minW,`${works} work${works===1?"":"s"} · at least ${minW} needed`));
+      if(ownItems.length) out.push(`<li class="info"><span aria-hidden="true">i</span> Own-choice items: the whole programme must be approved by Trinity before entry (about 15 working days).</li>`);}
+    out.push(`<li class="info"><span aria-hidden="true">i</span> Times are typical performance lengths; time your own playing, including gaps between pieces.</li>`);
+  } else {
+    const per=e.lists.map(l=>[l[0],items.filter(x=>x.l===l).length]);
+    const abc=e.board==="ABRSM"&&e.lists.length===3&&!(/Singing/.test(e.inst)&&+e.lvl[1]>=6)&&!/Percussion/.test(e.inst);
+    if(abc){ for(const [n,c] of per) out.push(ok(c===1,`${esc(n)}: ${c} chosen · need exactly one`)); }
+    else { out.push(`<li class="info"><span aria-hidden="true">i</span> ${per.map(([n,c])=>`${esc(n)}: ${c}`).join(" · ")}</li>`);
+      const rule=(e.comps||[]).find(c=>/Choosing/.test(c[0])); if(rule) out.push(`<li class="info"><details><summary>How to choose for this exam</summary><p>${esc(rule[2])}</p></details></li>`);}
+    out.push(`<li class="info"><span aria-hidden="true">i</span> About ${Math.round(items.reduce((t,x)=>t+m(x),0))} min of music.</li>`);
+  }
+  return `<ul class="checks">${out.join("")}</ul>`;
+}
+// ---------- Practice plan: weeks from today to the exam, in three phases, with a mock exam at the end ----------
+const DAILY={G:[0,"15–20","20–25","20–30","25–35","30–40","35–45","40–50","45–60","45–60"],L:"60–120"};
+function fmtD(d){return d.toLocaleDateString(undefined,{day:"numeric",month:"short"});}
+function planHTML(e,items,ownItems,dateStr){
+  const exam=new Date(dateStr+"T12:00:00"), now=new Date(); now.setHours(12,0,0,0);
+  const days=Math.round((exam-now)/864e5); if(!(days>0)) return `<p class="empty">Pick an exam date in the future.</p>`;
+  const weeks=Math.max(1,Math.ceil(days/7));
+  const pcs=items.map(({p})=>({name:compName(p)+" "+p[1]+(p[2]?" ("+p[2]+")":""),df:(info(p)||{}).df||3,m:(info(p)||{}).m||4})).concat(ownItems.map(o=>({name:o.t,df:3,m:+o.m||4})));
+  if(!pcs.length) return "";
+  const hard=[...pcs].sort((a,b)=>b.df-a.df||b.m-a.m);
+  const ph1=Math.max(1,Math.round(weeks*.4)), ph2=Math.max(ph1+1,Math.round(weeks*.75));
+  const dip=e.lvl[0]==="L", g=+e.lvl[1];
+  const extra=dip?"":(e.board==="ABRSM"?"scales & arpeggios, sight-reading, aural":"technical work, sight-reading, aural or improvisation");
+  let rows="";
+  for(let w=0;w<weeks;w++){
+    const start=new Date(now.getTime()+w*7*864e5);
+    const left=weeks-w; let phase, focus;
+    if(w<ph1){phase="Learn"; const p=hard[w%hard.length]; focus=`Notes and rhythm, slowly and in sections. Lead piece this week: <b>${esc(p.name)}</b>${pcs.length>1?"; keep the others ticking over":""}.`;}
+    else if(w<ph2&&left>1){phase="Shape"; const p=hard[(w-ph1)%hard.length]; focus=`Tempo up in steps, dynamics, phrasing, tone. Spotlight: <b>${esc(p.name)}</b>. Record one piece and listen back.`;}
+    else if(left>1){phase="Perform"; focus=`Full run-throughs in exam order${dip?", timed, with the gaps between pieces":""}. Play for someone at least once this week.`;}
+    else {phase="Exam week"; focus=`Mock exam early in the week${dip?" (whole programme, timed)":" (pieces plus "+extra+")"}, then light, confident practice. Rest the day before.`;}
+    rows+=`<tr><td>${fmtD(start)}</td><td><b>${phase}</b></td><td>${focus}${extra&&phase!=="Exam week"?`<span class="mvt">Also every day: ${extra}.</span>`:""}</td></tr>`;
+  }
+  const daily=dip?DAILY.L:DAILY.G[g]||"20–30";
+  return `<div class="plan"><p class="planhead"><b>Practice plan</b> · ${weeks} week${weeks===1?"":"s"} to ${fmtD(exam)} · about ${daily} min a day</p>
+    <div class="tablewrap"><table class="plantbl"><thead><tr><th>Week of</th><th>Phase</th><th>Focus</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="empty">A general plan: hardest and longest pieces lead first. Adjust with your teacher.</p></div>`;
+}
+function progBlock(e,items,ownItems,P,withPlan){
+  const lis=items.map(({id,l,p})=>{const x=info(p);return `<li><span class="lname">${esc(l[0])}</span><span><b>${esc(compName(p))}</b> ${esc(p[1])}${p[2]?` <span class="mvt" style="display:inline">(${esc(p[2])})</span>`:""}</span>${x?`<span>${stars5(x.r)} <span class="tot">${mins(x.m)}</span></span>`:""}<span class="links">${links(p,e.inst)}<button type="button" class="starbtn" data-star="${esc(id)}" aria-pressed="true" aria-label="Remove from programme">★</button></span></li>`;}).join("")
+    +ownItems.map((o,k)=>`<li><span class="lname">Own choice</span><span><b>${esc(o.t)}</b></span><span class="tot">${mins(+o.m)}</span><span class="links"><button type="button" class="ownx" data-ownx="${esc(e.id)}|${k}" aria-label="Remove own-choice piece">✕</button></span></li>`).join("");
+  const form=e.lvl[0]==="L"?`<form class="ownform" data-own="${esc(e.id)}"><input name="t" placeholder="Own-choice piece (composer and title)" aria-label="Own-choice piece" required><input name="m" type="number" min="0.5" max="90" step="0.5" placeholder="min" aria-label="Minutes" required><button type="submit">Add</button></form>`:"";
+  const d=(P.dates||{})[e.id]||"";
+  const planUI=`<div class="planbar"><label>Exam date <input type="date" data-date="${esc(e.id)}" value="${esc(d)}"></label>${d?"":`<span class="empty">Set a date to get a week-by-week practice plan.</span>`}</div>`;
+  const plan=withPlan?(planUI+(d?planHTML(e,items,ownItems,d):"")):"";
+  return `<div class="prog"><h3><span class="board ${e.board}">${e.board}</span> ${esc(e.inst)} ${esc(e.name)}</h3><ul class="items">${lis}</ul>${progChecks(e,items,ownItems)}${form}${plan}</div>`;
+}
+function groupsOf(starIds,ownMap){
+  const groups=new Map();
+  for(const id of starIds){const x=findPiece(id); if(!x) continue; if(!groups.has(x.e.id)) groups.set(x.e.id,[]); groups.get(x.e.id).push(Object.assign({id},x));}
+  for(const eid of Object.keys(ownMap||{})){ if(ownMap[eid]&&ownMap[eid].length&&EXBY[eid]&&EXBY[eid].lists&&!groups.has(eid)) groups.set(eid,[]); }
+  return groups;
+}
+function needLoad(ids){return [...new Set(ids.map(id=>EXBY[id.split("|")[0]]).filter(e=>e&&!e.lists).map(e=>e.inst))];}
+function renderShort(){
+  storeProfile();
+  const el=document.getElementById("shortlist");
+  const allIds=Object.values(profiles).flatMap(P=>(P.stars||[]).concat(Object.keys(P.own||{}).map(k=>k+"|0|0")));
+  const needInst=needLoad(view==="all"?allIds:[...stars].concat(Object.keys(own).map(k=>k+"|0|0")));
+  if(needInst.length){ ensure(needInst).then(renderShort).catch(()=>{}); }
+  const ids=Object.keys(profiles), P=profiles[active];
+  const bar=`<div class="profbar"><label>Programmes for <select id="prof">${ids.map(id=>`<option value="${esc(id)}"${id===active?" selected":""}>${esc(profiles[id].name)}</option>`).join("")}</select></label>
+    <button type="button" data-prof="all" aria-pressed="${view==="all"}">${ids.length>1?`All students (${ids.length-1})`:"Students"}</button>
+    <details class="addstu"><summary>+ Add student</summary>${proLocked()?goProHTML("Student programmes"):`<form data-newstu><input name="n" placeholder="Student name" aria-label="Student name" required maxlength="60"><button type="submit">Add</button></form>`}</details>
+    ${active!=="me"?`<button type="button" data-prof="del" class="quiet">Remove ${esc(P.name)}</button>`:""}</div>`;
+  if(view==="all"){ el.innerHTML=`<h2>Students</h2>`+bar+studentsTable(); return; }
+  const groups=groupsOf([...stars],own);
+  const n=stars.size;
+  let html=`<h2>${active==="me"?"My programmes":esc(P.name)+"’s programmes"} <span class="eyebrow">${n} starred</span>${groups.size?`<span class="ptools"><button type="button" data-prog="share">Share link</button><button type="button" data-prog="copy">Copy as text</button><button type="button" data-prog="print">Print</button></span>`:""}</h2>`+bar;
+  if(!groups.size){ el.innerHTML=html+`<p class="empty">Tap ★ next to any piece to add it${active==="me"?"":" to "+esc(P.name)+"’s programme"}. Pieces are grouped by exam and checked against that exam’s rules: one from each list for ABRSM grades, and programme length and own-choice limits for diplomas. Add an exam date for a week-by-week practice plan. Saved in this browser${user&&isPro?" and your account":" only"}.</p>`+(needInst.length?`<p class="empty">Loading…</p>`:""); return; }
+  const planOK=!proLocked();
+  for(const [eid,items] of groups){ const e=EXBY[eid]; html+=progBlock(e,items,own[eid]||[],P,planOK); }
+  if(!planOK) html+=goProHTML("Practice plans");
+  el.innerHTML=html;
+}
+function studentsTable(){
+  const ids=Object.keys(profiles).filter(id=>id!=="me");
+  if(!ids.length) return `<p class="empty">Add a student to keep a separate programme for each one. Pick a student above, then star pieces for them; this table shows everyone’s exams and whether each programme meets the rules.</p>`;
+  const rows=ids.map(id=>{const P=profiles[id]; const g=groupsOf(P.stars||[],P.own||{});
+    const cells=[...g].map(([eid,items])=>{const e=EXBY[eid]; const tmp=document.createElement("div"); tmp.innerHTML=progChecks(e,items,(P.own||{})[eid]||[]); const bad=tmp.querySelectorAll("li.bad").length;
+      const d=(P.dates||{})[eid]; return `<span class="stuex ${bad?"bad":"ok"}">${esc(e.board)} ${esc(e.inst)} ${esc(e.name)} · ${bad?bad+" to fix":"✓ ready"}${d?" · exam "+fmtD(new Date(d+"T12:00:00")):""}</span>`;}).join("")||`<span class="empty">No pieces yet</span>`;
+    return `<tr><td><b>${esc(P.name)}</b></td><td>${cells}</td><td><button type="button" data-open="${esc(id)}">Open</button></td></tr>`;}).join("");
+  return `<div class="tablewrap"><table class="plantbl"><thead><tr><th>Student</th><th>Exams</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function progText(){
+  let t="";
+  for(const prog of document.querySelectorAll("#shortlist .prog")){
+    t+=prog.querySelector("h3").textContent.trim()+"\n";
+    prog.querySelectorAll("ul.items > li").forEach(li=>{const parts=[...li.children].filter(c=>!c.classList.contains("links")).map(c=>c.textContent.trim()).filter(Boolean);t+="  • "+parts.join(" — ").replace(/★/g,"")+"\n";});
+    prog.querySelectorAll(".checks li").forEach(li=>{if(!li.querySelector("details")) t+="    "+li.textContent.trim()+"\n";});
+    t+="\n";
+  }
+  return t.trim();
+}
+// instrument and level options from the data
+{const fams={}; for(const e of DATA.exams){const f=e.family||"Other"; (fams[f]=fams[f]||new Set()).add(e.inst);}
+ const forder=["Strings","Harp","Woodwind","Brass","Percussion","Guitar","Keyboard","Voice","Other"];
+ document.getElementById("f-inst").innerHTML='<option value="all">All instruments</option>'+forder.filter(f=>fams[f]).map(f=>`<optgroup label="${esc(f)}">${[...fams[f]].sort().map(i=>`<option value="${esc(i)}">${esc(i)}</option>`).join("")}</optgroup>`).join("");
+ document.getElementById("f-inst").addEventListener("change",ev=>{state.inst=ev.target.value;save();render();});
+ const lv=[...new Set(DATA.exams.map(e=>e.lvl))].sort((a,b)=>(a[0]===b[0]?(+a.slice(1))-(+b.slice(1)):(a[0]==="G"?-1:1)));
+ document.getElementById("f-lvl").innerHTML=lv.map(v=>`<option value="${v}">${esc(v[0]==="L"?{L4:"ARSM · ATCL (Level 4)",L6:"LRSM · LTCL (Level 6)",L7:"FRSM · FTCL (Level 7)"}[v]:LVLNAME[v])}</option>`).join("")+'<option value="grades">All grades</option><option value="dips">All diplomas</option><option value="all">Everything</option>';
+ document.getElementById("f-lvl").addEventListener("change",ev=>{state.lvl=ev.target.value;save();render();});}
+// fill selects
+document.getElementById("s-period").insertAdjacentHTML("beforeend",PER.map((p,i)=>`<option value="${i}">${esc(p)}</option>`).join(""));
+document.getElementById("s-style").insertAdjacentHTML("beforeend",STY.map((s,i)=>[s,i]).sort((a,b)=>a[0].localeCompare(b[0])).map(([s,i])=>`<option value="${i}">${esc(s)}</option>`).join(""));
+for(const k of ["group","sort","period","diff","style","rate","free","shared"]) document.getElementById("s-"+k).addEventListener("change",ev=>{state[k]=ev.target.value;save();render();});
+document.getElementById("reset").addEventListener("click",()=>{Object.assign(state,{q:"",group:"list",sort:"list",period:"",diff:"",style:"",rate:"",free:"",shared:""});document.getElementById("q").value="";save();render();});
+document.addEventListener("click",ev=>{
+  const sb=ev.target.closest("[data-star]");
+  if(sb){const id=sb.dataset.star; stars.has(id)?stars.delete(id):stars.add(id); save(); document.querySelectorAll("[data-star]").forEach(b=>{if(b.dataset.star===id)b.setAttribute("aria-pressed",stars.has(id));});renderShort(); return;}
+  const pt=ev.target.closest("[data-prog]");
+  if(pt){ if(pt.dataset.prog==="share"){const url=shareURL(); const done=()=>{pt.textContent="Link copied";setTimeout(()=>pt.textContent="Share link",1800);};
+      try{navigator.clipboard.writeText(url).then(done,()=>{fallbackCopy(url);done();});}catch(e){fallbackCopy(url);done();} return;}
+    if(pt.dataset.prog==="print"){document.body.classList.add("printing");window.print();setTimeout(()=>document.body.classList.remove("printing"),500);}
+    else{const txt=progText(); const done=()=>{pt.textContent="Copied";setTimeout(()=>pt.textContent="Copy as text",1500);};
+      try{navigator.clipboard.writeText(txt).then(done,()=>{fallbackCopy(txt);done();});}catch(e){fallbackCopy(txt);done();}} return;}
+  const pf=ev.target.closest("[data-prof]");
+  if(pf){ if(pf.dataset.prof==="all"){view=view==="all"?"prog":"all";renderShort();return;}
+    if(pf.dataset.prof==="del"&&active!=="me"){ if(pf.dataset.sure){const id=active; useProfile("me"); delete profiles[id]; persist(); cloudPush(); render();} else {pf.dataset.sure="1"; pf.textContent="Tap again to remove"; setTimeout(()=>{if(pf.isConnected){delete pf.dataset.sure; pf.textContent="Remove "+profiles[active].name;}},3000);} return;} }
+  const op=ev.target.closest("[data-open]");
+  if(op){view="prog"; useProfile(op.dataset.open); render(); document.getElementById("shortlist").scrollIntoView({block:"start"}); return;}
+  const ox=ev.target.closest("[data-ownx]");
+  if(ox){const [eid,k]=ox.dataset.ownx.split("|"); (own[eid]||[]).splice(+k,1); saveOwn(); renderShort(); return;}
+  const pc=ev.target.closest("[data-period]");
+  if(pc){state.period=state.period===pc.dataset.period?"":pc.dataset.period; save(); render(); return;}
+  const fb=ev.target.closest(".seg button");
+  if(fb){const key={"f-board":"board"}[fb.parentElement.id]; state[key]=fb.dataset.v; save(); render(); return;}
+  const jb=ev.target.closest("[data-jump]");
+  if(jb){const ids=jb.dataset.jump.split("|"); const e=DATA.exams.find(x=>x.id===ids[0]);
+    Object.assign(state,DEF,{inst:e.inst,lvl:e.lvl,board:ids.length>1?"all":e.board}); document.getElementById("q").value=""; save();
+    ensure([e.inst]).then(()=>{render(); const t=document.getElementById(ids[0]); if(t) t.scrollIntoView({block:"start"});}); render(); }
+});
+function fallbackCopy(t){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");}catch(e){}a.remove();}
+document.addEventListener("change",ev=>{
+  if(ev.target.id==="prof"){view="prog"; useProfile(ev.target.value); render(); return;}
+  const dt=ev.target.closest("[data-date]"); if(dt){profiles[active].dates=profiles[active].dates||{}; if(dt.value) profiles[active].dates[dt.dataset.date]=dt.value; else delete profiles[active].dates[dt.dataset.date]; persist(); cloudPush(); renderShort();}
+});
+document.addEventListener("submit",ev=>{const ns=ev.target.closest("form[data-newstu]"); if(ns){ev.preventDefault(); const nm=ns.elements.n.value.trim(); if(!nm) return; const id="s"+Date.now().toString(36); profiles[id]={name:nm,stars:[],own:{},dates:{}}; view="prog"; useProfile(id); cloudPush(); render(); return;}
+  const f=ev.target.closest("form[data-own]"); if(!f) return; ev.preventDefault();
+  const t=f.elements.t.value.trim(), m=+f.elements.m.value; if(!t||!(m>0)) return; (own[f.dataset.own]=own[f.dataset.own]||[]).push({t,m}); saveOwn(); renderShort();});
+
+
+// ---------- Links to the aural and theory courses (set in config.js) ----------
+if(PERSONAL&&!(RH_CONFIG.aural&&RH_CONFIG.aural.url)) RH_CONFIG.aural={url:"https://claude.ai/artifact/1S3QJxeqGfBbZixCoLTNSe",name:"Cadenza Ear Studio"};
+function courseHTML(exam){
+  if(exam.lvl[0]!=="G") return "";
+  const A=RH_CONFIG.aural, T=RH_CONFIG.theory, g=+exam.lvl[1], out=[];
+  const u=(x,extra)=>x.url+(x.url.includes("?")?"&":"?")+extra;
+  if(A&&A.url&&!/drum|keyboard|acoustic/i.test(exam.inst)) out.push(`<a class="btn" href="${esc(u(A,"board="+exam.board.toLowerCase()+"&grade="+g))}" target="_blank" rel="noopener">Practise the ${esc(exam.board)} Grade ${g||"Initial"} aural tests${A.name?` · ${esc(A.name)}`:""}</a>`);
+  if(T&&T.url&&exam.board==="ABRSM"&&g>=6) out.push(`<a class="btn" href="${esc(u(T,"grade=5"))}" target="_blank" rel="noopener">Need Grade 5 theory before entering? ${esc(T.name||"Theory course")}</a>`);
+  return out.length?`<div class="courses">${out.join("")}</div>`:"";
+}
+// ---------- Share links (no account needed): the programme travels in the link itself ----------
+const b64u={enc:s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
+  dec:s=>decodeURIComponent(escape(atob(s.replace(/-/g,"+").replace(/_/g,"/"))))};
+function shareURL(){const base=(RH_CONFIG.siteUrl||location.href.split("#")[0]);return base+"#share="+b64u.enc(JSON.stringify({s:[...stars],o:own}));}
+function readShare(){
+  const m=location.hash.match(/share=([\w-]+)/); if(!m) return;
+  let d; try{d=JSON.parse(b64u.dec(m[1]));}catch(e){return;}
+  const s=(d.s||[]).filter(id=>EXBY[id.split("|")[0]]), o=d.o||{};
+  const nOwn=Object.values(o).reduce((t,a)=>t+(a||[]).length,0);
+  const insts=[...new Set(s.map(id=>EXBY[id.split("|")[0]].inst))];
+  const bar=document.getElementById("sharebar"); bar.hidden=false;
+  bar.innerHTML=`<span><b>Someone shared a programme with you</b>: ${s.length} piece${s.length===1?"":"s"}${nOwn?` and ${nOwn} own-choice item${nOwn===1?"":"s"}`:""}${insts.length?` (${esc(insts.join(", "))})`:""}.</span><button type="button" class="yes" data-share="add">Add to my programmes</button><button type="button" data-share="no">Dismiss</button>`;
+  bar.onclick=ev=>{const b=ev.target.closest("[data-share]"); if(!b) return;
+    if(b.dataset.share==="add"){s.forEach(id=>stars.add(id)); for(const k in o){own[k]=(own[k]||[]).concat(o[k].filter(x=>!(own[k]||[]).some(y=>y.t===x.t)));} save(); saveOwn(); render();
+      if(insts[0]&&state.inst!==insts[0]){state.inst=insts[0]; const lv=EXBY[s[0].split("|")[0]].lvl; state.lvl=lv; save(); render();}}
+    bar.hidden=true; history.replaceState(null,"",location.href.split("#")[0]);};
+}
+
+// ---------- Accounts & saving across devices (Pro). Only active when config.js supplies Supabase keys. ----------
+function cloudPush(){ if(!sb||!user||!isPro||pulling) return; clearTimeout(pushT);
+  pushT=setTimeout(async()=>{acctMsg("Saving…"); const {error}=await sb.from("programmes").upsert({user_id:user.id,data:(storeProfile(),{profiles,active}),updated_at:new Date().toISOString()});
+    acctMsg(error?"Couldn’t save — will retry on your next change":"Saved to your account");},800);}
+function acctMsg(t){const el=document.querySelector("#acct .sync"); if(el) el.textContent=t;}
+async function cloudPull(){
+  pulling=true;
+  const {data}=await sb.from("programmes").select("data").eq("user_id",user.id).maybeSingle();
+  storeProfile();
+  if(data&&data.data){ const cp=data.data.profiles||{me:{name:"Me",stars:data.data.stars||[],own:data.data.own||{}}};
+    for(const id in cp){ const c=cp[id], L=profiles[id]||(profiles[id]={name:c.name,stars:[],own:{},dates:{}});
+      L.stars=[...new Set((L.stars||[]).concat(c.stars||[]))];
+      for(const k in (c.own||{})){L.own[k]=(L.own[k]||[]).concat(c.own[k].filter(x=>!(L.own[k]||[]).some(y=>y.t===x.t&&y.m===x.m)));}
+      L.dates=Object.assign({},c.dates||{},L.dates||{}); } }
+  const P=profiles[active]; stars=new Set(P.stars); own=P.own; persist();
+  pulling=false; render(); cloudPush();
+}
+function checkoutLink(){return RH_CONFIG.checkoutUrl&&user?RH_CONFIG.checkoutUrl+(RH_CONFIG.checkoutUrl.includes("?")?"&":"?")+"checkout[email]="+encodeURIComponent(user.email)+"&checkout[custom][user_id]="+encodeURIComponent(user.id):"";}
+function renderAcct(){
+  const el=document.getElementById("acct"); if(!sb){el.hidden=true;return;} el.hidden=false;
+  if(!user){ el.innerHTML=`<span><b>Save your programmes on every device.</b> Sign in with your email; we send you a one-time link.</span><form id="signin" style="display:flex;gap:8px;flex:1 1 320px"><input type="email" name="email" placeholder="you@example.com" aria-label="Email" required><button type="submit">Email me a sign-in link</button></form>`; return; }
+  const checkout=checkoutLink();
+  el.innerHTML=`<span class="who">Signed in as <b>${esc(user.email)}</b>${isPro?" · Pro":""}</span>`+(isPro?`<span class="sync">Synced</span>`:`<span>Saving across devices is a Pro feature.</span>${checkout?`<a class="btn pro" href="${esc(checkout)}" target="_blank" rel="noopener">Go Pro</a>`:""}`)+`<button type="button" id="signout">Sign out</button>`;
+}
+async function initCloud(){
+  if(!RH_CONFIG.supabaseUrl||!RH_CONFIG.supabaseAnonKey) return;
+  try{ const mod=await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm"); sb=mod.createClient(RH_CONFIG.supabaseUrl,RH_CONFIG.supabaseAnonKey); }catch(e){return;}
+  const onUser=async u=>{ user=u||null; isPro=false;
+    if(user){ const {data}=await sb.from("profiles").select("pro_until").eq("id",user.id).maybeSingle(); isPro=!!(data&&data.pro_until&&new Date(data.pro_until)>new Date()); }
+    renderAcct(); renderShort(); if(user&&isPro) cloudPull(); };
+  const {data:{session}}=await sb.auth.getSession(); await onUser(session&&session.user);
+  sb.auth.onAuthStateChange((_e,s)=>{const u=s&&s.user; if((u&&u.id)!==(user&&user.id)) onUser(u);});
+  document.getElementById("acct").addEventListener("submit",async ev=>{ev.preventDefault(); const f=ev.target; const email=f.elements.email.value.trim(); const btn=f.querySelector("button");
+    btn.disabled=true; const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:RH_CONFIG.siteUrl||location.href.split("#")[0]}});
+    btn.disabled=false; btn.textContent=error?"Try again":"Check your email"; });
+  document.getElementById("acct").addEventListener("click",async ev=>{ if(ev.target.id==="signout"){await sb.auth.signOut(); user=null; isPro=false; renderAcct();} });
+  renderAcct();
+}
+let tmr; document.getElementById("q").addEventListener("input",ev=>{clearTimeout(tmr);tmr=setTimeout(()=>{state.q=ev.target.value;render();},150);});
+render();
+readShare();
+initCloud();
+</script>
+
+</body></html>
