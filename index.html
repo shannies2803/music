@@ -1745,16 +1745,48 @@ async function singStart(){
   });
 }
 
-/* ===================== Aural by grade: Grade 5 → 6 → 7 → 8 ===================== */
+/* ===================== Aural by grade: Grades 1–8 ===================== */
+MOCKS[1] = {t:"Grade 1", items:[["A","Clap the beat","pulse",1],["B","Echo short tunes","echo",1],["C","Spot the change","changed",1],["D","Loud or quiet? Smooth or detached?","features",1]]};
+MOCKS[2] = {t:"Grade 2", items:[["A","Clap the beat","pulse",1],["B","Echo short tunes","echo",2],["C","Spot the change","changed",2],["D","Talk about the music","features",1]]};
+MOCKS[3] = {t:"Grade 3", items:[["A","Clap the beat","pulse",2],["B","Echo short tunes","echo",3],["C","Spot the change","changed",3],["D","Talk about the music","features",2]]};
+MOCKS[4] = {t:"Grade 4", items:[["A","Sing back a melody","echo",4],["B","Sight-sing five notes","sight",1],["C(i)","Talk about the music","features",2],["C(ii)","Clap the rhythm back","clap",3]]};
 MOCKS[5] = {t:"Grade 5", items:[["A","Sing back a melody","echo",5],["B","Sight-sing six notes","sight",2],["C(i)","Talk about the music","features",3],["C(ii)","Clap along and name the time","pulse",3]]};
 const GRADES = {
+  1:{blurb:"Four friendly tests: feel the beat, sing back short tunes, spot a change, and say whether music is loud or quiet, smooth or detached.",
+     tests:[
+      {sec:"A", t:"Clap the beat", id:"pulse", L:1, d:"Clap along with a piece, making the strong beats stronger, then say whether it’s in 2 or 3 time.", tip:"Say “ONE two” or “ONE two three” as you clap. Which one keeps landing on the strong beat?"},
+      {sec:"B", t:"Echo short tunes", id:"echo", L:1, d:"Sing back short phrases played to you, one at a time.", tip:"Listen to the whole phrase first. Then sing it straight back — it’s only a few notes!"},
+      {sec:"C", t:"Spot the change", id:"changed", L:1, d:"A short tune is played twice. Say where the second playing was different.", tip:"Hum the first playing in your head while the second one plays."},
+      {sec:"D", t:"Loud or quiet? Smooth or detached?", id:"features", L:1, d:"Talk about the dynamics (loud or quiet) and articulation (smooth or detached) of a piece.", tip:"Listen once just for loud and quiet, then once just for smooth and short."}],
+     extra:[["majmin",1],["intervals",1],["clap",1]]},
+  2:{blurb:"Like Grade 1, with slightly longer tunes and a new question: is it major or minor?",
+     tests:[
+      {sec:"A", t:"Clap the beat", id:"pulse", L:1, d:"Clap the beat with strong beats stressed, then say whether it’s in 2 or 3 time.", tip:"Waltzes go in 3 (ONE two three); marches go in 2 (LEFT right)."},
+      {sec:"B", t:"Echo short tunes", id:"echo", L:2, d:"Sing back short phrases, a little longer than at Grade 1.", tip:"Notice which note it starts on and whether it ends higher or lower."},
+      {sec:"C", t:"Spot the change", id:"changed", L:2, d:"A tune is played twice. Which note changed the second time?", tip:"Count the notes on your fingers as they go past."},
+      {sec:"D", t:"Talk about the music", id:"features", L:1, d:"Dynamics and articulation — and whether the music sounds major or minor.", tip:"Major usually sounds bright and happy; minor sounds darker or sad."}],
+     extra:[["majmin",1],["clap",2],["intervals",1]]},
+  3:{blurb:"Four-time joins in, the tunes get longer, and you start listening for tempo changes.",
+     tests:[
+      {sec:"A", t:"Clap the beat", id:"pulse", L:2, d:"Clap along and say whether the music is in 2, 3 or 4 time.", tip:"4 time has a strong ONE and a smaller accent on three: “ONE two THREE four”."},
+      {sec:"B", t:"Echo short tunes", id:"echo", L:3, d:"Sing back phrases of five notes or so, in major keys.", tip:"Think of the shape like a hill or a staircase before you sing."},
+      {sec:"C", t:"Spot the change", id:"changed", L:3, d:"A longer phrase is played twice. Find the note that changed.", tip:"Did the changed note go higher or lower? That helps you find it."},
+      {sec:"D", t:"Talk about the music", id:"features", L:2, d:"Dynamics, articulation and tempo: does it speed up or slow down?", tip:"Tap your foot. If your foot has to change speed, so did the music."}],
+     extra:[["majmin",2],["clap",3],["intervals",2],["triads",1]]},
+  4:{blurb:"A step up: longer melodies to sing, your first sight-singing, and clapping rhythms back.",
+     tests:[
+      {sec:"A", t:"Sing back a melody", id:"echo", L:4, d:"Sing back a melody played twice — it can be in a minor key now.", tip:"Sing the key chord quietly in your head first, then follow the melody’s shape."},
+      {sec:"B", t:"Sight-sing five notes", id:"sight", L:1, d:"Sing five notes from the music, moving by step, starting on the note you’re given.", tip:"Each step is just the next note up or down the scale — no jumps yet."},
+      {sec:"C(i)", t:"Talk about the music", id:"features", L:2, d:"Answer questions on dynamics, articulation, tempo and tonality.", tip:"Pick one feature at a time and listen just for that."},
+      {sec:"C(ii)", t:"Clap the rhythm back", id:"clap", L:3, d:"Listen to a short rhythm, clap it back, and feel whether it’s in 2, 3 or 4 time.", tip:"Say the rhythm in your head as words first, like “ap-ple ap-ple pear”."}],
+     extra:[["majmin",3],["intervals",2],["triads",1],["pulse",3]]},
   5:{blurb:"Four short tests. Listen carefully, sing back, sight-sing a little, then talk about a piece and feel its beat.",
      tests:[
       {sec:"A", t:"Sing back a melody", id:"echo", L:5, d:"The examiner plays a short melody twice (major or minor). Sing it back from memory.", tip:"Hum along silently the second time. Notice where it goes up, down, and where it lands."},
       {sec:"B", t:"Sight-sing six notes", id:"sight", L:2, d:"Sing six notes from the music, starting on the note you’re given.", tip:"Find doh first. Steps are easy; for a skip, imagine the note in between."},
       {sec:"C(i)", t:"Talk about the music", id:"features", L:3, d:"Answer questions about two features of a piece: dynamics, articulation, tempo, tonality or character.", tip:"Listen for one thing at a time: loud or quiet? smooth or short? does it slow down?"},
       {sec:"C(ii)", t:"Clap along and name the time", id:"pulse", L:3, d:"Clap the beat of a passage, stressing the strong beat, then say whether it’s in 2, 3, 4 or 6/8.", tip:"Count “1 2 3” or “1 2 3 4” and see which fits the strong beats. Swingy groups of three in each beat mean 6/8."}],
-     extra:[["intervals",3],["majmin",3],["changed",3],["clap",4]]},
+     extra:[["intervals",3],["majmin",3],["changed",4],["clap",4]]},
   6:{blurb:"Harder singing and your first harmony questions: cadences, chords and key changes.",
      tests:[
       {sec:"A", t:"Sing back the upper part", id:"parts", L:1, d:"Hear a two-part phrase twice, then sing back the upper part.", tip:"The top part is the tune — focus on it and let the lower part fade into the background."},
@@ -1788,8 +1820,8 @@ function auralHome2(){
     return `<button class="back" data-act="gback">← Grade ${c.g} aural</button><div class="kicker">Grade ${c.g} · ${c.sec === "practice" ? "Extra ear training" : "Test " + esc(c.sec)}</div><h2>${esc(c.t)}</h2><p class="muted" style="margin-top:0">${esc(c.d)}</p><div id="ex"></div>`; }
   let g = p.auralGrade || 5; if (!GRADES[g] || !gradeAuralOpen(p, g)) g = 5;
   const G = GRADES[g]; const mk = (p.mocks||{})[g]; const done = gradeDone(p, g);
-  const gbtns = [5,6,7,8].map(n => { const open = gradeAuralOpen(p, n); return `<button class="gbtn" data-act="agrade" data-arg="${n}" aria-pressed="${n===g}" ${open?"":"disabled"}>Grade ${n}${open?"":" · locked"}</button>`; }).join("")
-    + `<span class="muted" style="font-size:.85rem;align-self:center">Grades 1–4 coming soon</span>`;
+  const gbtns = [1,2,3,4,5,6,7,8].map(n => { const open = gradeAuralOpen(p, n); return `<button class="gbtn" data-act="agrade" data-arg="${n}" aria-pressed="${n===g}" ${open?"":"disabled"}>Grade ${n}${open?"":" · locked"}</button>`; }).join("")
+;
   const tests = G.tests.map(t => { const st = lvlStars(p, t.id, t.L); const lv = AURAL_BY[t.id].levels[t.L-1];
     return `<div class="gtest ${st?"done":""}"><div class="gsec">${esc(t.sec)}</div><div style="min-width:0"><div class="nm">${esc(t.t)}</div><div class="ds">${esc(t.d)}</div>
       <details class="tipbox"><summary>How to do it</summary>${esc(t.tip)}</details></div>
@@ -2512,7 +2544,7 @@ function progressView(){
   <div class="statgrid"><div class="stat"><b>${p.xp}</b><span>XP earned</span></div><div class="stat"><b>${streak(p)}</b><span>day streak</span></div><div class="stat"><b>${starsTotal(p)}</b><span>stars</span></div><div class="stat"><b>${Math.min(t.q,GOAL)}/${GOAL}</b><span>today’s goal</span></div></div>
   <div class="panel"><h3>Last 14 days</h3>${chart}</div>
   <div class="cols2" style="margin-top:16px"><div class="panel"><h3>Aural accuracy</h3>${AURAL.map(s => bar(s.name, p.sk[s.id])).join("")}
-   <p class="muted" style="font-size:.9rem;margin-bottom:0">Mock aural tests: ${[5,6,7,8].map(g => { const m = (p.mocks||{})[g]; return `Gr ${g}: ${m ? Math.round(m.best*100)+"% best ("+m.n+")" : "not tried"}`; }).join(" · ")}</p></div>
+   <p class="muted" style="font-size:.9rem;margin-bottom:0">Mock aural tests: ${[1,2,3,4,5,6,7,8].map(g => { const m = (p.mocks||{})[g]; return `Gr ${g}: ${m ? Math.round(m.best*100)+"% best ("+m.n+")" : "not tried"}`; }).join(" · ")}</p></div>
   <div class="panel"><h3>Theory accuracy</h3>${THEORY_TOPICS.map(tp => bar(tp, topicAcc(p, tp))).join("")}
    <p class="muted" style="font-size:.9rem;margin-bottom:0">Lessons starred: ${[1,2,3,4,5].map(g => { const ls = LESSONS.filter(l=>l.g===g); return `Gr ${g}: ${ls.filter(l => (p.tl[l.id]||{}).stars).length}/${ls.length}`; }).join(" · ")}</p></div></div>
   <div class="panel" style="margin-top:16px"><h3>Badges <span class="muted" style="font-size:.9rem;font-weight:400">${Object.keys(p.badges).length} of ${BADGES.length}</span></h3><div class="badges">${BADGES.map(b => `<div class="badge ${p.badges[b.id]?"got":""}">${badgeSVG(b.id, !!p.badges[b.id])}<b>${esc(b.n)}</b><small>${esc(b.d)}</small></div>`).join("")}</div></div>
