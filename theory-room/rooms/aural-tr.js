@@ -74,8 +74,9 @@
       /* homework links can open one theory lesson */
       var lesson = q.get("lesson");
       if (lesson && typeof LESSON_BY !== "undefined" && LESSON_BY[lesson]) {
-        if (gradeOpen(P(), LESSON_BY[lesson].g)) { VIEW.lesson = lesson; VIEW.round = null; VIEW.flash = null; }
-        else setTimeout(function () { toast("That lesson's grade isn't open yet."); }, 300);
+        /* a teacher set it, so only the plan matters, not how far the child has got */
+        if (TR.can("theory", LESSON_BY[lesson].g)) { if (LESSON_BY[lesson].board === "trinity") { P().theoryBoard = "trinity"; P().trTheoryGrade = LESSON_BY[lesson].g; } VIEW.lesson = lesson; VIEW.round = null; VIEW.flash = null; }
+        else setTimeout(function () { toast("That lesson's grade isn't in your plan yet."); }, 300);
       }
       return;
     }
@@ -91,7 +92,9 @@
     if (board === "trinity") setTimeout(function () { toast("Trinity's aural test asks you to describe one piece. These tests train the same listening."); }, 3200);
   }
 
-  TR.ready.then(function () {
+  /* wait for the whole page too: later scripts (boards, sight-reading, Trinity theory) add lessons that links may point at */
+  var pageReady = new Promise(function (res) { if (document.readyState !== "loading") res(); else document.addEventListener("DOMContentLoaded", res); });
+  Promise.all([TR.ready, pageReady]).then(function () {
     var p = P();
     if (TR.learner && (p.name === "Learner" || p.id === "me")) p.name = TR.learner.name;
     var keyId = (function () { try { return localStorage.getItem("tr-learner") || "me"; } catch (e) { return "me"; } })();

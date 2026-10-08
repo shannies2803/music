@@ -2194,7 +2194,7 @@ TGEN.octaveClef = () => {
   const opts = shuffle([["a",target],["b",wrong1],["c",wrong2]]);
   return { prompt:`Which bass-clef note is exactly one octave LOWER than this treble-clef ${nm(n)}?`, visual: staffSVG({clef:"treble", events:[{keys:[n], d:4}], noKeyAcc:true, minW:140}),
     options: opts.map(([k,x]) => ({k, html: mk(x), svg:true})), answer:"a",
-    explain:`One octave lower is ${nm(target)}${target.oct} — ${posWords("bass", target)} of the bass stave.${diaOf(wrong2)<=33?` (Careful: the same-pitch ${nm(n)} would sit higher.)`:""}` };
+    explain:`One octave lower is ${nm(target)}${target.oct} — ${posWords("bass", target)} in the bass clef.${diaOf(wrong2)<=33?` (Careful: the same-pitch ${nm(n)} would sit higher.)`:""}` };
 };
 TGEN.enharmonic = () => {
   let n; do { n = N(rnd(7), pick([-2,-1,1,2,1,-1]), 4); } while (false);

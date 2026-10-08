@@ -10,7 +10,8 @@ DUMP = """() => {
   const aural = {}, lessons = {};
   for (let g = 1; g <= 8; g++) {
     aural[g] = GRADES[g].tests.map(t => ({ id: t.id, L: t.L, sec: t.sec, t: t.t }));
-    lessons[g] = LESSONS.filter(l => l.g === g).map(l => ({ id: l.id, t: l.t, topic: l.topic }));
+    lessons[g] = LESSONS.filter(l => l.g === g).map(l => ({ id: l.id, t: l.t, topic: l.topic }))
+      .concat((window.TRINITY_LESSONS || []).filter(l => l.g === g).map(l => ({ id: l.id, t: "Trinity: " + l.t, topic: l.topic })));
   }
   return { aural, lessons };
 }"""
