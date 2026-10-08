@@ -143,6 +143,8 @@ svg .hls{stroke:var(--brass-strong)}
 .gact{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}
 .tipbox{margin-top:6px;font-size:.9rem}.tipbox summary{cursor:pointer;color:var(--teal);font-weight:700;min-height:32px;display:inline-flex;align-items:center}
 @media (max-width:760px){.gtest{grid-template-columns:52px minmax(0,1fr)}.gact{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}}
+.fig{display:inline-flex;flex-direction:column;line-height:1;font-weight:700;font-family:Georgia,serif;font-size:.95em;vertical-align:middle;text-align:center;margin:0 2px}
+.satb{display:flex;flex-direction:column;gap:0}.satb svg{max-width:420px !important}.satb svg + svg{margin-top:-30px}
 .chk.right{background:var(--ok-soft)} .chk.wrong{background:var(--rose-soft)}
 /* theory */
 .gradebar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
@@ -2261,6 +2263,264 @@ TGEN.timeClass = (p) => {
 const timeSigBox = sig => `<svg viewBox="0 0 60 135" style="width:60px;max-width:100%" aria-label="time signature ${sig}">${[0,1,2,3,4].map(i => `<line class="st" stroke-width="1.1" x1="4" x2="56" y1="${45+i*10}" y2="${45+i*10}"/>`).join("")}${timeSigSVG(sig, 21, 45)}</svg>`;
 </script>
 <script>
+
+/* ===================== Theory Grades 6–8: generators ===================== */
+const cloneN = n => N(n.L, n.acc, n.oct);
+const atOct = (n, oct) => N(n.L, n.acc, oct);
+function placeAbove(n, floorDia){ let x = cloneN(n); while (diaOf(x) <= floorDia) x.oct++; while (diaOf(x) - 7 > floorDia) x.oct--; return x; }
+/* two staves, semibreve chords: each chord = [bass, tenor, alto, soprano] as note objects */
+function satbSVG(chords, k, labels){
+  const tre = [], bas = [];
+  chords.forEach((c, i) => { tre.push({keys:[c[2], c[3]], d:4, label: labels ? labels[i] : null}); bas.push({keys:[c[0], c[1]], d:4}); });
+  const w = 120 + chords.length*62;
+  return `<div class="satb">${staffSVG({clef:"treble", key:k, events:tre, prop:false, spacing:62, minW:w, aria:"upper voices"})}${staffSVG({clef:"bass", key:k, events:bas, prop:false, spacing:62, minW:w, aria:"lower voices"})}</div>`;
+}
+/* spread a list of note objects (root first, bass given) into four voices */
+function voiceNotes(bass, upper){
+  const B = atOct(bass, diaOf(atOct(bass, 3)) > 23 ? 2 : 3);
+  let floor = Math.max(diaOf(B) + 2, 23); const ups = [];
+  const pool = upper.slice(0, 3); while (pool.length < 3) pool.push(upper[pool.length % upper.length]);
+  const T = placeAbove(pool[0], floor); floor = diaOf(T);
+  const A = placeAbove(pool[1], Math.max(floor, 28)); floor = diaOf(A);
+  const S = placeAbove(pool[2], floor);
+  return [B, T, A, S];
+}
+const FIG = { a:["5","3"], b:["6","3"], c:["6","4"], a7:["7",""], b7:["6","5"], c7:["4","3"], d7:["4","2"] };
+const figHTML = f => `<span class="fig"><span>${f[0]}</span><span>${f[1] || "&nbsp;"}</span></span>`;
+TGEN.chordFig = (p) => {
+  const k = rnd(9) - 4; const mode = Math.random() < .3 ? "minor" : "major";
+  const t0 = mode === "minor" ? minorTonic(k) : majorTonic(k); const sc = scaleOf(N(t0.L, t0.acc, 4), mode === "minor" ? "harmonic" : "major");
+  const deg = pick(p.degs); const sev = p.sev === true ? true : p.sev === "mix" ? Math.random() < .5 : false;
+  const at = i => { const n = cloneN(sc[(deg-1+i) % 7]); return n; };
+  const members = sev ? [at(0), at(2), at(4), at(6)] : [at(0), at(2), at(4)];
+  const invs = sev ? ["a","b","c","d"] : ["a","b","c"]; const inv = pick(p.invs || invs);
+  const bassIdx = invs.indexOf(inv); const bass = members[bassIdx];
+  const upper = sev ? members.filter((_, i) => i !== bassIdx).concat([]) : [members[0], members[1], members[2]].filter((_, i) => i !== bassIdx).concat([members[0]]);
+  const ch = voiceNotes(bass, shuffle(upper));
+  const name = ROMAN[deg-1] + (sev ? "7" : "") + (inv === "a" ? "" : inv);
+  const fig = FIG[sev ? inv + "7" : inv];
+  const ask = p.ask === "both" ? pick(["name","figure"]) : p.ask;
+  const visual = satbSVG([ch], k);
+  const where = `${keyName(k, mode)}`;
+  if (ask === "figure"){
+    const all = sev ? ["a7","b7","c7","d7"] : ["a","b","c"]; const opts = (sev ? all.concat(["b","c"]) : all.concat(["b7","c7"]));
+    const fopts = shuffle(sev ? ["a7","b7","c7","d7","b"] : ["a","b","c","b7","c7"]);
+    return { prompt:`What figures would go under the bass of this chord? (${where})`, visual, options: fopts.map(x => opt(x, figHTML(FIG[x]))), answer: sev ? inv + "7" : inv,
+      explain:`The bass is the <b>${["root","3rd","5th","7th"][bassIdx]}</b> of ${ROMAN[deg-1]}${sev?"7":""}, so the chord is <b>${name}</b> and the figures are ${figHTML(fig)}${sev ? "" : inv === "a" ? " (usually left blank)" : inv === "b" ? " (often just 6)" : ""}.` };
+  }
+  const pool = []; p.degs.forEach(d => (sev ? ["","b","c","d"] : ["","b","c"]).forEach(i => pool.push(ROMAN[d-1] + (sev ? "7" : "") + i)));
+  return { prompt:`Name this chord in ${where}, with its position (b = 1st inversion, c = 2nd${sev ? ", d = 3rd" : ""}).`, visual, options: optsFrom(name, [...new Set(pool)], 5), answer: name,
+    explain:`The notes are ${members.map(nm).join("–")}: chord ${ROMAN[deg-1]}${sev?"7":""} on the ${DEG_NAMES[deg-1]}. The lowest note is the ${["root","3rd","5th","7th"][bassIdx]}, so it’s <b>${name}</b> ${figHTML(fig)}.` };
+};
+/* chromatic chords, spelt properly */
+const CHROM = {
+  dim7:{n:"diminished 7th", mode:"minor", build:t => { const lt = upBy(t,7,"M"); return [lt, upBy(lt,3,"m"), upBy(lt,5,"d"), upBy(lt,7,"d")]; }, bass:0, why:"built on the raised leading note, made entirely of minor 3rds — tense and unstable, wanting to resolve to the tonic."},
+  neap:{n:"Neapolitan 6th", mode:"minor", build:t => { const r = upBy(t,2,"m"); return [r, upBy(r,3,"M"), upBy(r,5,"P")]; }, bass:1, why:"a major chord on the flattened supertonic, usually in first inversion (so the bass is the 4th degree). It leads to V, often through Ic."},
+  it6:{n:"Italian augmented 6th", mode:"minor", build:t => [upBy(t,6,"m"), t, upBy(t,4,"A")], bass:0, why:"the flattened 6th in the bass and the sharpened 4th above make an augmented 6th, which opens out to the dominant. The Italian adds just the tonic."},
+  fr6:{n:"French augmented 6th", mode:"minor", build:t => [upBy(t,6,"m"), t, upBy(t,2,"M"), upBy(t,4,"A")], bass:0, why:"the augmented 6th (♭6 up to ♯4) plus the tonic and the supertonic — that 2nd gives it a slightly sour, whole-tone flavour."},
+  ger6:{n:"German augmented 6th", mode:"minor", build:t => [upBy(t,6,"m"), t, upBy(t,3,"m"), upBy(t,4,"A")], bass:0, why:"the augmented 6th plus the tonic and the minor 3rd — it sounds exactly like a dominant 7th but resolves differently."},
+  v7v:{n:"V7 of V (secondary dominant)", mode:"major", build:t => { const r = upBy(t,2,"M"); return [r, upBy(r,3,"M"), upBy(r,5,"P"), upBy(r,7,"m")]; }, bass:0, why:"the dominant 7th of the dominant key: chord II with its 3rd sharpened and a 7th added. It pushes strongly to V."},
+  v7:{n:"dominant 7th", mode:"major", build:t => { const r = upBy(t,5,"P"); return [r, upBy(r,3,"M"), upBy(r,5,"P"), upBy(r,7,"m")]; }, bass:0, why:"V with a minor 7th added — the ordinary dominant 7th, pulling to I."}
+};
+TGEN.chromatic = (p) => {
+  const type = pick(p.types); const C = CHROM[type]; const k = rnd(7) - 3;
+  const t0 = C.mode === "minor" ? minorTonic(k) : majorTonic(k); const t = N(t0.L, t0.acc, 4);
+  const notes = C.build(t); const key = keyName(k, C.mode);
+  if (p.ask === "spell" || (p.ask === "mix" && Math.random() < .5)){
+    const right = notes.map(nm).join(" – ");
+    const wrong = new Set();
+    notes.forEach((n, i) => { const alt = notes.slice(); alt[i] = N(n.L, n.acc + (n.acc >= 1 ? -1 : 1), n.oct); wrong.add(alt.map(nm).join(" – ")); });
+    Object.keys(CHROM).filter(x => x !== type && CHROM[x].mode === C.mode).forEach(x => wrong.add(CHROM[x].build(t).map(nm).join(" – ")));
+    wrong.delete(right);
+    return { prompt:`In ${key}, which notes make the ${C.n}?`, options: shuffle([right, ...shuffle([...wrong]).slice(0, 3)]).map(x => opt(x)), answer:right,
+      explain:`${C.n} in ${key}: <b>${right}</b> — ${C.why}` };
+  }
+  const bass = notes[C.bass], upper = notes.filter((_, i) => i !== C.bass);
+  const ch = voiceNotes(bass, upper.length >= 3 ? upper : upper.concat([notes[0]]));
+  const names = [...new Set(p.types.concat(p.extra || []))].map(x => CHROM[x].n);
+  const pool = names.length >= 3 ? names : names.concat(["dominant 7th","diminished 7th","Neapolitan 6th","German augmented 6th"]).filter((v, i, a) => a.indexOf(v) === i);
+  return { prompt:`What is this chord? (${key})`, visual: satbSVG([ch], k), options: optsFrom(C.n, pool, Math.min(4, pool.length)), answer:C.n,
+    explain:`It’s the <b>${C.n}</b> (${notes.map(nm).join(" – ")}): ${C.why}` };
+};
+/* consecutive 5ths and octaves */
+function voicePair(degs, tpc, mode){
+  const kp = keyPcs(tpc, mode); const R = [[40,57],[48,62],[57,72],[62,79]];
+  const one = pcs => { for (let tries=0; tries<200; tries++){ const v = R.map(([lo, hi]) => { const c = []; for (let m=lo; m<=hi; m++) if (pcs.includes(pcOf(m))) c.push(m); return pick(c); });
+      v[0] = (() => { const c = []; for (let m=40; m<=55; m++) if (pcOf(m) === pcs[0]) c.push(m); return pick(c); })();
+      if (!(v[0] < v[1] && v[1] < v[2] && v[2] < v[3])) continue; if (v[3]-v[2] > 12 || v[2]-v[1] > 12) continue;
+      const set = new Set(v.map(pcOf)); if (!set.has(pcs[1])) continue; return v; } return null; };
+  return [one(chordPcs(tpc, mode, degs[0])), one(chordPcs(tpc, mode, degs[1]))];
+}
+function findConsec(a, b){
+  const VN = ["bass","tenor","alto","soprano"]; const out = [];
+  for (let i=0;i<4;i++) for (let j=i+1;j<4;j++){
+    const i1 = (a[j]-a[i]) % 12, i2 = (b[j]-b[i]) % 12; const moved = a[i] !== b[i] || a[j] !== b[j];
+    if (!moved) continue;
+    if (i1 === 7 && i2 === 7) out.push({type:"5ths", pair:VN[i]+" and "+VN[j]});
+    if (i1 === 0 && i2 === 0) out.push({type:"8ves", pair:VN[i]+" and "+VN[j]});
+  }
+  return out;
+}
+TGEN.consec = (p) => {
+  const k = rnd(5) - 2; const mode = "major"; const tm = tonicMidi(k, mode); const tpc = tm % 12;
+  const want = pick(["none","none","5ths","8ves"]);
+  const pairs = [[1,4],[4,5],[5,1],[1,5],[2,5],[5,6],[1,6],[6,4],[4,1]];
+  let a, b, f, degs, tries = 0;
+  do { degs = pick(pairs); [a, b] = voicePair(degs, tpc, mode); if (!a || !b) continue; f = findConsec(a, b); tries++;
+  } while ((!a || !b || (want === "none" ? f.length : !f.some(x => x.type === want) || f.some(x => x.type !== want))) && tries < 400);
+  if (!a || !b) return TGEN.consec(p);
+  const has = f.length ? f[0].type : "none";
+  const ans = has === "none" ? "no consecutives" : has === "5ths" ? "consecutive 5ths" : "consecutive octaves";
+  const sp = v => v.map(m => fromMidiInKey(m, k, mode));
+  return { prompt:`Look at these two chords (${ROMAN[degs[0]-1]} → ${ROMAN[degs[1]-1]} in ${keyName(k, mode)}). Is there a voice-leading mistake?`,
+    visual: satbSVG([sp(a), sp(b)], k, [ROMAN[degs[0]-1], ROMAN[degs[1]-1]]),
+    options:["no consecutives","consecutive 5ths","consecutive octaves"].map(x => opt(x)), answer:ans,
+    explain: has === "none" ? `No consecutives — check every pair of voices: none of them moves from a perfect 5th (or octave) to another one.` : `<b>${ans}</b> between the <b>${f[0].pair}</b>: they are a perfect ${has === "5ths" ? "5th" : "octave"} apart in both chords. Move one of them in contrary motion to fix it.` };
+};
+/* choosing cadence chords to fit a melody */
+const CAD_FIT = {perfect:[["V","I"],["V7","I"]], imperfect:[["I","V"],["IV","V"],["II","V"],["Ic","V"]], plagal:[["IV","I"]], interrupted:[["V","VI"]]};
+TGEN.cadMelody = (p) => {
+  const k = rnd(7) - 3; const mode = "major"; const t0 = majorTonic(k); const sc = scaleOf(N(t0.L, t0.acc, 4), "major");
+  const type = pick(p.types || Object.keys(CAD_FIT)); const pair = pick(CAD_FIT[type]);
+  const degsOf = l => { const [d, s] = CHLBL[l]; return s ? [d, d+2, d+4, d+6].map(x => ((x-1) % 7) + 1) : [d, d+2, d+4].map(x => ((x-1) % 7) + 1); };
+  const m1 = pick(degsOf(pair[0])), m2 = pick(degsOf(pair[1]));
+  const fits = pr => degsOf(pr[0]).includes(m1) && degsOf(pr[1]).includes(m2);
+  const all = []; Object.entries(CAD_FIT).forEach(([ty, prs]) => prs.forEach(pr => all.push({ty, pr})));
+  const right = pair.join(" – ");
+  const wrongs = shuffle(all.filter(x => !(x.ty === type && fits(x.pr)))).map(x => x.pr.join(" – ")).filter(x => x !== right);
+  const n1 = atOct(sc[m1-1], 5), n2 = atOct(sc[m2-1], 5);
+  const mel = [{keys:[diaOf(n1) > 38 ? atOct(n1, 4) : n1], d:2}, {keys:[diaOf(n2) > 38 ? atOct(n2, 4) : n2], d:2}, {bar:"end"}];
+  return { prompt:`The melody ends with these two notes in ${keyName(k, mode)}. Which chords would make a ${type} cadence underneath?`,
+    visual: staffSVG({clef:"treble", key:k, events:mel, prop:false, spacing:60, minW:200}),
+    options: shuffle([right, ...[...new Set(wrongs)].slice(0, 3)]).map(x => opt(x)), answer:right,
+    explain:`The notes are degrees ${m1} and ${m2}. <b>${right}</b> makes a ${type} cadence, and ${pair[0]} contains degree ${m1} while ${pair[1]} contains degree ${m2}.` };
+};
+/* spotting a modulation from the accidentals */
+TGEN.modKey = (p) => {
+  const k = rnd(5) - 2; const t0 = majorTonic(k); const t = N(t0.L, t0.acc, 4);
+  const opts = {
+    "dominant": {k:k+1, mode:"major", acc:[upBy(t,4,"A")], hint:"a sharpened 4th (the new leading note)"},
+    "subdominant": {k:k-1, mode:"major", acc:[upBy(t,7,"m")], hint:"a flattened 7th"},
+    "relative minor": {k, mode:"minor", acc:[upBy(t,5,"A")], hint:"a sharpened 5th — the leading note of the relative minor"},
+    "relative minor of the dominant": {k:k+1, mode:"minor", acc:[upBy(t,4,"A"), upBy(t,2,"A")], hint:"the dominant’s new sharp plus a sharpened 2nd (its leading note)"},
+    "relative minor of the subdominant": {k:k-1, mode:"minor", acc:[upBy(t,7,"m"), upBy(t,1,"A")], hint:"the subdominant’s flat plus a sharpened tonic (its leading note)"}
+  };
+  const names = p.all ? Object.keys(opts) : Object.keys(opts).slice(0, 3); const to = pick(names); const O = opts[to];
+  return { prompt:`A passage in ${keyName(k, "major")} starts using ${O.acc.map(nm).join(" and ")} and then settles with a cadence. Which key has it modulated to?`,
+    options: shuffle(names).map(x => opt(keyName(opts[x].k, opts[x].mode), esc(keyName(opts[x].k, opts[x].mode)))), answer: keyName(O.k, O.mode),
+    explain:`${O.acc.map(nm).join(" and ")} is ${O.hint}, so the music has moved to <b>${keyName(O.k, O.mode)}</b>, the ${to}.` };
+};
+/* transposing instruments (score reading) */
+const TRANSP = [
+  {n:"clarinet in B♭", dir:-1, num:2, q:"M", word:"a major 2nd lower"}, {n:"clarinet in A", dir:-1, num:3, q:"m", word:"a minor 3rd lower"},
+  {n:"horn in F", dir:-1, num:5, q:"P", word:"a perfect 5th lower"}, {n:"cor anglais", dir:-1, num:5, q:"P", word:"a perfect 5th lower"},
+  {n:"trumpet in B♭", dir:-1, num:2, q:"M", word:"a major 2nd lower"}, {n:"trumpet in D", dir:1, num:2, q:"M", word:"a major 2nd higher"},
+  {n:"alto saxophone in E♭", dir:-1, num:6, q:"M", word:"a major 6th lower"}, {n:"piccolo", dir:1, num:8, q:"P", word:"an octave higher"}, {n:"double bass", dir:-1, num:8, q:"P", word:"an octave lower"}];
+TGEN.transpose2 = (p) => {
+  const I = pick(p.more ? TRANSP : TRANSP.slice(0, 5));
+  const w = fromDia(30 + rnd(8)); w.acc = pick([0,0,0,1,-1]);
+  const s = I.dir < 0 ? downBy(w, I.num, I.q) : upBy(w, I.num, I.q);
+  if (Math.abs(s.acc) > 1) return TGEN.transpose2(p);
+  const toWritten = Math.random() < .5;
+  const ans = toWritten ? nm(w) : nm(s), given = toWritten ? s : w;
+  const near = n => [nm(n), nm(upBy(n,2,"m")), nm(downBy(n,2,"m")), nm(upBy(n,2,"M")), nm(downBy(n,2,"M"))];
+  const pool = [...new Set([ans, ...near(toWritten ? w : s), nm(given)])];
+  return { prompt: toWritten ? `The ${I.n} must sound concert ${nm(s)}. Which note is written in its part?` : `The ${I.n} plays this written ${nm(w)}. Which note actually sounds?`,
+    visual: toWritten ? "" : staffSVG({clef:"treble", events:[{keys:[w], d:4}], noKeyAcc:true, minW:140}),
+    options: optsFrom(ans, pool, 4), answer: ans,
+    explain:`The ${I.n} sounds <b>${I.word}</b> than written, so written ${nm(w)} sounds ${nm(s)}. The answer is <b>${ans}</b>.` };
+};
+/* scores, periods and forms */
+const PERIOD_Q = [
+ [7,"A part labelled ‘continuo’ with figures under the bass suggests which period?","Baroque",["Classical","Romantic","20th century"],"Figured bass played by harpsichord and cello — the ‘continuo’ — is a Baroque hallmark."],
+ [7,"An ‘Alberti bass’ (broken chords like C–G–E–G) is typical of…","Classical",["Baroque","Romantic","20th century"],"Mozart, Haydn and Clementi used Alberti basses all the time."],
+ [7,"A piano piece full of rubato, wide arpeggios and chromatic harmony is most likely…","Romantic",["Baroque","Classical","Renaissance"],"Chopin and Schumann are typical Romantic piano composers."],
+ [7,"Which composer is Baroque?","J. S. Bach",["Mozart","Brahms","Debussy"],"Bach (1685–1750) is the great late-Baroque composer."],
+ [7,"Which composer is Classical?","Haydn",["Handel","Liszt","Bartók"],"Haydn (1732–1809) — ‘father of the symphony’."],
+ [7,"Which composer is Romantic?","Tchaikovsky",["Vivaldi","Haydn","Stravinsky"],"Tchaikovsky (1840–1893) wrote big Romantic ballets and symphonies."],
+ [7,"Which composer belongs to the 20th century?","Bartók",["Purcell","Schubert","C. P. E. Bach"],"Bartók (1881–1945) used folk music and bold new harmonies."],
+ [7,"Terraced dynamics (sudden changes between loud and soft) are typical of…","Baroque",["Romantic","20th century","Classical"],"Harpsichords and organs could not make gradual crescendos, so Baroque music changes level suddenly."],
+ [7,"The first section of a minuet and trio movement returns at the end. This makes the movement…","ternary (A B A)",["binary (A B)","rondo","theme and variations"],"Minuet – Trio – Minuet da capo is ternary form."],
+ [7,"A melody that returns again and again between different episodes is in…","rondo form",["binary form","sonata form","strophic form"],"A B A C A … is rondo form."],
+ [7,"‘Da capo al fine’ means…","go back to the beginning and stop at Fine",["repeat the last bar","play twice as fast","go to the coda"],"D.C. al fine — from the start, ending at ‘Fine’."],
+ [7,"Which instrument is NOT normally in a Classical orchestra?","saxophone",["oboe","horn","timpani"],"The saxophone was invented in the 1840s."],
+ [8,"The three main sections of sonata form are…","exposition, development, recapitulation",["introduction, chorus, coda","subject, answer, episode","theme, variation, finale"],"Sonata form: exposition (two subjects), development, recapitulation."],
+ [8,"In sonata form, the second subject in the exposition is usually in…","the dominant (or relative major in a minor key)",["the tonic","the subdominant","an unrelated key"],"It moves away from the tonic to create tension, returning home in the recapitulation."],
+ [8,"In a fugue, the second entry of the subject in the dominant is called the…","answer",["episode","countersubject","stretto"],"Subject (tonic) then answer (dominant)."],
+ [8,"When fugue entries overlap, crowding in before the previous one has finished, this is…","stretto",["episode","augmentation","pedal"],"Stretto increases excitement near the end of a fugue."],
+ [8,"A long note held in the bass while the harmonies change above it is a…","pedal",["drone of the melody","sequence","suspension"],"A tonic or dominant pedal — common near cadences."],
+ [8,"Repeating a short phrase at a higher or lower pitch is called a…","sequence",["canon","inversion","pedal"],"Sequences are everywhere in Baroque and Classical music."],
+ [8,"A note held over from the previous chord, which then falls to a chord note, is a…","suspension",["passing note","appoggiatura","échappée"],"Preparation – suspension – resolution (e.g. 4–3)."],
+ [8,"A melody turned upside down (every interval in the opposite direction) is called…","inversion",["retrograde","augmentation","diminution"],"Inversion flips the direction of every interval."],
+ [8,"Playing a theme with every note value doubled is…","augmentation",["diminution","inversion","syncopation"],"Augmentation = longer notes; diminution = shorter notes."],
+ [8,"Music based on a 12-note row is called…","serialism",["minimalism","impressionism","nationalism"],"Schoenberg developed 12-note serialism in the 1920s."],
+ [8,"Music built from many repetitions of short patterns that change slowly (Reich, Glass) is…","minimalism",["serialism","neoclassicism","impressionism"],"Minimalism grew in the 1960s–70s."],
+ [8,"Whole-tone scales, parallel chords and blurry pedal effects suggest…","Impressionism (Debussy)",["Baroque counterpoint","Classical sonata","Serialism"],"Debussy’s Impressionist style around 1900."],
+ [8,"A Romantic composer writing music inspired by his country’s folk songs is an example of…","nationalism",["minimalism","serialism","neoclassicism"],"e.g. Dvořák, Grieg, Smetana."],
+ [8,"Which of these is a Baroque dance found in suites?","sarabande",["scherzo","nocturne","waltz"],"Allemande, courante, sarabande and gigue make the core Baroque suite."],
+ [8,"A ‘tierce de Picardie’ is…","a major chord ending a piece in a minor key",["a French ornament","a type of cadence in 6/8","a fast dance"],"The final chord’s 3rd is raised to make it major."],
+ [8,"Which term means ‘the same notes, written differently’, e.g. G♯ and A♭?","enharmonic",["chromatic","diatonic","modal"],"Enharmonic equivalents sound identical on a keyboard."]
+];
+TGEN.periodQ = (p) => { const pool = PERIOD_Q.filter(q => q[0] <= p.g); const q = pick(pool);
+  return { prompt:q[1], options: shuffle([q[2], ...q[3]]).map(x => opt(x)), answer:q[2], explain:`<b>${esc(q[2])}</b>. ${esc(q[4])}` }; };
+
+/* advanced terms */
+TERMS.push(
+ ["affrettando","hurrying",6,"It"],["allargando","broadening, getting slower and fuller",6,"It"],["a piacere","freely, at the performer’s pleasure",6,"It"],["con forza","with force",6,"It"],["incalzando","pressing forward, getting faster",6,"It"],
+ ["leggierezza","lightness",6,"It"],["mesto","sad",6,"It"],["parlando","in a speaking style",6,"It"],["ritmico","rhythmically",6,"It"],["slentando","gradually slower",6,"It"],
+ ["tre corde","release the soft pedal (piano)",6,"It"],["una corda","use the soft pedal (piano)",6,"It"],
+ ["agitato","agitated",7,"It"],["appassionato","passionately",7,"It"],["con sordino","with a mute",7,"It"],["divisi","divided (split the section)",7,"It"],["estinto","as soft as possible, lifeless",7,"It"],
+ ["lusingando","coaxing, flattering",7,"It"],["pesante","heavily",7,"It"],["sostenuto","sustained",7,"It"],["sul ponticello","bow near the bridge",7,"It"],["tenuto","held",7,"It"],
+ ["au mouvement","back to the original speed",7,"Fr"],["en dehors","bring out the melody",7,"Fr"],["retenu","held back",7,"Fr"],["sourdine","mute",7,"Fr"],
+ ["bewegt","with movement",8,"De"],["Empfindung","feeling",8,"De"],["gemächlich","leisurely",8,"De"],["innig","heartfelt, sincere",8,"De"],["kräftig","strongly, powerfully",8,"De"],["schmachtend","languishing, yearning",8,"De"],["zögernd","hesitating",8,"De"],
+ ["cédez","slow down a little",8,"Fr"],["élargissez","broaden",8,"Fr"],["très expressif","very expressively",8,"Fr"],["col legno","with the wood of the bow",8,"It"],["flautando","bow lightly over the fingerboard for a flute-like sound",8,"It"],["sul tasto","bow over the fingerboard",8,"It"]
+);
+
+/* lessons */
+const ALLDEG = [1,2,3,4,5,6,7];
+[
+ {id:"g6-chords", g:6, topic:"Harmony", t:"Chords and their positions", gen:"chordFig", p:{degs:[1,2,4,5,6], ask:"name"},
+  h:`<p>In four-part writing every chord has a <b>Roman numeral</b> (which degree it is built on) and a <b>position</b> (which note is in the bass).</p><table class="tbl"><tr><td><b>a</b> — root position</td><td>root in the bass</td></tr><tr><td><b>b</b> — first inversion</td><td>3rd in the bass</td></tr><tr><td><b>c</b> — second inversion</td><td>5th in the bass</td></tr></table><p class="note">Method: write out the notes, find which degree they stack on in 3rds (the root), then look at the bass.</p>`},
+ {id:"g6-figures", g:6, topic:"Harmony", t:"Figured bass", gen:"chordFig", p:{degs:[1,2,4,5,6], ask:"figure"},
+  h:`<p>Figures under a bass note tell you the intervals above it.</p><table class="tbl"><tr><td>${figHTML(FIG.a)}</td><td>root position (usually left blank)</td></tr><tr><td>${figHTML(FIG.b)}</td><td>first inversion (often written just 6)</td></tr><tr><td>${figHTML(FIG.c)}</td><td>second inversion — usually Ic before V at a cadence</td></tr></table>`},
+ {id:"g6-v7", g:6, topic:"Harmony", t:"V7 and its inversions", gen:"chordFig", p:{degs:[5], sev:true, ask:"both"},
+  h:`<p>The <b>dominant 7th</b> adds a 7th above the root of V. It has four positions:</p><table class="tbl"><tr><td>V7 (a)</td><td>${figHTML(FIG.a7)}</td></tr><tr><td>V7b</td><td>${figHTML(FIG.b7)}</td></tr><tr><td>V7c</td><td>${figHTML(FIG.c7)}</td></tr><tr><td>V7d</td><td>${figHTML(FIG.d7)}</td></tr></table><p class="note">The 7th must fall by step and the leading note usually rises to the tonic.</p>`},
+ {id:"g6-consec", g:6, topic:"Harmony", t:"Spot consecutive 5ths and octaves", gen:"consec", p:{},
+  h:`<p>Two parts must not move from a <b>perfect 5th</b> to another perfect 5th, or from an <b>octave</b> to another octave. They make the parts sound like one and weaken the harmony.</p><p>Check <b>every pair</b> of voices (six pairs: S–A, S–T, S–B, A–T, A–B, T–B).</p><p class="note">Fix it with contrary motion: move one part the other way.</p>`},
+ {id:"g6-cadmel", g:6, topic:"Harmony", t:"Choosing cadence chords for a melody", gen:"cadMelody", p:{},
+  h:`<p>To harmonise a cadence, each melody note must belong to the chord under it.</p><ul><li><b>Perfect</b>: V–I (or V7–I)</li><li><b>Imperfect</b>: I–V, II–V, IV–V or Ic–V</li><li><b>Plagal</b>: IV–I</li><li><b>Interrupted</b>: V–VI</li></ul><p class="note">Melody ending re → doh? V–I. Ending on soh or ti? Think imperfect.</p>`},
+ {id:"g6-transpose", g:6, topic:"Transposition", t:"Transposing instruments", gen:"transpose2", p:{},
+  h:`<p>Some instruments sound a different pitch from what is written. To find the <b>sounding</b> note, move the written note by the instrument’s interval; to write a part, move the other way.</p><table class="tbl"><tr><td>Clarinet / trumpet in B♭</td><td>sound a major 2nd lower</td></tr><tr><td>Clarinet in A</td><td>sounds a minor 3rd lower</td></tr><tr><td>Horn in F, cor anglais</td><td>sound a perfect 5th lower</td></tr></table>`},
+ {id:"g6-terms", g:6, topic:"Terms & signs", t:"Grade 6 terms", gen:"terms", p:{g:6}, h:`<p>More performance directions you’ll meet in Grade 6 scores, including piano pedalling.</p>`},
+ {id:"g7-sevenths", g:7, topic:"Harmony", t:"II7, V7 and inversions", gen:"chordFig", p:{degs:[2,5], sev:true, ask:"both"},
+  h:`<p><b>II7</b> (the supertonic 7th) often comes before V at a cadence, usually as <b>II7b</b> ${figHTML(FIG.b7)}. With V7 it gives you the strongest approach to a perfect cadence: II7b – V7 – I.</p>`},
+ {id:"g7-dim7", g:7, topic:"Chromatic chords", t:"The diminished 7th", gen:"chromatic", p:{types:["dim7"], extra:["v7","neap","ger6"], ask:"mix"},
+  h:`<p>The <b>diminished 7th</b> is built on the raised leading note of a minor key and is made entirely of <b>minor 3rds</b>. In A minor: <b>G♯ – B – D – F</b>.</p><p class="note">Because every interval is the same, it can resolve to many keys — composers love it for dramatic moments.</p>`},
+ {id:"g7-neap", g:7, topic:"Chromatic chords", t:"The Neapolitan 6th", gen:"chromatic", p:{types:["neap"], extra:["dim7","v7","it6"], ask:"mix"},
+  h:`<p>The <b>Neapolitan 6th</b> is a <b>major chord on the flattened supertonic</b> (♭II), used in <b>first inversion</b>. In A minor: B♭ – D – F, with D in the bass.</p><p class="note">It usually leads to V (often via Ic). Listen for its dark, dramatic colour.</p>`},
+ {id:"g7-secdom", g:7, topic:"Chromatic chords", t:"Secondary dominants (V of V)", gen:"chromatic", p:{types:["v7v","v7"], extra:["dim7"], ask:"mix"},
+  h:`<p>A <b>secondary dominant</b> is the dominant of a chord other than I. The commonest is <b>V7 of V</b>: chord II with a sharpened 3rd and a 7th. In C major: <b>D – F♯ – A – C</b>, pushing to G (V).</p>`},
+ {id:"g7-modkey", g:7, topic:"Keys & scales", t:"Spotting modulations", gen:"modKey", p:{},
+  h:`<p>New accidentals in a score show where the music is heading.</p><ul><li>a <b>sharpened 4th</b> → the dominant</li><li>a <b>flattened 7th</b> → the subdominant</li><li>a <b>sharpened 5th</b> → the relative minor (it’s that key’s leading note)</li></ul><p class="note">Then check for a cadence in the new key to confirm.</p>`},
+ {id:"g7-transpose", g:7, topic:"Transposition", t:"More transposing instruments", gen:"transpose2", p:{more:true},
+  h:`<p>Add these: <b>trumpet in D</b> sounds a major 2nd <i>higher</i>; <b>alto saxophone</b> sounds a major 6th lower; <b>piccolo</b> sounds an octave higher; <b>double bass</b> an octave lower.</p>`},
+ {id:"g7-period", g:7, topic:"Score reading", t:"Scores and periods", gen:"periodQ", p:{g:7},
+  h:`<p>Score questions ask you to recognise <b>style</b> and <b>structure</b>.</p><ul><li><b>Baroque</b>: continuo, terraced dynamics, sequences, dances</li><li><b>Classical</b>: Alberti bass, balanced phrases, minuet and trio</li><li><b>Romantic</b>: rich chromatic harmony, rubato, big orchestras</li><li><b>20th century</b>: new scales, dissonance, unusual rhythms</li></ul>`},
+ {id:"g7-terms", g:7, topic:"Terms & signs", t:"Grade 7 terms", gen:"terms", p:{g:7}, h:`<p>String techniques, mutes and expressive directions in Italian and French.</p>`},
+ {id:"g8-aug6", g:8, topic:"Chromatic chords", t:"Augmented 6th chords", gen:"chromatic", p:{types:["it6","fr6","ger6"], ask:"mix"},
+  h:`<p>All three have the <b>flattened 6th</b> in the bass and the <b>sharpened 4th</b> above it — an augmented 6th, which opens out to the dominant. In A minor: F … D♯ → E.</p><table class="tbl"><tr><td><b>Italian</b></td><td>♭6, 1, ♯4 (F A D♯)</td></tr><tr><td><b>French</b></td><td>♭6, 1, 2, ♯4 (F A B D♯)</td></tr><tr><td><b>German</b></td><td>♭6, 1, ♭3, ♯4 (F A C D♯)</td></tr></table>`},
+ {id:"g8-chromatic", g:8, topic:"Chromatic chords", t:"All chromatic chords", gen:"chromatic", p:{types:["dim7","neap","it6","fr6","ger6","v7v"], ask:"mix"},
+  h:`<p>Mixed practice: diminished 7th, Neapolitan 6th, the three augmented 6ths and V7 of V. Spell the chord first, then match it to its pattern.</p>`},
+ {id:"g8-figs", g:8, topic:"Harmony", t:"Figures for any chord", gen:"chordFig", p:{degs:ALLDEG, sev:"mix", ask:"both"},
+  h:`<p>Every triad and seventh chord, in every position, in major and minor keys. Remember the 7th-chord figures: 7, ${figHTML(FIG.b7)}, ${figHTML(FIG.c7)}, ${figHTML(FIG.d7)}.</p>`},
+ {id:"g8-modkey", g:8, topic:"Keys & scales", t:"Modulations to related keys", gen:"modKey", p:{all:true},
+  h:`<p>Grade 8 adds the <b>relative minors of the dominant and subdominant</b> (in C major: E minor and D minor). Look for their leading notes: D♯ and C♯.</p>`},
+ {id:"g8-period", g:8, topic:"Score reading", t:"Analysis: form and style", gen:"periodQ", p:{g:8},
+  h:`<p>Sonata form, fugue, devices (sequence, pedal, suspension, inversion, augmentation) and 20th-century styles (Impressionism, serialism, minimalism).</p>`},
+ {id:"g8-terms", g:8, topic:"Terms & signs", t:"Grade 8 terms", gen:"terms", p:{g:8}, h:`<p>German, French and Italian directions from Romantic and 20th-century scores.</p>`}
+].forEach(l => { LESSONS.push(l); LESSON_BY[l.id] = l; });
+["Harmony","Chromatic chords","Score reading"].forEach(t => { if (!THEORY_TOPICS.includes(t)) THEORY_TOPICS.push(t); });
+
 /* ===================== state & storage ===================== */
 const KEY = "cadenza-ear-studio-v1";
 function mkPlayer(name, o={}){ return Object.assign({ id:"p"+Math.random().toString(36).slice(2,8), name, inst:["your instrument"], clef:"treble", theoryStart:1, auralStart:3,
@@ -2292,7 +2552,7 @@ function tl(p, id){ return p.tl[id] || (p.tl[id] = {a:0, c:0, diff:.3, stars:0})
 function lvlStars(p, id, L){ const s = p.sk[id]; return s && s.lv[L] || 0; }
 function auralOpen(p, id, L){ if (p.unlockAll || L <= (p.auralStart||3)) return true; return lvlStars(p, id, L-1) >= 1; }
 function topLevel(p, id){ const n = AURAL_BY[id].levels.length; let t = 1; for (let L=1; L<=n; L++) if (auralOpen(p, id, L)) t = L; return t; }
-function gradeOpen(p, g){ if (p.unlockAll || g <= (p.theoryStart||1)) return true; const ls = LESSONS.filter(l => l.g === g-1); const done = ls.filter(l => (p.tl[l.id]||{}).stars >= 1).length; return done/ls.length >= 0.6; }
+function gradeOpen(p, g){ if (p.unlockAll || g <= (p.theoryStart||1) || (g >= 6 && g <= (p.theoryStart||1) + 1)) return true; const ls = LESSONS.filter(l => l.g === g-1); const done = ls.filter(l => (p.tl[l.id]||{}).stars >= 1).length; return done/ls.length >= 0.6; }
 function streak(p){ let d = new Date(); let n = 0; if (!p.days[todayStr(d)]) d.setDate(d.getDate()-1); while (p.days[todayStr(d)]){ n++; d.setDate(d.getDate()-1); } return n; }
 function starsTotal(p){ let s = 0; Object.values(p.sk).forEach(x => Object.values(x.lv||{}).forEach(v => s += v)); Object.values(p.tl).forEach(x => s += x.stars||0); return s; }
 const GOAL = 20;
@@ -2316,6 +2576,7 @@ const BADGES = [
  {id:"g1", n:"Grade 1 theory", d:"Star every Grade 1 lesson", t:p => LESSONS.filter(l=>l.g===1).every(l => (p.tl[l.id]||{}).stars >= 1)},
  {id:"g3", n:"Grade 3 theory", d:"Star every Grade 3 lesson", t:p => LESSONS.filter(l=>l.g===3).every(l => (p.tl[l.id]||{}).stars >= 1)},
  {id:"g5", n:"Grade 5 ready", d:"Star every Grade 5 lesson", t:p => LESSONS.filter(l=>l.g===5).every(l => (p.tl[l.id]||{}).stars >= 1)},
+ {id:"g8", n:"Grade 8 theory", d:"Star every Grade 8 lesson", t:p => LESSONS.filter(l=>l.g===8).every(l => (p.tl[l.id]||{}).stars >= 1)},
  {id:"terms", n:"Polyglot", d:"60 terms answered right", t:p => p.termsRight >= 60},
  {id:"gym1", n:"Into the gym", d:"Finish an Ear Gym session", t:p => p.gym.n >= 1},
  {id:"gym10", n:"Gym regular", d:"10 Ear Gym sessions", t:p => p.gym.n >= 10},
@@ -2444,10 +2705,10 @@ function courseView(){
 function sizeCourse(){ const f = $("#courseFrame"); if (!f) return; const top = f.getBoundingClientRect().top + window.scrollY; f.style.height = Math.max(520, window.innerHeight - (top - window.scrollY) - 14) + "px"; }
 window.addEventListener("resize", () => sizeCourse());
 function theoryHome(){
-  const p = P(); if (!VIEW.grade){ VIEW.grade = 1; for (let g=1; g<=5; g++) if (gradeOpen(p,g)) { const ls = LESSONS.filter(l=>l.g===g); if (ls.some(l => !(p.tl[l.id]||{}).stars)) { VIEW.grade = g; break; } VIEW.grade = g; } }
+  const p = P(); if (!VIEW.grade){ VIEW.grade = 1; for (let g=1; g<=8; g++) if (gradeOpen(p,g)) { const ls = LESSONS.filter(l=>l.g===g); if (ls.some(l => !(p.tl[l.id]||{}).stars)) { VIEW.grade = g; break; } VIEW.grade = g; } }
   const g = VIEW.grade; const ls = LESSONS.filter(l => l.g === g); const done = ls.filter(l => (p.tl[l.id]||{}).stars >= 1).length;
-  return coursesHTML(p) + `<h2 style="margin-top:26px">Quick drills</h2><p class="muted" style="margin-top:0">ABRSM Grades 1–5, one short lesson at a time. Each lesson explains the idea, then gives you endless fresh questions. ${p.theoryStart>1?`${esc(p.name)} starts with Grades 1–${p.theoryStart} open for revision.`:`Grades unlock when you’ve starred most of the lessons in the grade before.`}</p>
-  <div class="gradebar" role="group" aria-label="Grades">${[1,2,3,4,5].map(n => `<button class="gbtn" data-act="grade" data-arg="${n}" aria-pressed="${n===g}" ${gradeOpen(p,n)?"":"disabled"}>Grade ${n}${gradeOpen(p,n)?"":" · locked"}</button>`).join("")}
+  return coursesHTML(p) + `<h2 style="margin-top:26px">Quick drills</h2><p class="muted" style="margin-top:0">Grades 1–8, one short lesson at a time. Each lesson explains the idea, then gives you endless fresh questions. ${p.theoryStart>1?`${esc(p.name)} starts with Grades 1–${p.theoryStart} open for revision.`:`Grades unlock when you’ve starred most of the lessons in the grade before.`}</p>
+  <div class="gradebar" role="group" aria-label="Grades">${[1,2,3,4,5,6,7,8].map(n => `<button class="gbtn" data-act="grade" data-arg="${n}" aria-pressed="${n===g}" ${gradeOpen(p,n)?"":"disabled"}>Grade ${n}${gradeOpen(p,n)?"":" · locked"}</button>`).join("")}
   <button class="gbtn" data-act="gloss">Terms glossary</button></div>
   <div class="row" style="justify-content:space-between"><h3 style="margin:0">Grade ${g}</h3><span class="pill">${done}/${ls.length} lessons starred</span></div>
   <div class="lessons">${ls.map((l,i) => { const t = p.tl[l.id] || {}; return `<button class="lesson ${t.stars?"done":""}" data-act="lesson" data-arg="${l.id}"><span class="n">${i+1}</span><div><div style="font-weight:700">${esc(l.t)}</div><div class="muted" style="font-size:.85rem">${esc(l.topic)}${t.a?` · ${Math.round(100*t.c/t.a)}% of ${t.a}`:""}</div></div>${starStr(t.stars||0)}</button>`; }).join("")}</div>`;
@@ -2697,13 +2958,13 @@ function progressView(){
   <div class="cols2" style="margin-top:16px"><div class="panel"><h3>Aural accuracy</h3>${AURAL.map(s => bar(s.name, p.sk[s.id])).join("")}
    <p class="muted" style="font-size:.9rem;margin-bottom:0">Mock aural tests: ${[1,2,3,4,5,6,7,8].map(g => { const m = (p.mocks||{})[g]; return `Gr ${g}: ${m ? Math.round(m.best*100)+"% best ("+m.n+")" : "not tried"}`; }).join(" · ")}</p></div>
   <div class="panel"><h3>Theory accuracy</h3>${THEORY_TOPICS.map(tp => bar(tp, topicAcc(p, tp))).join("")}
-   <p class="muted" style="font-size:.9rem;margin-bottom:0">Lessons starred: ${[1,2,3,4,5].map(g => { const ls = LESSONS.filter(l=>l.g===g); return `Gr ${g}: ${ls.filter(l => (p.tl[l.id]||{}).stars).length}/${ls.length}`; }).join(" · ")}</p></div></div>
+   <p class="muted" style="font-size:.9rem;margin-bottom:0">Lessons starred: ${[1,2,3,4,5,6,7,8].map(g => { const ls = LESSONS.filter(l=>l.g===g); return `Gr ${g}: ${ls.filter(l => (p.tl[l.id]||{}).stars).length}/${ls.length}`; }).join(" · ")}</p></div></div>
   <div class="panel" style="margin-top:16px"><h3>Badges <span class="muted" style="font-size:.9rem;font-weight:400">${Object.keys(p.badges).length} of ${BADGES.length}</span></h3><div class="badges">${BADGES.map(b => `<div class="badge ${p.badges[b.id]?"got":""}">${badgeSVG(b.id, !!p.badges[b.id])}<b>${esc(b.n)}</b><small>${esc(b.d)}</small></div>`).join("")}</div></div>
   <div class="panel" style="margin-top:16px"><h3>Player settings</h3>
    <div class="field"><label for="pname" style="min-width:110px">Name</label><input type="text" id="pname" value="${esc(p.name)}" maxlength="24"></div>
    <div class="field"><label for="pinst" style="min-width:110px">Instruments</label><input type="text" id="pinst" value="${esc(p.inst.join(", "))}" maxlength="60"></div>
    <div class="field"><span style="min-width:110px">Sight-singing clef</span><button class="gbtn" data-act="clef" data-arg="treble" aria-pressed="${p.clef==="treble"}">Treble</button><button class="gbtn" data-act="clef" data-arg="bass" aria-pressed="${p.clef==="bass"}">Bass</button></div>
-   <div class="field"><span style="min-width:110px">Theory starts at</span>${[1,2,3,4,5].map(g => `<button class="gbtn" data-act="tstart" data-arg="${g}" aria-pressed="${p.theoryStart===g}">Gr ${g}</button>`).join("")}</div>
+   <div class="field"><span style="min-width:110px">Theory starts at</span>${[1,2,3,4,5,6,7,8].map(g => `<button class="gbtn" data-act="tstart" data-arg="${g}" aria-pressed="${p.theoryStart===g}">Gr ${g}</button>`).join("")}</div>
    <div class="field"><span style="min-width:110px">Levels</span><button class="gbtn" data-act="unlockAll" aria-pressed="${!!p.unlockAll}">${p.unlockAll?"All levels unlocked":"Unlock every level (parent)"}</button></div>
    <div class="row" style="margin-top:10px"><button class="btn small" data-act="saveSettings">Save settings</button><button class="btn small ghost" data-act="resetPlayer">Reset ${esc(p.name)}’s progress</button>${STATE.players.length>1?`<button class="btn small ghost" data-act="removePlayer">Remove player</button>`:""}</div></div>`;
 }
