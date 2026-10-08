@@ -1825,7 +1825,7 @@ function auralHome2(){
   const tests = G.tests.map(t => { const st = lvlStars(p, t.id, t.L); const lv = AURAL_BY[t.id].levels[t.L-1];
     return `<div class="gtest ${st?"done":""}"><div class="gsec">${esc(t.sec)}</div><div style="min-width:0"><div class="nm">${esc(t.t)}</div><div class="ds">${esc(t.d)}</div>
       <details class="tipbox"><summary>How to do it</summary>${esc(t.tip)}</details></div>
-      <div class="gact">${starStr(st)}<button class="btn small ${st?"ghost":"primary"}" data-act="gtest" data-arg="${t.id}:${t.L}:${esc(t.sec)}">${st?"Practise again":"Practise"}</button><span class="muted" style="font-size:.78rem">${esc(AURAL_BY[t.id].name)} · Lv ${t.L}</span></div></div>`; }).join("");
+      <div class="gact">${starStr(st)}<div class="row" style="gap:6px;justify-content:flex-end">${LEARN[t.id] ? `<button class="btn small ghost" data-act="learn" data-arg="${t.id}|${t.id}:${t.L}:${esc(t.sec)}">Learn it</button>` : ""}<button class="btn small ${st?"ghost":"primary"}" data-act="gtest" data-arg="${t.id}:${t.L}:${esc(t.sec)}">${st?"Practise again":"Practise"}</button></div><span class="muted" style="font-size:.78rem">${esc(AURAL_BY[t.id].name)} · Lv ${t.L}</span></div></div>`; }).join("");
   const extra = G.extra.map(([id, L]) => { const lv = AURAL_BY[id].levels[L-1]; return `<button class="skill" data-act="gextra" data-arg="${id}:${L}"><span class="no">${L}<small>Lv</small></span><div><div class="nm">${esc(AURAL_BY[id].name)}</div><div class="ds">${esc(lv.t)}</div></div><div style="text-align:right">${starStr(lvlStars(p, id, L))}</div></button>`; }).join("");
   const next = g < 8 ? (g === 7 ? `Pass the Grade 7 mock (66% or more) to open Grade 8.` : `Grade ${g+1} is open whenever you’re ready.`) : "";
   return heroHTML(p) + `<h2>Aural, grade by grade</h2>
@@ -1840,10 +1840,161 @@ function auralHome2(){
 }
 function startGradeTest(arg, kind){
   const [id, L, sec] = arg.split(":"); const g = P().auralGrade || 5; const T = GRADES[g].tests.find(t => t.id === id && t.L === +L);
-  VIEW.skill = null; VIEW.mock = null;
+  VIEW.skill = null; VIEW.mock = null; VIEW.learn = null;
   VIEW.gctx = T && kind === "test" ? {g, sec:T.sec, t:T.t, d:T.d} : {g, sec:"extra", t:AURAL_BY[id].name + " · " + AURAL_BY[id].levels[+L-1].t, d:AURAL_NOTE[id] || ""};
   if (kind !== "test") VIEW.gctx.sec = "practice";
   startRound("aural", id, +L); window.scrollTo({top:0});
+}
+
+/* ===================== Learn it: lessons with listening examples ===================== */
+const pl = (ev, bpm=92) => () => playEvents(ev, bpm);
+const LC = () => mkCtx("major", 0);              // C major for clear, comparable examples
+const TUNE = [0,1,2,3,4,4,5,4,3,2,1,0];
+function tuneEv(o={}){
+  const mode = o.mode || "major", ctx = mkCtx(mode, 0), sc = SC[mode === "minor" ? "minor" : "major"]; const n = TUNE.length; let t = 0; const ev = [];
+  TUNE.forEach((d, i) => { const f = i/(n-1);
+    let v = .7; if (o.dyn === "f") v = .95; if (o.dyn === "p") v = .24; if (o.dyn === "cresc") v = .18 + .82*f; if (o.dyn === "dim") v = 1 - .8*f;
+    const art = o.art === "stacc" ? .3 : o.art === "leg" ? 1.03 : .9; const dur = i === n-1 ? 2 : 1; let s = 1;
+    if (o.tempo === "rit" && i >= n-5) s = 1 + (i-(n-5))*.22; if (o.tempo === "accel" && i >= 3) s = Math.max(.55, 1 - (i-3)*.06);
+    ev.push({m: degM(ctx.tm+12, d + (o.shiftAt === i ? o.shiftBy : 0), sc), t, d: dur*s, v, art}); t += dur*s; });
+  if (o.chords){ const tpc = ctx.tpc; progEvents([1,5,1,4,1,5,1].map(dd => ({pcs: chordPcs(tpc, mode, dd)})), [2,2,2,2,2,1,2]).forEach(e => { e.m = e.m.map(x => x-12); e.v = .32; ev.push(e); }); }
+  return ev;
+}
+function meterEv(m){
+  const ctx = LC(), barLen = m === "6/8" ? 3 : +m[0];
+  const pats = {"2/4":[1,1], "3/4":[1,1,1], "4/4":[1,1,1,1], "6/8":[.5,.5,.5,.5,.5,.5]};
+  const degs = [0,2,4,2,4,5,4,2,0,1,2,4,2,1,0,0,2,4]; let di = 0, t = 0; const ev = [];
+  for (let b=0; b<4; b++){ let p = 0;
+    pats[m].forEach(d => { const strong = p === 0, mid = (m === "6/8" && Math.abs(p-1.5) < 1e-6) || (m === "4/4" && p === 2);
+      ev.push({m: degM(ctx.tm+12, degs[di++ % degs.length], SC.major), t: t+p, d, v: strong ? 1 : mid ? .62 : .32}); p += d; });
+    ev.push({m: ctx.tm - 12 + (b % 2 ? 7 : 0), t, d: barLen, v: .55}); t += barLen; }
+  return pl(ev, m === "6/8" ? 126 : 100);
+}
+const chordsEv = (labels, beats) => progEvents(labels.map(l => chordOf(l, 0, "major")), beats || labels.map((_, i) => i === labels.length-1 ? 2.5 : 1));
+function modEv(dk, mode2){ const tm = tonicMidi(0, "major", 55, 66), ntm = tonicMidi(dk, mode2, 55, 66);
+  const A = d => ({pcs: chordPcs(tm%12, "major", d)}), B = (d, s) => ({pcs: chordPcs(ntm%12, mode2, d, s)});
+  const ch = [A(1),A(4),A(5),A(1), B(4),B(5,true),B(1),B(4),B(5,true),B(1)]; return pl(progEvents(ch, ch.map((_, i) => i === ch.length-1 ? 3 : 1)), 80); }
+function rhythmEv(pat, meter){ const beat = meter === "6/8" ? 1.5 : 1, bar = meter === "6/8" ? 3 : +meter[0]; const ev = [];
+  for (let i=0; i<bar/beat; i++) ev.push({click:true, accent:i===0, t:i*beat});
+  let pos = bar; parsePat(pat).forEach(e => { if (!e.rest) ev.push({m:72, t:pos, d:e.d, v:.85, art:.7}); pos += e.d; });
+  for (let q=bar; q<pos; q+=beat) ev.push({click:true, accent: Math.abs(((q-bar) % bar)) < 1e-6, t:q, vol:.4});
+  return pl(ev, meter === "6/8" ? 112 : 84); }
+function partsDemo(which){ const ctx = LC(); const V = voiceDegs([1,4,6,2,5,1], ctx.tpc, "major"); const durs = [1,1,1,1,1,2];
+  const top = V.map((v, i) => ({m:v.up[2], d:durs[i]})), bass = V.map((v, i) => ({m:v.bass, d:durs[i]}));
+  const ev = which === "top" ? lineEv(top, .8) : which === "bass" ? lineEv(bass, .8) : [...lineEv(top, .72), ...lineEv(bass, .66)]; return pl(ev, 76); }
+const ivDemo = (s, harm) => pl(harm ? [{m:[60, 60+s], t:0, d:2.2, v:.75}] : seq([60, 60+s], 1.1), 70);
+const triEv = (iv, inv=0) => { let ms = [60, 60+iv[0], 60+iv[1]]; if (inv === 1) ms = [ms[1], ms[2], ms[0]+12]; if (inv === 2) ms = [ms[2], ms[0]+12, ms[1]+12]; return pl([{m:ms, t:0, d:2, v:.72},{m:ms, t:2.4, d:2.4, v:.7, roll:true}], 72); };
+
+const LEARN = {
+ pulse:{title:"Feeling the beat", grades:"Grades 1–5, test A or C",
+  intro:"Almost all music has a steady <b>beat</b> (the pulse), like a heartbeat. Some beats are <b>stronger</b> than others, and the pattern of strong and weak beats tells you the <b>time</b>.",
+  sec:[{h:"Strong and weak", p:"Count along. If the strong beat comes every <b>2</b> beats, it’s in 2 time (“ONE two, ONE two” — like marching). Every <b>3</b> beats is 3 time (“ONE two three” — a waltz). Every <b>4</b> beats is 4 time, with a smaller accent on 3 (“ONE two THREE four”).",
+       demos:[["2 time (march)", meterEv("2/4")],["3 time (waltz)", meterEv("3/4")],["4 time", meterEv("4/4")]]},
+       {h:"6/8: two swingy beats", p:"In 6/8 there are two big beats in a bar, but each one splits into <b>three</b>: “ONE-and-a TWO-and-a”. It feels like skipping or a boat rocking.", demos:[["6/8 (two beats, each in three)", meterEv("6/8")],["Compare: 3 time", meterEv("3/4")]]}],
+  mistakes:["Counting every note instead of the beat — clap the steady beat, not the rhythm of the tune.","Mixing up 2 and 4 time: listen for the extra-strong ONE that only comes every four beats in 4 time."],
+  tips:["In the exam, clap and stress the strong beat clearly — the examiner is listening to your clapping as much as your answer.","Join in quickly: start clapping within the first bar or two."]},
+ echo:{title:"Singing back what you hear", grades:"Grades 1–5, test A or B",
+  intro:"Echo tests check that you can <b>remember</b> a tune and <b>pitch</b> it with your voice. It’s a memory game as much as a singing one.",
+  sec:[{h:"Listen for the shape", p:"Before the notes, catch the <b>shape</b>: does it go up like stairs, jump, or turn around? Then notice where it <b>starts</b> and where it <b>ends</b> — very often it ends on the home note (doh).",
+       demos:[["Steps going up", pl(seq([60,62,64,65,67], .9).concat([{m:67, t:4.5, d:1.5}]), 92)],["A leap, then steps down", pl(seq([60,67,65,64,62,60], .9), 92)],["Up and back home", pl(seq([60,62,64,62,60], .9), 92)]]},
+       {h:"Hold it in your head", p:"While it plays, <b>hum silently</b> along. Straight after, sing it on “la” at a comfortable pitch. If you’re not sure of a note, keep going — a confident wrong note is better than stopping.",
+       demos:[["Hear a phrase twice", pl([...seq([62,64,66,67,69,66,62], .8), ...seq([62,64,66,67,69,66,62], .8, 7.5)], 96)]]}],
+  mistakes:["Singing too quietly — the examiner (and the microphone) need to hear you.","Rushing: keep the same speed and rhythm as the phrase you heard."],
+  tips:["Use “Sing it — I’ll mark you” to see exactly which note slipped.","Start on the same note you heard; the key chord before the phrase helps you find it."]},
+ changed:{title:"Spotting a change", grades:"Grades 1–3, test C",
+  intro:"A tune is played <b>twice</b>. The second time, one note is different. Your job is to say <b>where</b> it changed — near the beginning or the end, or which note.",
+  sec:[{h:"Same, then different", p:"Listen to the first playing really carefully and hum it in your head. In the second playing, wait for the moment it “feels wrong”. Ask: did that note go <b>higher</b> or <b>lower</b> than before?",
+       demos:[["First version", pl(tuneEv(), 110)],["Changed version (note 7 is higher)", pl(tuneEv({shiftAt:6, shiftBy:2}), 110)],["Changed version (note 3 is lower)", pl(tuneEv({shiftAt:2, shiftBy:-1}), 110)]]}],
+  mistakes:["Guessing the last note every time — changes can come anywhere.","Losing count: number the notes on your fingers as they go past."],
+  tips:["Small changes (a step) are harder to hear than big leaps — practise with the ‘tiny changes’ level."]},
+ features:{title:"Talking about the music", grades:"Every grade — dynamics, articulation, tempo, tonality, character",
+  intro:"Examiners ask what you <b>notice</b>. Use the right words: <b>dynamics</b> (loud/quiet), <b>articulation</b> (smooth/detached), <b>tempo</b> (speed), <b>tonality</b> (major/minor) and <b>character</b> (the mood).",
+  sec:[{h:"Dynamics — loud and quiet", p:"<i>forte</i> = loud, <i>piano</i> = quiet, <i>crescendo</i> = getting louder, <i>diminuendo</i> = getting quieter.", demos:[["forte (loud)", pl(tuneEv({dyn:"f"}))],["piano (quiet)", pl(tuneEv({dyn:"p"}))],["crescendo", pl(tuneEv({dyn:"cresc"}))],["diminuendo", pl(tuneEv({dyn:"dim"}))]]},
+       {h:"Articulation — smooth or detached", p:"<i>legato</i> = smooth and joined; <i>staccato</i> = short and detached, with tiny gaps.", demos:[["legato", pl(tuneEv({art:"leg"}))],["staccato", pl(tuneEv({art:"stacc"}))]]},
+       {h:"Tempo — speed changes", p:"<i>rallentando</i> (rall.) = gradually slowing down, often at the end. <i>accelerando</i> (accel.) = gradually getting faster.", demos:[["steady", pl(tuneEv())],["rallentando", pl(tuneEv({tempo:"rit"}))],["accelerando", pl(tuneEv({tempo:"accel"}))]]}],
+  mistakes:["Saying only “it was nice” — always name a feature and describe it.","Mixing up loud with fast: tempo and dynamics are different things."],
+  tips:["Answer in a sentence: “It started quietly and got louder, and the notes were smooth.”","Add a word about character: gentle, cheerful, sad, bold, march-like…"]},
+ majmin:{title:"Major or minor?", grades:"Grades 2–5",
+  intro:"<b>Major</b> music usually sounds bright and settled; <b>minor</b> usually sounds darker, sadder or more mysterious. The difference is the <b>3rd</b> note of the scale.",
+  sec:[{h:"Same tune, two colours", p:"Here is one tune played in major, then in minor. Only a couple of notes change — but the mood changes completely.", demos:[["Major", pl(tuneEv({chords:true}), 100)],["Minor", pl(tuneEv({mode:"minor", chords:true}), 100)]]},
+       {h:"Major and minor chords", p:"A major chord has a <b>major 3rd</b> at the bottom; a minor chord has a <b>minor 3rd</b> (one semitone smaller).", demos:[["Major chord", triEv([4,7])],["Minor chord", triEv([3,7])]]}],
+  mistakes:["Thinking fast = major and slow = minor. A slow piece can be major and a fast one minor!"],
+  tips:["Sing the first three notes of the scale in your head: doh-re-mi (major) or la-ti-doh (minor)."]},
+ intervals:{title:"Intervals: the distance between two notes", grades:"Extra training, all grades",
+  intro:"An <b>interval</b> is the gap between two notes. Matching each one to the start of a song you know makes them easy to recognise.",
+  sec:[{h:"The everyday intervals", p:"Play each one and say the song hook to yourself.",
+       demos:[["major 2nd — ‘Happy Birthday’", ivDemo(2)],["major 3rd — ‘Oh When the Saints’", ivDemo(4)],["perfect 4th — ‘Here Comes the Bride’", ivDemo(5)],["perfect 5th — ‘Twinkle Twinkle’", ivDemo(7)],["major 6th — ‘My Bonnie’", ivDemo(9)],["octave — ‘Somewhere Over the Rainbow’", ivDemo(12)]]},
+       {h:"Minor colours", p:"Minor intervals are a semitone smaller than major ones and sound darker.", demos:[["minor 3rd — ‘Greensleeves’", ivDemo(3)],["minor 6th — ‘The Entertainer’ leap", ivDemo(8)],["minor 7th — ‘Somewhere’ (West Side Story)", ivDemo(10)],["tritone — ‘Maria’", ivDemo(6)]]},
+       {h:"Together (harmonic)", p:"Played together, wide perfect intervals sound open and hollow; 2nds and 7ths clash.", demos:[["perfect 5th together", ivDemo(7, true)],["major 3rd together", ivDemo(4, true)],["minor 2nd together", ivDemo(1, true)]]}],
+  mistakes:["Mixing up 4ths and 5ths: the 5th sounds wider and more ‘complete’."],
+  tips:["Hum the two notes after you hear them, then fit your song hook."]},
+ triads:{title:"Chords and how they sound", grades:"Extra training, Grades 3–8",
+  intro:"A <b>triad</b> is three notes stacked in 3rds. Its <b>quality</b> (major, minor, diminished, augmented) gives it a mood, and its <b>inversion</b> (which note is lowest) changes how settled it feels.",
+  sec:[{h:"Four qualities", p:"Major is bright, minor is darker, diminished is squeezed and tense, augmented is stretched and dreamy.", demos:[["major", triEv([4,7])],["minor", triEv([3,7])],["diminished", triEv([3,6])],["augmented", triEv([4,8])]]},
+       {h:"Inversions", p:"Root position sounds most solid. First inversion is lighter. Second inversion sounds unsettled — it wants to move.", demos:[["root position", triEv([4,7], 0)],["1st inversion", triEv([4,7], 1)],["2nd inversion", triEv([4,7], 2)]]}],
+  mistakes:["Listening to the top note only — the bass note tells you the inversion."],
+  tips:["Sing the notes of the chord from the bottom up after you hear it."]},
+ cadences:{title:"Cadences: how phrases end", grades:"Grades 6–8, test C",
+  intro:"A <b>cadence</b> is the ending of a phrase — like punctuation in a sentence. There are four kinds.",
+  sec:[{h:"The four cadences", p:"<b>Perfect</b> (V → I): finished, a full stop. <b>Imperfect</b> (ending on V): unfinished, a comma. <b>Plagal</b> (IV → I): the gentle ‘Amen’. <b>Interrupted</b> (V → VI): you expect home but get a surprise.",
+       demos:[["Perfect", pl(chordsEv(["I","VI","V","I"]), 66)],["Imperfect", pl(chordsEv(["I","VI","IV","V"]), 66)],["Plagal", pl(chordsEv(["I","VI","IV","I"]), 66)],["Interrupted", pl(chordsEv(["I","VI","V","VI"]), 66)]]}],
+  mistakes:["Confusing perfect and plagal: both finish on I — listen for the strong pull of V before it."],
+  tips:["Ask two questions: does it sound finished? Then: was there a surprise?"]},
+ cadchords:{title:"Naming the chords at a cadence", grades:"Grades 6–8, test C",
+  intro:"Now name the <b>chords</b> that make the cadence, using Roman numerals: I (home), II, IV, V, V7, VI — and <b>Ic</b>, the tonic chord with its 5th in the bass.",
+  sec:[{h:"Chords that lead to V", p:"Before an imperfect cadence you might hear <b>I–V</b>, <b>IV–V</b>, <b>II–V</b> or <b>Ic–V</b>. Ic–V is special: the bass sits on the dominant note for both chords while the harmony above changes.",
+       demos:[["I – V", pl(chordsEv(["I","VI","I","V"]), 66)],["IV – V", pl(chordsEv(["I","VI","IV","V"]), 66)],["II – V", pl(chordsEv(["I","VI","II","V"]), 66)],["Ic – V – I", pl(chordsEv(["I","IV","Ic","V","I"]), 66)]]},
+       {h:"V and V7", p:"V7 adds a 7th to the dominant chord — a little extra bite that strongly wants to fall to I.", demos:[["V – I", pl(chordsEv(["I","IV","V","I"]), 66)],["V7 – I", pl(chordsEv(["I","IV","V7","I"]), 66)],["V7 – VI (interrupted)", pl(chordsEv(["I","IV","V7","VI"]), 66)]]}],
+  mistakes:["Forgetting Ic exists — if the bass stays still while the chord changes before V, think Ic."],
+  tips:["Follow the bass line: it usually tells you the chord."]},
+ modulation:{title:"Modulation: changing key", grades:"Grades 6–8, test C",
+  intro:"Music often <b>travels</b> to a new key and settles there. You’re asked where it goes, compared with the <b>home key</b>.",
+  sec:[{h:"Three common journeys (from C major)", p:"<b>Dominant</b> (G major) sounds brighter and lifted. <b>Subdominant</b> (F major) sounds relaxed, settling down. <b>Relative minor</b> (A minor) turns darker but keeps the same key signature.",
+       demos:[["to the dominant", modEv(1, "major")],["to the subdominant", modEv(-1, "major")],["to the relative minor", modEv(0, "minor")]]}],
+  mistakes:["Deciding too early — wait for the new cadence to settle before answering."],
+  tips:["First ask: did it turn minor? If not, did it feel brighter (dominant) or more relaxed (subdominant)?"]},
+ sight:{title:"Sight-singing", grades:"Grades 4–8, test B",
+  intro:"You see a short tune, hear the <b>key chord</b> and <b>first note</b>, then sing it. Work out the notes from the <b>shape on the stave</b>: steps go to the next line or space, skips jump over one.",
+  sec:[{h:"Find doh, then move", p:"Hum the key chord, then the scale up to the top note of the tune. Every note is just steps and skips from doh.",
+       demos:[["Key chord and scale (C major)", pl([{m:[48,52,55], t:0, d:1.5, v:.55}, ...seq([60,62,64,65,67,69,71,72], .5, 2)], 96)],["Steps: doh re mi re doh", pl(seq([60,62,64,62,60], .9), 92)],["Skips: doh mi soh mi doh", pl(seq([60,64,67,64,60], .9), 92)]]},
+       {h:"With an accompaniment (Grades 6–8)", p:"From Grade 6 a piano or second part plays with you. Let it support you, but don’t copy it — hold your own line.", demos:[["A tune with chords underneath", pl(tuneEv({chords:true}), 92)]]}],
+  mistakes:["Stopping after a wrong note — keep going in time.","Ignoring the rhythm: long notes need their full length."],
+  tips:["Look at the whole phrase first: where is the highest note? Any leaps?","Use “Sing it — I’ll mark you” to see which notes were in tune."]},
+ clap:{title:"Clapping rhythms back", grades:"Grades 4–5, plus extra training",
+  intro:"Rhythm is the pattern of <b>long and short</b> sounds. Listen, say the rhythm in your head, then clap it back <b>in time</b>.",
+  sec:[{h:"Building blocks", p:"Each example counts you in with a bar of clicks.", demos:[["crotchets (ta ta ta ta)", rhythmEv("1 1 1 1", "4/4")],["quavers (ta-te)", rhythmEv(".5 .5 1 .5 .5 1", "4/4")],["dotted rhythm (taa-te)", rhythmEv("1.5 .5 1.5 .5", "4/4")],["semiquavers", rhythmEv(".25 .25 .25 .25 1 .5 .5 1", "4/4")]]},
+       {h:"Trickier patterns", p:"<b>Syncopation</b> puts the accent off the beat. <b>6/8</b> groups notes in threes.", demos:[["syncopation", rhythmEv(".5 1 .5 1 1", "4/4")],["6/8 rhythm", rhythmEv("1 .5 1 .5 1.5 1.5", "6/8")]]}],
+  mistakes:["Speeding up — keep the beat steady from start to finish."],
+  tips:["Say words to the rhythm, like “ap-ple ap-ple pear”, before clapping."]},
+ parts:{title:"Singing one part of two or three", grades:"Grades 6–8, test A",
+  intro:"You hear a phrase in two (or three) parts and sing back <b>one</b> of them. The trick is to <b>focus</b> on that line and let the others fade.",
+  sec:[{h:"Hear the parts separately", p:"Play the two parts together, then each one alone. Try to hear the lower part even when both are playing.",
+       demos:[["Both parts", partsDemo("both")],["Upper part alone", partsDemo("top")],["Lower part alone", partsDemo("bass")]]}],
+  mistakes:["Singing the tune when asked for the lower part — the top line is the easiest to hear, so be deliberate."],
+  tips:["Bass lines often leap between chord roots: doh … fah … soh … doh.","Sing in any comfortable octave — that’s allowed."]},
+ style:{title:"Texture, structure and style", grades:"Grades 6–8, test D",
+  intro:"Three big ideas. <b>Texture</b>: how the parts fit together. <b>Structure</b>: how the piece is built from sections. <b>Period and style</b>: when it was written.",
+  sec:[{h:"Texture", p:"<b>Melody and accompaniment</b>: a tune with chords underneath. <b>Contrapuntal</b>: independent lines, often imitating each other. <b>Chordal</b>: all parts move together, like a hymn. <b>Unison/octaves</b>: everyone plays the same tune.",
+       demos:[["melody and accompaniment", () => playEvents(texturePiece("mel", LC()), 104)],["contrapuntal (imitation)", () => playEvents(texturePiece("contra", LC()), 104)],["chordal", () => playEvents(texturePiece("chordal", LC()), 76)],["unison / octaves", () => playEvents(texturePiece("unison", LC()), 104)]]},
+       {h:"Structure", p:"<b>Binary</b> AB: two halves. <b>Ternary</b> ABA: the opening comes back after a contrast. <b>Rondo</b> ABACA: the main tune keeps returning. <b>Ground bass</b>: one bass pattern repeats while the music above changes.",
+       demos:[["ternary (A B A)", () => playEvents(formPiece("ternary", LC()), 112)],["rondo (A B A C A)", () => playEvents(formPiece("rondo", LC()), 128)],["ground bass", () => playEvents(formPiece("ground", LC()), 112)]]},
+       {h:"Period and style", p:"<b>Baroque</b> (1600–1750): harpsichord, busy counterpoint, steady pulse. <b>Classical</b> (1750–1820): balanced phrases, Alberti bass. <b>Romantic</b> (1820–1900): rich chords, rubato, big emotions. <b>20th century</b>: new chords, unusual rhythms.",
+       demos:[["Baroque", () => { const r = periodPiece("baroque", LC()); return playEvents(r.ev, r.bpm); }],["Classical", () => { const r = periodPiece("classical", LC()); return playEvents(r.ev, r.bpm); }],["Romantic", () => { const r = periodPiece("romantic", LC()); return playEvents(r.ev, r.bpm); }],["20th century", () => { const r = periodPiece("modern", LC()); return playEvents(r.ev, r.bpm); }]]}],
+  mistakes:["Naming a period without a reason — always say why."],
+  tips:["A good answer: “I think it’s Classical because of the Alberti bass and the clear, balanced phrases.”"]}
+};
+let LEARN_DEMOS = [];
+function learnView(){
+  const id = VIEW.learn.id, L = LEARN[id]; LEARN_DEMOS = [];
+  const used = []; Object.entries(GRADES).forEach(([g, G]) => G.tests.forEach(t => { if (t.id === id) used.push(`Grade ${g} · ${t.sec}`); }));
+  const secs = L.sec.map(s => `<section class="panel" style="margin-top:12px"><h3>${esc(s.h)}</h3><p style="margin:.2em 0 .6em">${s.p}</p>
+    <div class="playbar">${(s.demos||[]).map(([lbl, fn]) => { LEARN_DEMOS.push(fn); return `<button class="playbtn alt" data-act="demo" data-arg="${LEARN_DEMOS.length-1}">${PLAY_ICON}${esc(lbl)}</button>`; }).join("")}</div></section>`).join("");
+  return `<button class="back" data-act="learnBack">← Back</button><div class="kicker">Learn it · ${esc(L.grades)}</div><h2>${esc(L.title)}</h2>
+   <p style="max-width:70ch">${L.intro}</p>${secs}
+   <div class="cols2" style="margin-top:12px"><div class="panel"><h3>Common mistakes</h3><ul class="tasklist">${L.mistakes.map(x => `<li>${x}</li>`).join("")}</ul></div>
+   <div class="panel"><h3>Exam tips</h3><ul class="tasklist">${L.tips.map(x => `<li>${x}</li>`).join("")}</ul></div></div>
+   ${used.length ? `<p class="muted" style="margin-top:12px">Used in: ${used.map(esc).join(" · ")}</p>` : ""}
+   <div class="row" style="margin-top:10px">${VIEW.learn.from ? `<button class="btn primary" data-act="gtest" data-arg="${esc(VIEW.learn.from)}">Now practise it</button>` : `<button class="btn primary" data-act="skill" data-arg="${id}">Now practise it</button>`}</div>`;
 }
 
 /* ===================== THEORY generators ===================== */
@@ -2210,7 +2361,7 @@ function render(){
   renderPlayers();
   $$(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === VIEW.tab)));
   const m = $("#main");
-  if (VIEW.tab === "aural") m.innerHTML = VIEW.mock ? mockView() : VIEW.skill ? skillView() : auralHome2();
+  if (VIEW.tab === "aural") m.innerHTML = VIEW.learn ? learnView() : VIEW.mock ? mockView() : VIEW.skill ? skillView() : auralHome2();
   else if (VIEW.tab === "theory") m.innerHTML = VIEW.course ? courseView() : VIEW.lesson ? lessonView() : VIEW.gloss === "open" ? glossaryView() : theoryHome();
   else if (VIEW.tab === "gym") m.innerHTML = gymView();
   else m.innerHTML = progressView();
@@ -2267,7 +2418,7 @@ function skillView(){
     return `<button class="lvl" data-act="level" data-arg="${n}" aria-pressed="${VIEW.level===n}" ${open?"":"disabled"}><b>Level ${n}</b><span style="font-size:.8rem">${esc(L.t)}</span><span class="lk">${open ? starStr(lvlStars(p,s.id,n)) + " · " + L.g : "Locked — earn 1★ on level "+(n-1)}</span></button>`; }).join("");
   const L = s.levels[VIEW.level-1];
   return `<button class="back" data-act="home">← All aural skills</button>
-   <h2>${esc(s.name)}</h2><p class="muted" style="margin-top:0">${esc(AURAL_NOTE[s.id])}</p>
+   <h2>${esc(s.name)}</h2><p class="muted" style="margin-top:0">${esc(AURAL_NOTE[s.id])}</p>${LEARN[s.id] && !R ? `<button class="btn small ghost" data-act="learn" data-arg="${s.id}" style="margin-bottom:6px">Learn it: ${esc(LEARN[s.id].title)}</button>` : ""}
    ${R ? "" : `<div class="levels" role="group" aria-label="Levels">${lvls}</div>
    <div class="panel"><div class="kicker">Level ${VIEW.level} · ${esc(L.g)}</div><h3>${esc(L.t)}</h3>
    <p class="muted" style="margin:.2em 0 .8em">${s.perRound||10} questions. ${s.auto ? "1★ at 60%, 2★ at 80%, 3★ at 95%." : "Sing into the microphone to be marked note by note, or mark yourself — be honest, it’s how you improve!"}</p>
@@ -2574,13 +2725,16 @@ document.addEventListener("click", e => {
     case "home": stopAll(); VIEW.skill = null; VIEW.mock = null; VIEW.gctx = null; VIEW.round = null; render(); break;
     case "agrade": stopAll(); p.auralGrade = +arg; VIEW.round = null; VIEW.gctx = null; save(); render(); break;
     case "gtest": startGradeTest(arg, "test"); break;
+    case "learn": { stopAll(); const [lid, from] = arg.split("|"); VIEW.learn = {id:lid, from: from || null}; VIEW.round = null; render(); window.scrollTo({top:0}); break; }
+    case "learnBack": stopAll(); VIEW.learn = null; render(); window.scrollTo({top:0}); break;
+    case "demo": audioInit(); if (LEARN_DEMOS[+arg]) LEARN_DEMOS[+arg](); break;
     case "gextra": startGradeTest(arg, "extra"); break;
     case "gback": stopAll(); micClose(); VIEW.round = null; VIEW.gctx = null; render(); window.scrollTo({top:0}); break;
     case "mock": stopAll(); VIEW.mock = +arg; VIEW.skill = null; VIEW.round = null; render(); window.scrollTo({top:0}); break;
     case "mockHome": stopAll(); VIEW.mock = null; VIEW.round = null; render(); window.scrollTo({top:0}); break;
     case "startMock": startRound("mock", VIEW.mock, 1); break;
     case "course": stopAll(); VIEW.course = arg; VIEW.round = null; render(); window.scrollTo({top:0}); sizeCourse(); break;
-    case "skill": VIEW.gctx = null; VIEW.skill = arg; VIEW.round = null; VIEW.level = topLevel(p, arg); render(); window.scrollTo({top:0}); break;
+    case "skill": VIEW.gctx = null; VIEW.learn = null; VIEW.skill = arg; VIEW.round = null; VIEW.level = topLevel(p, arg); render(); window.scrollTo({top:0}); break;
     case "level": VIEW.level = +arg; render(); break;
     case "startAural": startRound("aural", VIEW.skill, VIEW.level); break;
     case "backSkill": VIEW.round = null; render(); break;
