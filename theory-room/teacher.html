@@ -26,7 +26,8 @@
   td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
   tr:last-child td { border-bottom: 0; }
   td .sub { display: block; color: var(--muted); font-size: 13.5px; }
-  td:nth-child(4), td:nth-child(5) { min-width: 180px; }
+  table:not(.grid) td:nth-child(4), table:not(.grid) td:nth-child(5) { min-width: 180px; }
+  .grid td:not(:first-child), .grid th:not(:first-child) { width: 56px; }
   .num { font-variant-numeric: tabular-nums; }
   .chip { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; }
   .chip.ok { background: var(--accent-soft); color: var(--accent); }
@@ -37,6 +38,18 @@
   .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
   .summary div { border-top: 2px solid var(--line); padding-top: 8px; }
   .summary b { display: block; font-family: var(--f-display); font-size: 30px; font-variant-numeric: tabular-nums; }
+  .hw { border: 1px solid var(--line); border-radius: var(--radius); background: var(--sheet); padding: 16px; display: grid; gap: 12px; }
+  .hw h3 { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+  .hw h3 small { font-family: var(--f-body); font-size: 14px; font-weight: 400; color: var(--muted); }
+  .grid td, .grid th { text-align: center; }
+  .grid td:first-child, .grid th:first-child { text-align: left; }
+  .tick { color: var(--accent); font-weight: 700; } .miss { color: var(--muted); }
+  .builder { display: grid; gap: 12px; }
+  .builder .row > * { flex: 1 1 160px; min-width: 0; }
+  .builder select, .builder input, .builder textarea { font: inherit; font-size: 16px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); width: 100%; }
+  .builder label { display: grid; gap: 4px; font-size: 14px; font-weight: 700; }
+  .tasks { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .tasks button { font: inherit; font-size: 13px; border: 0; background: none; color: var(--warn); cursor: pointer; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -50,13 +63,16 @@
 <main><div class="wrap" id="app"><p class="muted">Opening your classes…</p></div></main>
 <footer class="site"><div class="wrap"><p>Students' families choose to join your class with its code, and can leave at any time. You see each student's first name or nickname and their theory and aural progress, nothing else.</p></div></footer>
 
+<script src="rooms/catalog.js"></script>
 <script src="config.js"></script>
 <script src="tr.js"></script>
 <script>
 (function () {
   "use strict";
   var esc = TR.esc, app = document.getElementById("app");
-  var classes = [], current = null, roster = [], msg = "";
+  var classes = [], current = null, roster = [], homework = [], msg = "", hwMsg = "";
+  var CAT = window.TR_CATALOG || { aural: {}, lessons: {}, films: [] };
+  var draft = { type: "aural", grade: 1, items: [], open: false };
 
   /* ---------- reading a student's progress ---------- */
   var DAY = 864e5;
@@ -129,9 +145,60 @@
     var table = roster.length
       ? '<div class="tablewrap"><table><thead><tr><th>Student</th><th>Last practised</th><th>This week</th><th>Aural</th><th>Guided theory course</th><th>Quick drills</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>"
       : '<p class="lede">No students yet. Give families the code above.</p>';
-    return head + tabs + '<div style="display:grid;gap:18px"><h2 style="font-size:28px">' + esc(c.name) + "</h2>" + code + (roster.length ? summary : "") + table + "</div>" +
+    return head + tabs + '<div style="display:grid;gap:18px"><h2 style="font-size:28px">' + esc(c.name) + "</h2>" + code + (roster.length ? summary : "") + table + "</div>" + hwBlock() +
       '<details class="faq"><summary>Make another class</summary>' + make + "</details>";
   }
+  /* ---------- homework ---------- */
+  function hwBlock() {
+    var people = roster.map(function (s) { return { s: s, pr: TR.readProgress(s.progress) }; });
+    var list = homework.map(function (h) {
+      var head = "<th>Student</th>" + h.items.map(function (it, i) { return '<th title="' + esc(TR.hw.label(it)) + '">' + (i + 1) + "</th>"; }).join("") + "<th>Done</th>";
+      var rows = people.map(function (x) {
+        var n = 0, cells = h.items.map(function (it) { var d = TR.hw.done(it, x.pr); if (d) n++; return "<td>" + (d ? '<span class="tick" aria-label="done">✓</span>' : '<span class="miss" aria-label="not yet">–</span>') + "</td>"; }).join("");
+        return "<tr><td>" + esc(x.s.name) + "</td>" + cells + '<td class="num">' + n + "/" + h.items.length + "</td></tr>";
+      }).join("");
+      return '<div class="hw"><h3>' + esc(h.title) + "<small>Set " + esc(String(h.created_at).slice(0, 10)) + (h.due ? " · due " + esc(h.due) : "") + "</small></h3>" + (h.note ? '<p class="muted">' + esc(h.note) + "</p>" : "") +
+        '<ol class="tasks">' + h.items.map(function (it) { return "<li>" + esc(TR.hw.label(it)) + "</li>"; }).join("") + "</ol>" +
+        (people.length ? '<div class="tablewrap"><table class="grid" style="min-width:0"><thead><tr>' + head + "</tr></thead><tbody>" + rows + "</tbody></table></div>" : "") +
+        '<div><button class="btn small" type="button" data-delhw="' + esc(h.id) + '">' + (h._sure ? "Tap again to delete" : "Delete") + "</button></div></div>";
+    }).join("");
+    return '<div style="display:grid;gap:14px"><h2 style="font-size:28px">Homework</h2><p class="muted">Tasks tick themselves off as students practise. Families see homework on their My rooms page, with a link straight to each task.</p>' +
+      builder() + (list || '<p class="muted">No homework set yet.</p>') + "</div>";
+  }
+  function options(arr, sel) { return arr.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(sel) ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join(""); }
+  function builder() {
+    var t = draft.type, g = draft.grade, pick = "";
+    var grades = [1, 2, 3, 4, 5, 6, 7, 8].map(function (n) { return [n, "Grade " + n]; });
+    if (t === "aural") pick = '<label>Test<select id="hwItem">' + options((CAT.aural[g] || []).map(function (x, i) { return [i, x.sec + ". " + x.t]; }), 0) + "</select></label>";
+    if (t === "drill") pick = '<label>Lesson<select id="hwItem">' + options((CAT.lessons[g] || []).map(function (x, i) { return [i, x.t + " (" + x.topic + ")"]; }), 0) + "</select></label>";
+    if (t === "film") pick = '<label>Film<select id="hwItem">' + options((CAT.films || []).map(function (x, i) { return [i, x.t]; }), 0) + "</select></label>";
+    if (t === "course") pick = '<label>Course<select id="hwWhich">' + options([["g1-5", "Grades 1–5"], ["g6", "Grade 6"]], "g1-5") + '</select></label><label>Reach day<input type="number" id="hwDays" min="1" max="80" value="5"></label>';
+    var needsGrade = t === "aural" || t === "mock" || t === "drill";
+    return '<details class="hw"' + (draft.open ? " open" : "") + ' id="hwBuilder"><summary style="cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center">Set new homework</summary><form class="builder" id="hwForm">' +
+      '<div class="row"><label>Title<input type="text" id="hwTitle" maxlength="80" placeholder="Week 1" value="' + esc(draft.title || "") + '"></label><label>Due (optional)<input type="date" id="hwDue" value="' + esc(draft.due || "") + '"></label></div>' +
+      '<label>Note for families (optional)<textarea id="hwNote" rows="2" maxlength="500">' + esc(draft.note || "") + "</textarea></label>" +
+      '<div class="row" style="align-items:end"><label>Task<select id="hwType">' + options([["aural", "Aural test"], ["mock", "Aural mock test"], ["drill", "Theory drill"], ["film", "Composer film"], ["course", "Guided course day"]], t) + "</select></label>" +
+      (needsGrade ? '<label>Grade<select id="hwGrade">' + options(grades, g) + "</select></label>" : "") + pick +
+      '<button class="btn small" type="button" id="hwAdd" style="flex:0 0 auto">Add task</button></div>' +
+      (draft.items.length ? '<ol class="tasks">' + draft.items.map(function (it, i) { return "<li>" + esc(TR.hw.label(it)) + ' <button type="button" data-untask="' + i + '">remove</button></li>'; }).join("") + "</ol>" : '<p class="muted">Add up to 12 tasks.</p>') +
+      '<div class="row"><button class="btn go small" type="submit"' + (draft.items.length ? "" : " disabled") + ">Set homework for " + esc(current.name) + "</button></div>" +
+      (hwMsg ? '<p class="msg err" role="status">' + esc(hwMsg) + "</p>" : "") + "</form></details>";
+  }
+  function keepDraft() {
+    var v = function (id) { var el = document.getElementById(id); return el ? el.value : undefined; };
+    if (v("hwTitle") !== undefined) { draft.title = v("hwTitle"); draft.due = v("hwDue"); draft.note = v("hwNote"); }
+    var b = document.getElementById("hwBuilder"); if (b) draft.open = b.open;
+  }
+  function addTask() {
+    var t = draft.type, g = draft.grade, i = +(document.getElementById("hwItem") || {}).value || 0, it = null;
+    if (t === "aural") { var x = (CAT.aural[g] || [])[i]; if (x) it = { type: "aural", grade: g, id: x.id, L: x.L, sec: x.sec, label: x.t }; }
+    if (t === "mock") it = { type: "mock", grade: g };
+    if (t === "drill") { var l = (CAT.lessons[g] || [])[i]; if (l) it = { type: "drill", grade: g, id: l.id, label: l.t }; }
+    if (t === "film") { var f = (CAT.films || [])[i]; if (f) it = { type: "film", id: f.id, label: f.t }; }
+    if (t === "course") it = { type: "course", which: document.getElementById("hwWhich").value, days: Math.max(1, Math.min(80, +document.getElementById("hwDays").value || 1)) };
+    if (it && draft.items.length < 12) draft.items.push(it);
+  }
+
   function render() { app.innerHTML = view(); }
 
   async function load(pick) {
@@ -139,11 +206,23 @@
     try { classes = await TR.teacherClasses(); } catch (e) { msg = e.message; classes = []; }
     current = classes.filter(function (k) { return k.id === pick; })[0] || current && classes.filter(function (k) { return k.id === current.id; })[0] || classes[0] || null;
     roster = current ? await TR.classRoster(current.id).catch(function (e) { msg = e.message; return []; }) : [];
+    homework = current ? await TR.classHomework(current.id).catch(function (e) { hwMsg = e.message; return []; }) : [];
     render();
   }
 
+  app.addEventListener("change", function (e) {
+    if (e.target.id === "hwType") { keepDraft(); draft.type = e.target.value; render(); }
+    if (e.target.id === "hwGrade") { keepDraft(); draft.grade = +e.target.value; render(); }
+  });
+  app.addEventListener("toggle", function (e) { if (e.target.id === "hwBuilder") draft.open = e.target.open; }, true);
   app.addEventListener("submit", async function (e) {
     e.preventDefault();
+    if (e.target.id === "hwForm") {
+      keepDraft(); hwMsg = "";
+      try { await TR.setHomework(current.id, { title: draft.title, note: draft.note, due: draft.due || null, items: draft.items }); draft = { type: draft.type, grade: draft.grade, items: [], open: false }; await load(current.id); }
+      catch (err) { hwMsg = err.message; render(); }
+      return;
+    }
     if (e.target.id === "newClass") {
       msg = "";
       try { var k = await TR.createClass(document.getElementById("className").value); await load(k.id); } catch (err) { msg = err.message; render(); }
@@ -151,7 +230,14 @@
   });
   app.addEventListener("click", async function (e) {
     var b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.class) { await load(b.dataset.class); return; }
+    if (b.dataset.class) { draft.items = []; await load(b.dataset.class); return; }
+    if (b.id === "hwAdd") { keepDraft(); addTask(); draft.open = true; render(); return; }
+    if (b.dataset.untask) { keepDraft(); draft.items.splice(+b.dataset.untask, 1); render(); return; }
+    if (b.dataset.delhw) {
+      var h = homework.filter(function (x) { return x.id === b.dataset.delhw; })[0];
+      if (!h._sure) { h._sure = true; render(); return; }
+      try { await TR.deleteHomework(h.id); await load(current.id); } catch (err) { hwMsg = err.message; render(); } return;
+    }
     if (b.id === "copyCode") {
       try { await navigator.clipboard.writeText(current.code); b.textContent = "Copied"; }
       catch (err) { var r = document.createRange(); r.selectNodeContents(document.getElementById("code")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected: copy it now"; }

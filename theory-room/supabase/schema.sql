@@ -189,3 +189,56 @@ revoke execute on function public.create_class(text), public.teacher_classes(), 
   public.join_class(text, uuid), public.leave_class(uuid, uuid), public.my_classes() from public, anon;
 grant execute on function public.create_class(text), public.teacher_classes(), public.class_roster(uuid),
   public.join_class(text, uuid), public.leave_class(uuid, uuid), public.my_classes() to authenticated;
+
+-- ============ Homework ============
+-- A teacher sets a short list of tasks for a class. Each task is ticked off from the learner's own
+-- progress (nothing extra is stored about the child). Items: [{type, grade, id, L, sec, days, which, label}].
+create table if not exists public.homework (
+  id uuid primary key default gen_random_uuid(),
+  class_id uuid not null references public.classes (id) on delete cascade,
+  title text not null default 'Homework' check (char_length(title) between 1 and 80),
+  note text check (note is null or char_length(note) <= 500),
+  due date,
+  items jsonb not null default '[]' check (jsonb_typeof(items) = 'array' and jsonb_array_length(items) between 1 and 12),
+  created_at timestamptz not null default now()
+);
+alter table public.homework enable row level security;   -- no direct access; the functions below check who asks
+
+create or replace function public.set_homework(p_class uuid, p_title text, p_note text, p_due date, p_items jsonb) returns public.homework
+language plpgsql security definer set search_path = public as $$
+declare h public.homework;
+begin
+  if not exists (select 1 from classes c join profiles p on p.id = c.teacher_id
+                 where c.id = p_class and c.teacher_id = auth.uid() and p.teacher_until > now()) then
+    raise exception 'Only the class teacher, with an active licence, can set homework.';
+  end if;
+  insert into homework (class_id, title, note, due, items)
+    values (p_class, coalesce(nullif(trim(p_title), ''), 'Homework'), nullif(trim(p_note), ''), p_due, p_items) returning * into h;
+  return h;
+end $$;
+
+create or replace function public.delete_homework(p_id uuid) returns void
+language sql security definer set search_path = public as $$
+  delete from homework h using classes c where h.id = p_id and c.id = h.class_id and c.teacher_id = auth.uid();
+$$;
+
+create or replace function public.class_homework(p_class uuid) returns setof public.homework
+language sql security definer set search_path = public stable as $$
+  select h.* from homework h join classes c on c.id = h.class_id
+  where h.class_id = p_class and c.teacher_id = auth.uid() order by h.created_at desc limit 30;
+$$;
+
+-- For a family: homework for each of their learners' classes, set in the last 8 weeks.
+create or replace function public.my_homework()
+returns table (learner_id uuid, class_name text, id uuid, title text, note text, due date, items jsonb, created_at timestamptz)
+language sql security definer set search_path = public stable as $$
+  select m.learner_id, c.name, h.id, h.title, h.note, h.due, h.items, h.created_at
+  from class_members m join classes c on c.id = m.class_id join homework h on h.class_id = c.id
+  where m.family_id = auth.uid() and h.created_at > now() - interval '56 days'
+  order by h.created_at desc;
+$$;
+
+revoke execute on function public.set_homework(uuid, text, text, date, jsonb), public.delete_homework(uuid),
+  public.class_homework(uuid), public.my_homework() from public, anon;
+grant execute on function public.set_homework(uuid, text, text, date, jsonb), public.delete_homework(uuid),
+  public.class_homework(uuid), public.my_homework() to authenticated;

@@ -296,11 +296,16 @@
   function start() { if (!canWatch(film)) return; audio(); playing = true; startAt = performance.now(); lastScene = -1; setPlayLabel(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); }
   function stop(ended) {
     offset = ended ? 0 : now(); playing = false; hush(); setPlayLabel(); cancelAnimationFrame(raf);
-    if (ended) { offset = total - .001; draw(offset); offset = 0; lastScene = -1; if (rec) rec.stop(); }
+    if (ended) { offset = total - .001; draw(offset); offset = 0; lastScene = -1; if (rec) rec.stop(); else markWatched(film.id); }
   }
   function seek(t) { var was = playing; if (playing) stop(); offset = t; lastScene = -1; if (was) start(); else { markScene(sceneAt(t)); draw(t); } }
   function setPlayLabel() { document.getElementById("play").textContent = playing ? "❚❚ Pause" : "▶ Play"; }
   function markScene(i) { document.querySelectorAll("#scenes button").forEach(function (b, k) { b.setAttribute("aria-current", String(k === i)); }); }
+
+  /* homework can ask for a film, so note the ones this learner has watched to the end */
+  function markWatched(id) {
+    TR.loadDoc("composers").then(function (d) { d = d || { watched: {} }; d.watched = d.watched || {}; if (!d.watched[id]) { d.watched[id] = new Date().toISOString().slice(0, 10); return TR.saveDoc("composers", d); } }).catch(function () {});
+  }
 
   /* ---------- making a video file (owner's studio: add ?studio=1 to the address) ---------- */
   var rec = null;

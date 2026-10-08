@@ -97,7 +97,7 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 ## Changing things later
 
 - **Prices**: edit `prices` in `config.js` and the prices in Lemon Squeezy, then commit.
-- **The rooms**: they're made from the family versions in the repo root (`index.html`, `theory-faye.html`, `theory-philip.html`). After changing those, run `python3 theory-room/build/make_rooms.py`. It stops with a message if any family name or date would reach the public site.
+- **The rooms**: they're made from the family versions in the repo root (`index.html`, `theory-faye.html`, `theory-philip.html`). After changing those, run `python3 theory-room/build/make_rooms.py` (it stops with a message if any family name or date would reach the public site), then `python3 theory-room/build/make_catalog.py`, which updates the list of tasks teachers can set as homework.
 - **Tests**:
   - `node theory-room/build/test_backend.mjs`: payment rules and the course gate
   - `sh theory-room/build/test_db.sh`: the database set-up and who can see what (needs Postgres)
@@ -105,7 +105,6 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 
 ## Not built yet
 
-- Setting homework for a class (teachers can see progress, not yet assign work).
 - More composer films, and instrument films.
 - Trinity theory.
 - Photo marking of the Grade 6 composition (the course offers self-marking with a checklist instead).

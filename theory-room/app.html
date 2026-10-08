@@ -22,6 +22,7 @@
   .manage { display: grid; gap: 10px; padding: 14px 16px; border: 1px dashed var(--line); border-radius: var(--radius); }
   .manage form { display: flex; flex-wrap: wrap; gap: 8px; }
   .manage form input { flex: 1 1 200px; }
+  .manage form + form { margin-top: 10px; }
   #app .rooms { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
   .buy { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
   .buy .room { gap: 12px; }
@@ -33,6 +34,13 @@
   .signin input { flex: 1 1 240px; }
   .banner { padding: 12px 16px; border-radius: var(--radius); background: var(--accent-soft); }
   .banner.warn { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+  .homework { display: grid; gap: 12px; }
+  .hwcard { border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: var(--radius); background: var(--sheet); padding: 14px 16px; display: grid; gap: 8px; }
+  .hwcard h3 { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 20px; }
+  .hwcard h3 small { font-family: var(--f-body); font-size: 14px; font-weight: 400; color: var(--muted); }
+  .hwcard ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+  .hwcard li.done { color: var(--muted); }
+  .hwcard li.done::marker { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -46,6 +54,7 @@
 <main><div class="wrap" id="app"><p class="muted">Opening your rooms…</p></div></main>
 <footer class="site"><div class="wrap"><p>Independent; not affiliated with ABRSM or Trinity College London. <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p></div></footer>
 
+<script src="rooms/catalog.js"></script>
 <script src="config.js"></script>
 <script src="tr.js"></script>
 <script>
@@ -54,7 +63,29 @@
   var C = TR.C, P = C.prices || {}, esc = TR.esc;
   var app = document.getElementById("app");
   var q = new URLSearchParams(location.search);
-  var packGrade = 5, note = "", manageOpen = false, classOpen = false;
+  var packGrade = 5, note = "", manageOpen = false, classOpen = false, hwCache = {};
+  /* homework for the learner, ticked from their own progress */
+  async function loadHw(lid) {
+    hwCache[lid] = { loading: true, list: [], pr: {} };
+    try { var list = (await TR.myHomework()).filter(function (h) { return h.learner_id === lid; }); hwCache[lid] = { list: list, pr: TR.readProgress(await TR.progressFor(lid)) }; }
+    catch (e) { hwCache[lid] = { list: [], pr: {}, err: e.message }; }
+    render();
+  }
+  function hwHTML(L) {
+    if (!TR.classesFor(L.id).length) return "";
+    var c = hwCache[L.id];
+    if (!c) { setTimeout(function () { loadHw(L.id); }, 0); hwCache[L.id] = { loading: true, list: [], pr: {} }; c = hwCache[L.id]; }
+    if (c.loading) return '<p class="muted">Looking for homework…</p>';
+    if (c.err) return '<p class="msg err">Homework couldn\'t load: ' + esc(c.err) + "</p>";
+    if (!c.list.length) return '<p class="muted">No homework from ' + esc(L.name) + "'s teacher right now.</p>";
+    return '<div class="homework"><h2 style="font-size:24px">Homework for ' + esc(L.name) + "</h2>" + c.list.map(function (h) {
+      var n = h.items.filter(function (it) { return TR.hw.done(it, c.pr); }).length;
+      return '<div class="hwcard"><h3>' + esc(h.title) + "<small>" + esc(h.class_name) + (h.due ? " · due " + esc(h.due) : "") + " · " + n + " of " + h.items.length + " done</small></h3>" +
+        (h.note ? '<p class="muted">' + esc(h.note) + "</p>" : "") + "<ol>" + h.items.map(function (it) {
+          return TR.hw.done(it, c.pr) ? '<li class="done">✓ ' + esc(TR.hw.label(it)) + "</li>" : '<li><a href="' + esc(TR.hw.link(it, L.id)) + '">' + esc(TR.hw.label(it)) + " →</a></li>";
+        }).join("") + "</ol></div>";
+    }).join("") + "</div>";
+  }
   if (q.get("need") === "plan") note = "That room comes with a plan. Choose one below, or open a room that's free.";
   if (q.get("need") === "login") note = "Sign in to open that room.";
   if (q.get("paid")) note = "Thank you! Your plan opens as soon as the payment is confirmed. This usually takes a few seconds.";
@@ -109,6 +140,7 @@
       '<span class="status ' + (paid ? "" : "free") + '">' + esc(TR.planLabel()) + "</span>" +
       (note ? '<p class="banner">' + esc(note) + "</p>" : "") +
       (a.teacher ? '<p class="banner"><b>Teacher licence.</b> <a href="teacher.html">Open your classes →</a></p>' : "") + "</div>" +
+      (L ? hwHTML(L) : "") +
       '<div style="display:grid;gap:12px"><h2 style="font-size:24px">Who\'s practising?</h2><div class="learners" role="group" aria-label="Learners">' + learners + "</div>" +
       '<details class="manage"' + (manageOpen ? " open" : "") + '><summary style="cursor:pointer;font-weight:700">Add or rename learners</summary>' +
         (canAdd ? '<form id="addForm"><label class="kicker" for="newName" style="flex-basis:100%">New learner (first name or nickname)</label><input type="text" id="newName" maxlength="40" required><button class="btn small" type="submit">Add learner</button></form>' : '<p class="muted">You have ' + TR.learners.length + " learners, the most one plan holds.</p>") +
@@ -143,6 +175,7 @@
     if (f.id === "addForm") { try { await TR.addLearner(document.getElementById("newName").value); } catch (err) { setMsg("learnMsg", err.message); } }
     if (f.id === "joinForm" && TR.learner) {
       classOpen = true;
+      hwCache = {};
       try { var nm = await TR.joinClass(document.getElementById("classCode").value, TR.learner.id); var m2 = document.getElementById("joinMsg"); if (m2) { m2.className = "msg"; m2.textContent = "Joined " + nm + "."; } }
       catch (err) { setMsg("joinMsg", err.message); }
     }
@@ -153,7 +186,7 @@
   app.addEventListener("click", async function (e) {
     var t = e.target.closest("button, a"); if (!t) return;
     if (t.dataset.learner) { TR.setLearner(t.dataset.learner); return; }
-    if (t.dataset.leave) { try { await TR.leaveClass(t.dataset.leave, TR.learner.id); } catch (err) { setMsg("joinMsg", err.message); } return; }
+    if (t.dataset.leave) { hwCache = {}; try { await TR.leaveClass(t.dataset.leave, TR.learner.id); } catch (err) { setMsg("joinMsg", err.message); } return; }
     if (t.dataset.pack) { packGrade = +t.dataset.pack; render(); var b = document.getElementById("buyPack"); if (b) b.focus(); return; }
     if (t.id === "removeBtn") {
       if (t.dataset.sure !== "1") { t.dataset.sure = "1"; t.textContent = "Tap again to remove " + TR.learner.name + " and their progress"; return; }

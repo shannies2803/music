@@ -69,10 +69,24 @@
 
   function openFromLink() {
     var q = new URLSearchParams(location.search), g = +q.get("grade"), board = (q.get("board") || "").toLowerCase();
-    if (q.get("tab") === "theory" || q.get("tab") === "progress") { VIEW.tab = q.get("tab"); return; }
+    if (q.get("tab") === "theory" || q.get("tab") === "progress") {
+      VIEW.tab = q.get("tab");
+      /* homework links can open one theory lesson */
+      var lesson = q.get("lesson");
+      if (lesson && typeof LESSON_BY !== "undefined" && LESSON_BY[lesson]) {
+        if (gradeOpen(P(), LESSON_BY[lesson].g)) { VIEW.lesson = lesson; VIEW.round = null; VIEW.flash = null; }
+        else setTimeout(function () { toast("That lesson's grade isn't open yet."); }, 300);
+      }
+      return;
+    }
     if (!(g >= 1 && g <= 8)) return;
     var p = P();
-    if (gradeAuralOpen(p, g)) { p.auralGrade = g; VIEW.tab = "aural"; VIEW.round = null; VIEW.skill = null; VIEW.mock = null; save(); }
+    if (gradeAuralOpen(p, g)) {
+      p.auralGrade = g; VIEW.tab = "aural"; VIEW.round = null; VIEW.skill = null; VIEW.mock = null; save();
+      /* homework links can open one test, or the grade's mock */
+      if (q.get("mock")) { VIEW.mock = g; }
+      else if (q.get("test")) { var arg = q.get("test"), id = arg.split(":")[0]; if (typeof AURAL_BY !== "undefined" && AURAL_BY[id]) setTimeout(function () { startGradeTest(arg, "test"); }, 0); }
+    }
     else { VIEW.tab = "aural"; setTimeout(function () { toast("Grade " + g + " aural comes with a plan. Grade " + TR_FIRST_OPEN(p) + " is open now."); }, 300); }
     if (board === "trinity") setTimeout(function () { toast("Trinity's aural test asks you to describe one piece. These tests train the same listening."); }, 3200);
   }

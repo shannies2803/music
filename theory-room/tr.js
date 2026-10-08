@@ -142,13 +142,106 @@
     return cid === "demo" ? previewRoster() : [];
   };
   TR.removeFromClass = function (cid, lid) { return configured ? rpc("leave_class", { p_class: cid, p_learner: lid }) : Promise.resolve(); };
+  /* ---------- homework ---------- */
+  var DEMO_HW = [{ id: "hw-demo", class_id: "demo", title: "Week 1", note: "Little and often: ten minutes a day is plenty.", due: null,
+    items: [{ type: "aural", grade: 1, id: "pulse", L: 1, sec: "A", label: "Clap the beat" }, { type: "drill", grade: 1, id: "", label: "" }, { type: "film", id: "beethoven", label: "Beethoven" }],
+    created_at: new Date().toISOString() }];
+  function previewHomework() {
+    var hw = pv("tr-preview-homework", null);
+    if (!hw) {
+      hw = DEMO_HW; var cat = window.TR_CATALOG; var l = cat && cat.lessons && cat.lessons[1] && cat.lessons[1][0];
+      if (l) { hw[0].items[1].id = l.id; hw[0].items[1].label = l.t; } else hw[0].items.splice(1, 1);
+    }
+    return hw;
+  }
+  TR.myHomework = async function () {
+    if (configured) return (await rpc("my_homework")) || [];
+    var all = previewHomework(), out = [];
+    (TR.classes || []).forEach(function (c) { all.filter(function (h) { return h.class_id === c.class_id; }).forEach(function (h) { out.push(Object.assign({ learner_id: c.learner_id, class_name: c.class_name }, h)); }); });
+    return out;
+  };
+  TR.classHomework = async function (cid) {
+    if (configured) return (await rpc("class_homework", { p_class: cid })) || [];
+    return previewHomework().filter(function (h) { return h.class_id === cid; });
+  };
+  TR.setHomework = async function (cid, hw) {
+    if (!hw.items || !hw.items.length) throw new Error("Add at least one task.");
+    if (configured) return rpc("set_homework", { p_class: cid, p_title: hw.title || "", p_note: hw.note || "", p_due: hw.due || null, p_items: hw.items });
+    var all = previewHomework(); all.unshift(Object.assign({ id: "hw" + Date.now().toString(36), class_id: cid, created_at: new Date().toISOString() }, hw));
+    store.set("tr-preview-homework", JSON.stringify(all)); return all[0];
+  };
+  TR.deleteHomework = async function (id) {
+    if (configured) return rpc("delete_homework", { p_id: id });
+    store.set("tr-preview-homework", JSON.stringify(previewHomework().filter(function (h) { return h.id !== id; })));
+  };
+  /* a learner's own progress rows (the rooms save them); in preview they live in this browser */
+  TR.progressFor = async function (lid) {
+    if (configured) { var r = await TR.sb.from("progress").select("path,data,updated_at").eq("learner_id", lid); if (r.error) throw r.error; return r.data || []; }
+    var rows = [], a = store.get("tr-aural-v1-" + lid), c1 = store.get("tr-g1-5-theory-v2-" + lid), c6 = store.get("tr-g6-theory-g6-" + lid), f = store.get("tr-doc-" + lid + "-composers");
+    if (a) rows.push({ path: "data/users/preview/state", data: { j: a } });
+    try { if (c1) rows.push({ path: "progress/g1-5", data: JSON.parse(c1) }); if (c6) rows.push({ path: "progress/g6", data: JSON.parse(c6) }); if (f) rows.push({ path: "composers", data: JSON.parse(f) }); } catch (e) {}
+    return rows;
+  };
+  /* small documents a room keeps for the current learner (the composer films note which were watched) */
+  TR.saveDoc = async function (path, data) {
+    if (!TR.learner) return;
+    if (!configured || !TR.sb || !TR.user) { store.set("tr-doc-" + TR.learner.id + "-" + path, JSON.stringify(data)); return; }
+    await makeDb().doc(path).set(data);
+  };
+  TR.loadDoc = async function (path) {
+    if (!TR.learner) return null;
+    if (!configured || !TR.sb || !TR.user) { try { return JSON.parse(store.get("tr-doc-" + TR.learner.id + "-" + path) || "null"); } catch (e) { return null; } }
+    var snap = await makeDb().doc(path).get(); return snap.exists ? snap.data() : null;
+  };
+  /* reading progress rows the same way for families and teachers */
+  TR.readProgress = function (rows) {
+    var out = { player: null, courses: {}, films: {}, last: null };
+    (rows || []).forEach(function (r) {
+      var d = r.data || {};
+      if (/^data\/users\/.+\/state$/.test(r.path)) { try { out.player = (JSON.parse(d.j || "{}").players || [])[0] || null; } catch (e) {} }
+      var m = /^progress\/(g1-5|g6)$/.exec(r.path); if (m) out.courses[m[1]] = d;
+      if (r.path === "composers") out.films = d.watched || {};
+    });
+    return out;
+  };
+  TR.hw = {
+    label: function (it) {
+      if (it.type === "aural") return "Grade " + it.grade + " aural, test " + it.sec + ": " + it.label;
+      if (it.type === "mock") return "Grade " + it.grade + " aural mock test";
+      if (it.type === "drill") return "Grade " + it.grade + " theory: " + it.label;
+      if (it.type === "film") return "Watch the " + it.label + " film";
+      if (it.type === "course") return "Guided course (" + (it.which === "g6" ? "Grade 6" : "Grades 1–5") + "): reach day " + it.days;
+      return "Task";
+    },
+    link: function (it, lid) {
+      var L = "learner=" + encodeURIComponent(lid || "");
+      if (it.type === "aural") return BASE + "rooms/aural.html?" + L + "&grade=" + it.grade + "&test=" + encodeURIComponent(it.id + ":" + it.L + ":" + it.sec);
+      if (it.type === "mock") return BASE + "rooms/aural.html?" + L + "&grade=" + it.grade + "&mock=1";
+      if (it.type === "drill") return BASE + "rooms/aural.html?" + L + "&tab=theory&lesson=" + encodeURIComponent(it.id);
+      if (it.type === "film") return BASE + "rooms/composers.html#" + encodeURIComponent(it.id);
+      if (it.type === "course") return BASE + "rooms/theory-" + (it.which === "g6" ? "g6" : "g1-5") + ".html?" + L;
+      return BASE + "app.html";
+    },
+    done: function (it, pr) {
+      var p = pr.player || {};
+      if (it.type === "aural") return (((p.sk || {})[it.id] || {}).lv || {})[it.L] >= 1;
+      if (it.type === "mock") return (((p.mocks || {})[it.grade] || {}).n || 0) >= 1;
+      if (it.type === "drill") return (((p.tl || {})[it.id] || {}).stars || 0) >= 1;
+      if (it.type === "film") return !!(pr.films || {})[it.id];
+      if (it.type === "course") return Object.keys(((pr.courses || {})[it.which] || {}).done || {}).length >= (it.days || 1);
+      return false;
+    }
+  };
+
   /* example pupils for the preview only, so the class view has something to show */
   function previewRoster() {
     var day = function (n) { return new Date(Date.now() - n * 864e5).toISOString().slice(0, 10); };
+    var firstLesson = window.TR_CATALOG && TR_CATALOG.lessons[1] && TR_CATALOG.lessons[1][0] ? TR_CATALOG.lessons[1][0].id : "a";
     function aural(grade, q, mocks, starred) {
       var days = {}; [0, 1, 3, 4, 6].slice(0, q).forEach(function (n, i) { days[day(n)] = { q: 12 + i * 3, c: 9 + i * 2 }; });
       var sk = {}; starred.forEach(function (id) { sk[id] = { lv: { 1: 2, 2: 1 } }; });
-      return { path: "data/users/x/state", updated_at: day(0), data: { j: JSON.stringify({ players: [{ auralGrade: grade, days: days, mocks: mocks, sk: sk, tl: { a: { stars: 2 }, b: { stars: 1 } } }] }), t: 1 } };
+      var tl = { b: { stars: 1 } }; if (q > 2) tl[firstLesson] = { stars: 2 };
+      return { path: "data/users/x/state", updated_at: day(0), data: { j: JSON.stringify({ players: [{ auralGrade: grade, days: days, mocks: mocks, sk: sk, tl: tl }] }), t: 1 } };
     }
     function course(done, mocks, last) {
       var d = {}; for (var i = 1; i <= done; i++) d["s" + (i < 10 ? "0" + i : i)] = day(done - i);
@@ -156,7 +249,7 @@
       return { path: "progress/g1-5", updated_at: day(last), data: { done: d, mocks: mocks, days: days } };
     }
     return [
-      { learner_id: "ex1", name: "Example: Aisha", joined_at: day(20), progress: [aural(5, 5, { 5: { best: .82, n: 2 } }, ["intervals", "cadences", "sight"]), course(31, [{ date: day(2), marks: 63 }], 0)] },
+      { learner_id: "ex1", name: "Example: Aisha", joined_at: day(20), progress: [aural(5, 5, { 5: { best: .82, n: 2 } }, ["intervals", "cadences", "sight", "pulse"]), course(31, [{ date: day(2), marks: 63 }], 0), { path: "composers", data: { watched: { beethoven: day(1) } } }] },
       { learner_id: "ex2", name: "Example: Ben", joined_at: day(18), progress: [aural(3, 0, {}, ["echo"]), course(12, [], 9)] },
       { learner_id: "ex3", name: "Example: Chloe", joined_at: day(5), progress: [] }
     ];

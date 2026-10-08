@@ -106,6 +106,32 @@ do $$ begin
   exception when raise_exception then null; end;
 end $$;
 
+-- homework: the teacher sets it, the family sees it, nobody else can
+select pg_temp.as_user('bbbbbbbb-0000-0000-0000-000000000001');
+select (public.set_homework((select v from pg_temp.ids where k = 'class'), 'Week 1', 'Little and often', current_date + 7,
+  '[{"type":"aural","grade":3,"id":"cadences","L":1,"sec":"C"},{"type":"film","id":"bach"}]'::jsonb)).title as set_homework;
+do $$ begin
+  assert (select count(*) from public.class_homework((select v from pg_temp.ids where k = 'class'))) = 1, 'teacher sees homework';
+  begin perform public.set_homework((select v from pg_temp.ids where k = 'class'), 'x', null, null, '[]'::jsonb); assert false, 'empty homework allowed';
+  exception when check_violation then null; end;
+  assert (select count(*) from public.homework) = 0, 'teacher reads homework table directly';
+end $$;
+select pg_temp.as_user('aaaaaaaa-0000-0000-0000-000000000001');
+do $$ begin
+  assert (select count(*) from public.my_homework()) = 2, 'family sees homework for both learners';
+  assert (select title from public.my_homework() limit 1) = 'Week 1', 'homework title';
+end $$;
+select pg_temp.as_user('aaaaaaaa-0000-0000-0000-000000000002');
+do $$ begin
+  assert (select count(*) from public.my_homework()) = 0, 'other family sees homework';
+  assert (select count(*) from public.class_homework((select v from pg_temp.ids where k = 'class'))) = 0, 'outsider sees class homework';
+  begin perform public.set_homework((select v from pg_temp.ids where k = 'class'), 'x', null, null, '[{"type":"film","id":"bach"}]'::jsonb); assert false, 'outsider set homework';
+  exception when raise_exception then null; end;
+end $$;
+select pg_temp.as_user('bbbbbbbb-0000-0000-0000-000000000001');
+select public.delete_homework((select id from public.class_homework((select v from pg_temp.ids where k = 'class')) limit 1));
+do $$ begin assert (select count(*) from public.class_homework((select v from pg_temp.ids where k = 'class'))) = 0, 'homework not deleted'; end $$;
+
 -- the teacher removes Kai; family 1 removes Mei
 select pg_temp.as_user('bbbbbbbb-0000-0000-0000-000000000001');
 select public.leave_class((select v from pg_temp.ids where k = 'class'), (select v from pg_temp.ids where k = 'kai'));
