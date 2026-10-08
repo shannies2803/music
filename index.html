@@ -134,6 +134,15 @@ svg .hls{stroke:var(--brass-strong)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{font-size:.85rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--paper)}
 .chip.ok{background:var(--ok-soft)}.chip.mid{background:var(--brass-soft)}.chip.no{background:var(--rose-soft)}
 .singchart svg{max-height:240px}
+.gtests{display:grid;gap:0}
+.gtest{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 4px;border-bottom:1px solid var(--line)}
+.gtest:last-child{border-bottom:0}
+.gsec{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:1.15rem;color:var(--brass);border:2px solid var(--brass);border-radius:12px;text-align:center;padding:6px 0}
+.gtest.done .gsec{background:var(--brass-strong);border-color:var(--brass-strong);color:var(--onaccent)}
+.gtest .nm{font-weight:700;font-size:1.05rem}.gtest .ds{color:var(--muted);font-size:.92rem;line-height:1.35}
+.gact{display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right}
+.tipbox{margin-top:6px;font-size:.9rem}.tipbox summary{cursor:pointer;color:var(--teal);font-weight:700;min-height:32px;display:inline-flex;align-items:center}
+@media (max-width:760px){.gtest{grid-template-columns:52px minmax(0,1fr)}.gact{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}}
 .chk.right{background:var(--ok-soft)} .chk.wrong{background:var(--rose-soft)}
 /* theory */
 .gradebar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
@@ -223,7 +232,7 @@ footer{margin-top:30px;color:var(--muted);font-size:.85rem;text-align:center}
   <div class="topin">
     <div class="brand">
       <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="1" y="1" width="38" height="38" rx="11" fill="var(--ink)"/><g stroke="var(--bg)" stroke-width="1.3" opacity=".55"><line x1="6" y1="12" x2="34" y2="12"/><line x1="6" y1="17" x2="34" y2="17"/><line x1="6" y1="22" x2="34" y2="22"/><line x1="6" y1="27" x2="34" y2="27"/><line x1="6" y1="32" x2="34" y2="32"/></g><ellipse cx="16" cy="27" rx="4.6" ry="3.4" transform="rotate(-20 16 27)" fill="var(--brass-strong)"/><line x1="20.2" y1="26" x2="20.2" y2="8" stroke="var(--brass-strong)" stroke-width="2"/><path d="M20.2 8 C 23 12, 28 13, 26 19" stroke="var(--brass-strong)" stroke-width="2" fill="none"/></svg>
-      <div><b>Cadenza</b><small>Ear &amp; theory studio for Grade 8 musicians</small></div>
+      <div><b>Cadenza</b><small>Ear &amp; theory studio, grade by grade</small></div>
     </div>
     <div class="players" id="players" aria-label="Who is practising?"></div>
     <button class="iconbtn" id="themeBtn" aria-label="Switch light or dark theme" title="Light / dark">
@@ -1736,6 +1745,75 @@ async function singStart(){
   });
 }
 
+/* ===================== Aural by grade: Grade 5 → 6 → 7 → 8 ===================== */
+MOCKS[5] = {t:"Grade 5", items:[["A","Sing back a melody","echo",5],["B","Sight-sing six notes","sight",2],["C(i)","Talk about the music","features",3],["C(ii)","Clap along and name the time","pulse",3]]};
+const GRADES = {
+  5:{blurb:"Four short tests. Listen carefully, sing back, sight-sing a little, then talk about a piece and feel its beat.",
+     tests:[
+      {sec:"A", t:"Sing back a melody", id:"echo", L:5, d:"The examiner plays a short melody twice (major or minor). Sing it back from memory.", tip:"Hum along silently the second time. Notice where it goes up, down, and where it lands."},
+      {sec:"B", t:"Sight-sing six notes", id:"sight", L:2, d:"Sing six notes from the music, starting on the note you’re given.", tip:"Find doh first. Steps are easy; for a skip, imagine the note in between."},
+      {sec:"C(i)", t:"Talk about the music", id:"features", L:3, d:"Answer questions about two features of a piece: dynamics, articulation, tempo, tonality or character.", tip:"Listen for one thing at a time: loud or quiet? smooth or short? does it slow down?"},
+      {sec:"C(ii)", t:"Clap along and name the time", id:"pulse", L:3, d:"Clap the beat of a passage, stressing the strong beat, then say whether it’s in 2, 3, 4 or 6/8.", tip:"Count “1 2 3” or “1 2 3 4” and see which fits the strong beats. Swingy groups of three in each beat mean 6/8."}],
+     extra:[["intervals",3],["majmin",3],["changed",3],["clap",4]]},
+  6:{blurb:"Harder singing and your first harmony questions: cadences, chords and key changes.",
+     tests:[
+      {sec:"A", t:"Sing back the upper part", id:"parts", L:1, d:"Hear a two-part phrase twice, then sing back the upper part.", tip:"The top part is the tune — focus on it and let the lower part fade into the background."},
+      {sec:"B", t:"Sight-sing with the piano", id:"sight", L:6, d:"Sight-sing a short melody while the piano plays an accompaniment.", tip:"Keep going whatever happens — the chords underneath will tell you where you are."},
+      {sec:"C(i)", t:"The cadence and its chords", id:"cadchords", L:1, d:"Say whether the cadence is perfect, imperfect or interrupted, and name its two chords (I, Ic, IV, V or VI).", tip:"Finished = perfect. Unfinished = imperfect. A surprise = interrupted (V then VI)."},
+      {sec:"C(ii)", t:"Where does it modulate?", id:"modulation", L:2, d:"A passage in a major key changes key. Is it the dominant, subdominant or relative minor?", tip:"Dominant sounds brighter, subdominant sounds relaxed, relative minor turns darker."},
+      {sec:"D", t:"Texture and structure", id:"style", L:1, d:"Talk about the texture (and later the structure) of a piece.", tip:"How many things are happening at once, and do they move together or separately?"}],
+     extra:[["intervals",4],["triads",3],["cadences",2],["style",2]]},
+  7:{blurb:"The lower part, both major and minor keys, more chords — and naming the period a piece comes from.",
+     tests:[
+      {sec:"A", t:"Sing back the lower part", id:"parts", L:2, d:"Hear a two-part phrase twice, then sing back the lower part.", tip:"Bass lines leap between chord roots: think “doh … soh … doh”."},
+      {sec:"B", t:"Sing the upper part of a duet", id:"sight", L:7, d:"Sight-sing the upper part while the lower part is played.", tip:"Listen to the other part, but don’t follow it — hold your own line."},
+      {sec:"C(i)", t:"The cadence and its chords", id:"cadchords", L:2, d:"Name the cadence (now including plagal) and its chords, which can include II and V7, in major or minor keys.", tip:"V7 has an extra bite that wants to fall. II leads strongly to V."},
+      {sec:"C(ii)", t:"Where does it modulate?", id:"modulation", L:3, d:"Starting in a major or minor key, name where the music travels: dominant, subdominant or relative.", tip:"First decide: did it turn major or minor? Then: brighter or more relaxed?"},
+      {sec:"D", t:"Period and style", id:"style", L:3, d:"Say when the piece was written — Baroque, Classical, Romantic or 20th century — and why.", tip:"Harpsichord and busy counterpoint = Baroque. Alberti bass = Classical. Big swelling chords = Romantic."}],
+     extra:[["intervals",6],["triads",4],["cadences",4],["changed",5]]},
+  8:{blurb:"The full Grade 8: three-part phrases, whole chord progressions, two key changes and a confident description.",
+     tests:[
+      {sec:"A", t:"Sing back the lowest of three parts", id:"parts", L:3, d:"Hear a three-part phrase twice, then sing back the lowest part.", tip:"Lock onto the bass first time through; check it against the harmony the second time."},
+      {sec:"B", t:"Sing the lower part of a duet", id:"sight", L:8, d:"Sight-sing the lower part while the upper part is played.", tip:"Find your first note from the key chord before the other part starts."},
+      {sec:"C(i)", t:"Name the chords", id:"cadchords", L:3, d:"Name every chord in a short progression.", tip:"Follow the bass line — it usually gives the chord away."},
+      {sec:"C(ii)", t:"Two key changes", id:"modulation", L:4, d:"A passage changes key twice. Name both new keys.", tip:"Treat each half separately, always comparing with the home key."},
+      {sec:"D", t:"Describe it like an examiner", id:"style", L:4, d:"Period, style and texture, with reasons.", tip:"Say what you hear and why you think so."}],
+     extra:[["intervals",8],["triads",6],["triads",7],["cadences",5]]}
+};
+function gradeAuralOpen(p, g){ if (p.unlockAll || g <= 7) return true; const m = (p.mocks||{})[g-1]; return !!(m && m.best >= .66); }
+function gradeDone(p, g){ const G = GRADES[g]; return G.tests.filter(t => lvlStars(p, t.id, t.L) >= 1).length; }
+function auralHome2(){
+  const p = P(); const R = VIEW.round;
+  if (R && R.src === "aural" && VIEW.gctx){ const c = VIEW.gctx;
+    return `<button class="back" data-act="gback">← Grade ${c.g} aural</button><div class="kicker">Grade ${c.g} · ${c.sec === "practice" ? "Extra ear training" : "Test " + esc(c.sec)}</div><h2>${esc(c.t)}</h2><p class="muted" style="margin-top:0">${esc(c.d)}</p><div id="ex"></div>`; }
+  let g = p.auralGrade || 5; if (!GRADES[g] || !gradeAuralOpen(p, g)) g = 5;
+  const G = GRADES[g]; const mk = (p.mocks||{})[g]; const done = gradeDone(p, g);
+  const gbtns = [5,6,7,8].map(n => { const open = gradeAuralOpen(p, n); return `<button class="gbtn" data-act="agrade" data-arg="${n}" aria-pressed="${n===g}" ${open?"":"disabled"}>Grade ${n}${open?"":" · locked"}</button>`; }).join("")
+    + `<span class="muted" style="font-size:.85rem;align-self:center">Grades 1–4 coming soon</span>`;
+  const tests = G.tests.map(t => { const st = lvlStars(p, t.id, t.L); const lv = AURAL_BY[t.id].levels[t.L-1];
+    return `<div class="gtest ${st?"done":""}"><div class="gsec">${esc(t.sec)}</div><div style="min-width:0"><div class="nm">${esc(t.t)}</div><div class="ds">${esc(t.d)}</div>
+      <details class="tipbox"><summary>How to do it</summary>${esc(t.tip)}</details></div>
+      <div class="gact">${starStr(st)}<button class="btn small ${st?"ghost":"primary"}" data-act="gtest" data-arg="${t.id}:${t.L}:${esc(t.sec)}">${st?"Practise again":"Practise"}</button><span class="muted" style="font-size:.78rem">${esc(AURAL_BY[t.id].name)} · Lv ${t.L}</span></div></div>`; }).join("");
+  const extra = G.extra.map(([id, L]) => { const lv = AURAL_BY[id].levels[L-1]; return `<button class="skill" data-act="gextra" data-arg="${id}:${L}"><span class="no">${L}<small>Lv</small></span><div><div class="nm">${esc(AURAL_BY[id].name)}</div><div class="ds">${esc(lv.t)}</div></div><div style="text-align:right">${starStr(lvlStars(p, id, L))}</div></button>`; }).join("");
+  const next = g < 8 ? (g === 7 ? `Pass the Grade 7 mock (66% or more) to open Grade 8.` : `Grade ${g+1} is open whenever you’re ready.`) : "";
+  return heroHTML(p) + `<h2>Aural, grade by grade</h2>
+  <div class="gradebar" role="group" aria-label="Aural grade">${gbtns}</div>
+  <section class="panel"><div class="row" style="justify-content:space-between"><div><div class="kicker">ABRSM-style · Grade ${g}</div><h3 style="margin:.15em 0">Grade ${g} aural tests</h3></div><span class="pill">${done}/${G.tests.length} tests starred</span></div>
+   <p class="muted" style="margin:.2em 0 .6em">${esc(G.blurb)}</p><div class="gtests">${tests}</div>
+   <div class="row" style="margin-top:14px;justify-content:space-between"><div><b>Ready to try the whole exam?</b><div class="muted" style="font-size:.9rem">${mk ? `Best ${Math.round(mk.best*100)}% · tried ${mk.n} time${mk.n===1?"":"s"}` : "All the tests in exam order, with fresh music every time."} ${next}</div></div>
+   <button class="btn brass" data-act="mock" data-arg="${g}">Grade ${g} mock test</button></div></section>
+  <h3 style="margin-top:22px">Extra ear training for Grade ${g}</h3><div class="skilllist">${extra}</div>
+  <details style="margin-top:22px"><summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:1.15rem">Free practice — every skill, every level</summary>
+   <div class="skilllist">${AURAL.map((s, i) => skillRow(p, s, i)).join("")}</div></details>`;
+}
+function startGradeTest(arg, kind){
+  const [id, L, sec] = arg.split(":"); const g = P().auralGrade || 5; const T = GRADES[g].tests.find(t => t.id === id && t.L === +L);
+  VIEW.skill = null; VIEW.mock = null;
+  VIEW.gctx = T && kind === "test" ? {g, sec:T.sec, t:T.t, d:T.d} : {g, sec:"extra", t:AURAL_BY[id].name + " · " + AURAL_BY[id].levels[+L-1].t, d:AURAL_NOTE[id] || ""};
+  if (kind !== "test") VIEW.gctx.sec = "practice";
+  startRound("aural", id, +L); window.scrollTo({top:0});
+}
+
 /* ===================== THEORY generators ===================== */
 const TGEN = {};
 function posWords(clef, n){ const off = diaOf(n) - CLEFREF[clef];
@@ -2003,7 +2081,7 @@ const timeSigBox = sig => `<svg viewBox="0 0 60 135" style="width:60px;max-width
 /* ===================== state & storage ===================== */
 const KEY = "cadenza-ear-studio-v1";
 function mkPlayer(name, o={}){ return Object.assign({ id:"p"+Math.random().toString(36).slice(2,8), name, inst:["your instrument"], clef:"treble", theoryStart:1, auralStart:3,
-  xp:0, days:{}, sk:{}, tl:{}, badges:{}, gym:{n:0, best:0}, mocks:{}, flash:{}, total:{a:0, c:0}, termsRight:0, away:0, lastAway:null, unlockAll:false }, o); }
+  xp:0, days:{}, sk:{}, tl:{}, badges:{}, gym:{n:0, best:0}, mocks:{}, auralGrade:5, flash:{}, total:{a:0, c:0}, termsRight:0, away:0, lastAway:null, unlockAll:false }, o); }
 function defaultState(){ return { v:1, t:0, cur:0, players:[
   mkPlayer("Philip", {id:"philip", inst:["violin","double bass"], theoryStart:5, auralStart:4, clef:"treble"}),
   mkPlayer("Faye", {id:"faye", inst:["flute","cello"], theoryStart:1, auralStart:3, clef:"treble"}) ] }; }
@@ -2059,7 +2137,7 @@ const BADGES = [
  {id:"gym1", n:"Into the gym", d:"Finish an Ear Gym session", t:p => p.gym.n >= 1},
  {id:"gym10", n:"Gym regular", d:"10 Ear Gym sessions", t:p => p.gym.n >= 10},
  {id:"away", n:"Off the screen", d:"Do 5 practise-away tasks", t:p => p.away >= 5},
- {id:"mock", n:"Exam rehearsal", d:"Finish a Grade 6–8 mock aural", t:p => Object.keys(p.mocks||{}).length >= 1},
+ {id:"mock", n:"Exam rehearsal", d:"Finish a mock aural test", t:p => Object.keys(p.mocks||{}).length >= 1},
  {id:"chords", n:"Chord detective", d:"30 cadence-chord questions right", t:p => (p.sk.cadchords||{c:0}).c >= 30},
  {id:"goal5", n:"Goal getter", d:"Hit the daily goal on 5 days", t:p => Object.values(p.days).filter(d => d.q >= GOAL).length >= 5}
 ];
@@ -2100,7 +2178,7 @@ function render(){
   renderPlayers();
   $$(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === VIEW.tab)));
   const m = $("#main");
-  if (VIEW.tab === "aural") m.innerHTML = VIEW.mock ? mockView() : VIEW.skill ? skillView() : auralHome();
+  if (VIEW.tab === "aural") m.innerHTML = VIEW.mock ? mockView() : VIEW.skill ? skillView() : auralHome2();
   else if (VIEW.tab === "theory") m.innerHTML = VIEW.course ? courseView() : VIEW.lesson ? lessonView() : VIEW.gloss === "open" ? glossaryView() : theoryHome();
   else if (VIEW.tab === "gym") m.innerHTML = gymView();
   else m.innerHTML = progressView();
@@ -2131,7 +2209,7 @@ function heroHTML(p){
   const t = today(p);
   return `<section class="hero">
     <div class="panel"><div class="kicker">${hello()}, ${esc(p.name)}</div>
-      <h2>Train your ears for Grade 8</h2>
+      <h2>Grade ${p.auralGrade || 5} aural, one test at a time</h2>
       <p class="muted" style="margin:.2em 0 .8em">Today’s Ear Gym is tuned to your trickiest skills: <b style="color:var(--ink)">${weakSkills(p).join(" and ")}</b>. Five minutes, then a task for your ${esc(p.inst[0])}.</p>
       <div class="row"><button class="btn primary" data-act="tab" data-arg="gym">Start Daily Ear Gym</button><button class="btn ghost" data-act="tab" data-arg="theory">Theory course</button></div></div>
     <div class="panel goal">${ringSVG(t.q/GOAL)}<div><div class="kicker">Daily goal</div><b class="disp" style="font-size:1.4rem">${Math.min(t.q,GOAL)} / ${GOAL}</b> <span class="muted">questions</span>
@@ -2434,7 +2512,7 @@ function progressView(){
   <div class="statgrid"><div class="stat"><b>${p.xp}</b><span>XP earned</span></div><div class="stat"><b>${streak(p)}</b><span>day streak</span></div><div class="stat"><b>${starsTotal(p)}</b><span>stars</span></div><div class="stat"><b>${Math.min(t.q,GOAL)}/${GOAL}</b><span>today’s goal</span></div></div>
   <div class="panel"><h3>Last 14 days</h3>${chart}</div>
   <div class="cols2" style="margin-top:16px"><div class="panel"><h3>Aural accuracy</h3>${AURAL.map(s => bar(s.name, p.sk[s.id])).join("")}
-   <p class="muted" style="font-size:.9rem;margin-bottom:0">Mock aural tests: ${[6,7,8].map(g => { const m = (p.mocks||{})[g]; return `Gr ${g}: ${m ? Math.round(m.best*100)+"% best ("+m.n+")" : "not tried"}`; }).join(" · ")}</p></div>
+   <p class="muted" style="font-size:.9rem;margin-bottom:0">Mock aural tests: ${[5,6,7,8].map(g => { const m = (p.mocks||{})[g]; return `Gr ${g}: ${m ? Math.round(m.best*100)+"% best ("+m.n+")" : "not tried"}`; }).join(" · ")}</p></div>
   <div class="panel"><h3>Theory accuracy</h3>${THEORY_TOPICS.map(tp => bar(tp, topicAcc(p, tp))).join("")}
    <p class="muted" style="font-size:.9rem;margin-bottom:0">Lessons starred: ${[1,2,3,4,5].map(g => { const ls = LESSONS.filter(l=>l.g===g); return `Gr ${g}: ${ls.filter(l => (p.tl[l.id]||{}).stars).length}/${ls.length}`; }).join(" · ")}</p></div></div>
   <div class="panel" style="margin-top:16px"><h3>Badges <span class="muted" style="font-size:.9rem;font-weight:400">${Object.keys(p.badges).length} of ${BADGES.length}</span></h3><div class="badges">${BADGES.map(b => `<div class="badge ${p.badges[b.id]?"got":""}">${badgeSVG(b.id, !!p.badges[b.id])}<b>${esc(b.n)}</b><small>${esc(b.d)}</small></div>`).join("")}</div></div>
@@ -2461,12 +2539,16 @@ document.addEventListener("click", e => {
     case "player": stopAll(); micClose(); STATE.cur = +arg; VIEW.round = null; VIEW.flash = null; VIEW.edit = false; VIEW.grade = null; save(); render(); break;
     case "addPlayer": modal("Add a player", `<div class="field"><input type="text" id="newName" placeholder="Name" maxlength="24" aria-label="Name"></div><div class="field"><input type="text" id="newInst" placeholder="Instruments, e.g. piano, violin" maxlength="60" aria-label="Instruments"></div>`,
       [["Cancel","ghost"],["Add","primary",() => { const n = ($("#newName").value||"").trim(); if (!n){ $("#newName").focus(); return false; } const inst = ($("#newInst").value||"").split(",").map(s=>s.trim()).filter(Boolean); STATE.players.push(mkPlayer(n, {inst: inst.length?inst:["your instrument"]})); STATE.cur = STATE.players.length-1; VIEW.round = null; save(); render(); }]]); break;
-    case "home": stopAll(); VIEW.skill = null; VIEW.mock = null; VIEW.round = null; render(); break;
+    case "home": stopAll(); VIEW.skill = null; VIEW.mock = null; VIEW.gctx = null; VIEW.round = null; render(); break;
+    case "agrade": stopAll(); p.auralGrade = +arg; VIEW.round = null; VIEW.gctx = null; save(); render(); break;
+    case "gtest": startGradeTest(arg, "test"); break;
+    case "gextra": startGradeTest(arg, "extra"); break;
+    case "gback": stopAll(); micClose(); VIEW.round = null; VIEW.gctx = null; render(); window.scrollTo({top:0}); break;
     case "mock": stopAll(); VIEW.mock = +arg; VIEW.skill = null; VIEW.round = null; render(); window.scrollTo({top:0}); break;
     case "mockHome": stopAll(); VIEW.mock = null; VIEW.round = null; render(); window.scrollTo({top:0}); break;
     case "startMock": startRound("mock", VIEW.mock, 1); break;
     case "course": stopAll(); VIEW.course = arg; VIEW.round = null; render(); window.scrollTo({top:0}); sizeCourse(); break;
-    case "skill": VIEW.skill = arg; VIEW.round = null; VIEW.level = topLevel(p, arg); render(); window.scrollTo({top:0}); break;
+    case "skill": VIEW.gctx = null; VIEW.skill = arg; VIEW.round = null; VIEW.level = topLevel(p, arg); render(); window.scrollTo({top:0}); break;
     case "level": VIEW.level = +arg; render(); break;
     case "startAural": startRound("aural", VIEW.skill, VIEW.level); break;
     case "backSkill": VIEW.round = null; render(); break;
