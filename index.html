@@ -126,6 +126,14 @@ svg .hls{stroke:var(--brass-strong)}
 .chk{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;border-radius:10px;padding:0 6px}
 .chk input{width:22px;height:22px;accent-color:var(--teal);flex:none}
 .featgrid fieldset.short .chk{display:inline-flex;min-width:72px}
+.singlive{border:2px solid var(--brass-strong);border-radius:16px;padding:12px 14px;margin:8px 0;background:var(--brass-soft)}
+.singnote{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:2.6rem;text-align:center;line-height:1.1;margin:6px 0}
+.singscale{position:relative;height:26px;border-radius:13px;background:var(--paper);border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 10px;font-size:.75rem;color:var(--muted)}
+.singscale i{font-style:normal}.singscale i.mid{position:absolute;left:50%;top:3px;bottom:3px;width:2px;background:var(--ok)}
+#singneedle{position:absolute;top:4px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--ink);left:50%;transition:left .08s linear}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{font-size:.85rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--paper)}
+.chip.ok{background:var(--ok-soft)}.chip.mid{background:var(--brass-soft)}.chip.no{background:var(--rose-soft)}
+.singchart svg{max-height:240px}
 .chk.right{background:var(--ok-soft)} .chk.wrong{background:var(--rose-soft)}
 /* theory */
 .gradebar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
@@ -1091,7 +1099,7 @@ AGEN.echo = (L, diff, player) => {
   return { type:"self", prompt:"Listen to the key chord and phrase, then sing it back (la, hum or note names).", play:() => playEvents(withChord, 84),
     extra:[{label:"Phrase only", fn:() => playEvents(ev, 84)},{label:"First note", fn:() => playEvents([{m:ms[0], t:0, d:2}], 80)}],
     reveal: staffSVG({clef:"treble", key:k, events:notesEv, prop:true, aria:"echo phrase"}),
-    answer:"self", explain:`Phrase in ${keyName(k, mode)}. Did every note match — including the rhythm?`, away:{kind:"sing", key:keyName(k,mode)} };
+    target: ms.map((m, i) => ({m, d:durs[i]})), answer:"self", explain:`Phrase in ${keyName(k, mode)}. Did every note match — including the rhythm?`, away:{kind:"sing", key:keyName(k,mode)} };
 };
 function fromMidiInKey(m, k, mode){ // spell midi using key signature letters
   const tonic = mode==="minor" ? minorTonic(k) : majorTonic(k);
@@ -1129,7 +1137,7 @@ AGEN.sight = (L, diff, player) => {
   return { type:"self", sight:true, prompt:`Sight-sing this phrase in ${keyName(k, mode)}. Hear the key chord and starting note, take a breath, and sing!`,
     visual: staffSVG({clef, key:k, time:"4/4", events:ev, prop:true, aria:"phrase to sight-sing"}),
     play:() => playEvents([{m:kc, t:0, d:1.5, v:.55},{m:ms[0]+shift, t:2, d:2, v:.85}], 76), playLabel:"Key chord + first note",
-    extra:[{label:"Check: play the phrase", fn:() => playEvents(play, 80)}], answer:"self",
+    extra:[{label:"Check: play the phrase", fn:() => playEvents(play, 80)}], target: play.map(n => ({m:n.m, d:n.d})), answer:"self",
     explain:"Tip: before singing, find the tonic (doh), hum the scale, and look for steps vs skips.", away:{kind:"sight", key:keyName(k,mode)} };
 };
 AGEN.modulation = (L, diff) => {
@@ -1257,6 +1265,7 @@ AGEN.parts = (L, diff) => {
     play:() => playEvents([keyChordEv(tm, mode), ...shiftEv(phrase, 2.5)], bpm), playLabel:"Key chord + phrase",
     extra:[{label:"Phrase again", fn:() => playEvents(phrase, bpm)},{label:"Starting note", fn:() => playEvents([{m:sing[0].m, t:0, d:2, v:.85}], 80)},{label:"Check: your part alone", fn:() => playEvents(lineEv(sing, .82), bpm)}],
     reveal: lineStaff(sing, k, mode, singIdx === 0 ? "treble" : "bass", bl, ts, `the ${which} part`),
+    target: sing.map(n => ({m:n.m, d:n.d})),
     answer:"self", explain: singIdx === 0 ? `The upper part, in ${keyName(k, mode)}. Get the shape first (up, down, step, leap), then fix the exact notes. Did the rhythm match too?`
       : `The ${three ? "lowest of the three parts" : "lower part"}, in ${keyName(k, mode)}. Bass lines move in bigger leaps between chord roots — think “doh … soh … doh”. Did your last two notes make the cadence?`,
     away:{kind:"parts", key:keyName(k, mode), which} };
@@ -1286,6 +1295,7 @@ function sightAcc(L, diff, player, lv){
   const what = lv.acc === "chords" ? "this melody while the piano plays the accompaniment" : singLower ? "the lower part of this duet — the upper part is played with you" : "the upper part of this duet — the lower part is played with you";
   return { type:"self", sight:true, prompt:`Sight-sing ${what}. ${keyName(k, mode)}.`,
     visual: lineStaff(shown, k, mode, clef, 4, "4/4", "part to sight-sing"),
+    target: shown.map(n => ({m:n.m, d:n.d})),
     play:() => playEvents([keyChordEv(tm, mode), {m:shown[0].m, t:2, d:2, v:.85}], 76), playLabel:"Key chord + first note",
     extra:[{label: lv.acc === "chords" ? "Piano part — sing along" : "Other part — sing along", fn:() => playEvents(countIn(accEv), 72)},
            {label:"Check: both together", fn:() => playEvents([...accEv, ...lineEv(shown, .85)], 72)}],
@@ -1532,6 +1542,198 @@ function mockSummaryHTML(R){
   return `<div class="panel ex"><div class="kicker">${MOCKS[R.id].t} mock aural test</div><h2>${Math.round(frac*100)}%</h2><p>${msg}</p>${rows}
    ${R.tasks && R.tasks.length ? awayCardHTML(R.tasks) : ""}
    <div class="row" style="margin-top:14px"><button class="btn primary" data-act="again">Another mock</button><button class="btn ghost" data-act="mockHome">Done</button></div></div>`;
+}
+
+/* ===================== Sing it: microphone pitch tracking and grading ===================== */
+const MIC = { stream:null, ctx:null, an:null, buf:null, src:null, sink:null, on:false, timer:0, frames:[], t0:0, err:null, finish:null };
+const PCN = ["C","C♯","D","E♭","E","F","F♯","G","A♭","A","B♭","B"];
+const midiName = m => { const r = Math.round(m); return PCN[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1); };
+const HOP = 0.025; // seconds between pitch readings
+
+/* YIN pitch detector: returns {f (Hz) or null, rms} */
+function yin(buf, sr){
+  let rms = 0; for (let i=0;i<buf.length;i++) rms += buf[i]*buf[i]; rms = Math.sqrt(rms / buf.length);
+  if (rms < 0.008) return {f:null, rms};
+  const minLag = Math.max(2, Math.floor(sr / 1700)), maxLag = Math.min(Math.floor(sr / 70), (buf.length >> 1) - 2);
+  const W = buf.length - maxLag - 1; const d = new Float32Array(maxLag + 1);
+  for (let tau=1; tau<=maxLag; tau++){ let s = 0; for (let i=0;i<W;i++){ const x = buf[i] - buf[i+tau]; s += x*x; } d[tau] = s; }
+  const c = new Float32Array(maxLag + 1); c[0] = 1; let run = 0;
+  for (let tau=1; tau<=maxLag; tau++){ run += d[tau]; c[tau] = run > 0 ? d[tau]*tau/run : 1; }
+  let tau = -1;
+  for (let t=minLag; t<maxLag; t++){ if (c[t] < 0.15){ while (t+1 < maxLag && c[t+1] < c[t]) t++; tau = t; break; } }
+  if (tau < 0){ let best = minLag; for (let t=minLag; t<maxLag; t++) if (c[t] < c[best]) best = t; if (c[best] < 0.3) tau = best; else return {f:null, rms}; }
+  const a = c[tau-1], b = c[tau], cc = c[tau+1]; const den = a + cc - 2*b; const sh = den ? (a - cc) / (2*den) : 0;
+  return {f: sr / (tau + clamp(sh, -1, 1)), rms};
+}
+const hzToMidi = f => 69 + 12*Math.log2(f / 440);
+
+/* Split a pitch track into sung notes */
+function segmentTrack(fr){
+  const sm = fr.map((f, i) => { if (f.m == null) return null; const w = []; for (let k=i-2;k<=i+2;k++) if (fr[k] && fr[k].m != null) w.push(fr[k].m); w.sort((x,y) => x-y); return w[w.length >> 1]; });
+  const segs = []; let cur = null;
+  const close = () => { if (cur){ const core = cur.ms.slice(Math.floor(cur.ms.length * .25)).sort((x,y) => x-y); cur.m = core[core.length >> 1]; cur.dur = cur.end - cur.t + HOP; if (cur.dur >= .09) segs.push(cur); } cur = null; };
+  for (let i=0;i<fr.length;i++){
+    const m = sm[i], r = fr[i].rms, t = fr[i].t;
+    if (m == null){ // bridge tiny dropouts inside a note
+      if (cur && t - cur.end < .08 && ((sm[i+1] != null) || (sm[i+2] != null))) continue;
+      close(); continue;
+    }
+    if (!cur){ cur = {t, end:t, ms:[m], peak:r}; continue; }
+    const tail = cur.ms.slice(-5).sort((x,y) => x-y); const med = tail[tail.length >> 1];
+    const far = x => x != null && Math.abs(x - med) > .8;
+    const jump = far(m) && far(sm[i+1]) && far(sm[i+2]);
+    if (r < .45*cur.peak) cur.dip = true;
+    if (jump || (cur.dip && r > .7*cur.peak)){ close(); cur = {t, end:t, ms:[m], peak:r}; continue; }
+    cur.ms.push(m); cur.end = t; if (r > cur.peak) cur.peak = r;
+  }
+  close();
+  return {segs, sm};
+}
+
+/* Align sung notes to the expected notes, allowing any octave */
+function alignSung(T, S, shift){
+  const n = T.length, k = S.length, INF = 1e9;
+  const mc = (i, j) => { const d = Math.abs(S[j].m + shift - T[i].m); return d <= .5 ? d*.4 : Math.min(.2 + (d - .5)*.6, 1.4); };
+  const D = Array.from({length:n+1}, () => new Float64Array(k+1).fill(INF)); const B = Array.from({length:n+1}, () => new Array(k+1));
+  D[0][0] = 0;
+  for (let i=0;i<=n;i++) for (let j=0;j<=k;j++){
+    const v = D[i][j]; if (v >= INF) continue;
+    const up = (ii, jj, c, op) => { if (ii <= n && jj <= k && v + c < D[ii][jj]){ D[ii][jj] = v + c; B[ii][jj] = [i, j, op]; } };
+    if (i < n && j < k) up(i+1, j+1, mc(i, j), "m");
+    if (i < n) up(i+1, j, 1.6, "skipT");
+    if (j < k) up(i, j+1, S[j].dur < .18 ? .35 : 1.3, "skipS");
+    if (i < n && j+1 < k) up(i+1, j+2, (mc(i, j) + mc(i, j+1))/2 + .4, "mergeS");
+    if (i+1 < n && j < k && T[i].m === T[i+1].m) up(i+2, j+1, mc(i, j) + 1.0, "mergeT");
+  }
+  const res = T.map(t => ({j:null}));
+  let i = n, j = k;
+  while (i > 0 || j > 0){ const b = B[i][j]; if (!b) break; const [pi, pj, op] = b;
+    if (op === "m") res[pi].j = pj; else if (op === "mergeS") res[pi].j = pj; else if (op === "mergeT"){ res[pi].j = pj; res[pi+1].j = pj; res[pi+1].joined = true; }
+    i = pi; j = pj; }
+  return {cost: D[n][k], res};
+}
+
+function gradeSinging(frames, target){
+  const {segs, sm} = segmentTrack(frames);
+  const T = target.map((t, i) => ({m:t.m, d:t.d}));
+  let beat = 0; T.forEach(t => { t.b = beat; beat += t.d; });
+  if (!segs.length) return {heard:false, segs, sm, T, val:0};
+  let best = null;
+  for (const oct of [-24, -12, 0, 12, 24]){ const a = alignSung(T, segs, oct); if (!best || a.cost < best.cost) best = Object.assign(a, {shift:oct}); }
+  const devs = best.res.filter(r => r.j != null).map((r, i) => segs[r.j].m + best.shift - T[best.res.indexOf(r)].m);
+  const sorted = devs.slice().sort((x,y) => x-y); const med = sorted.length ? sorted[sorted.length >> 1] : 0;
+  const tune = Math.abs(med) <= .35 ? -med : 0; const shift = best.shift + tune;
+  let good = 0, close = 0;
+  T.forEach((t, i) => { const r = best.res[i]; if (r.j == null){ t.st = "missed"; return; }
+    const s = segs[r.j]; t.sung = s.m + shift; t.dev = t.sung - t.m; t.at = s.t; t.joined = !!r.joined;
+    const a = Math.abs(t.dev); t.st = a <= .5 ? "good" : a <= .7 ? "close" : "wrong"; if (t.st === "good") good++; else if (t.st === "close") close++; });
+  // rhythm: fit sung onset times to written beats (any tempo)
+  const P = T.filter(t => t.at != null && !t.joined);
+  let rhythm = null, fit = null;
+  if (P.length >= 3){
+    const mx = P.reduce((u,t) => u + t.b, 0)/P.length, my = P.reduce((u,t) => u + t.at, 0)/P.length;
+    let sxx = 0, sxy = 0; P.forEach(t => { sxx += (t.b-mx)**2; sxy += (t.b-mx)*(t.at-my); });
+    if (sxx > 0 && sxy > 0){ const a = sxy/sxx, b0 = my - a*mx; fit = {a, b:b0};
+      let ok = 0; P.forEach(t => { t.off = (t.at - b0)/a - t.b; t.onTime = Math.abs(t.off) <= .35; if (t.onTime) ok++; }); rhythm = ok / P.length; }
+  }
+  const pitch = (good + .5*close) / T.length;
+  const slips = T.filter(t => t.st === "wrong" || t.st === "missed").length;
+  const val = slips === 0 && pitch >= .85 && (rhythm == null || rhythm >= .6) ? 1 : pitch >= .6 ? .5 : 0;
+  return {heard:true, T, segs, sm, shift, pitch, good, close, slips, rhythm, fit, val, frames};
+}
+
+function singChartSVG(g){
+  const W = 640, H = 210, L = 44, Rm = 10, Tp = 12, Bt = 26;
+  const fr = g.frames; const tEnd = Math.max(fr.length ? fr[fr.length-1].t : 1, .5);
+  const tx = t => L + (t / tEnd) * (W - L - Rm);
+  const tm = g.T.map(t => t.m); const sung = g.sm.filter(x => x != null).map(x => x + g.shift);
+  let lo = Math.min(...tm, ...(sung.length ? [Math.min(...sung)] : [])) - 1.5, hi = Math.max(...tm, ...(sung.length ? [Math.max(...sung)] : [])) + 1.5;
+  lo = Math.max(lo, Math.min(...tm) - 7); hi = Math.min(hi, Math.max(...tm) + 7);
+  const ty = m => Tp + (hi - clamp(m, lo, hi)) / (hi - lo) * (H - Tp - Bt);
+  let s = "";
+  [...new Set(tm)].forEach(m => { s += `<line x1="${L}" x2="${W-Rm}" y1="${ty(m)}" y2="${ty(m)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${ty(m)+4}" text-anchor="end" font-size="11" class="sf">${midiName(m)}</text>`; });
+  const col = st => st === "good" ? "var(--ok)" : st === "close" ? "var(--brass-strong)" : "var(--rose)";
+  // where each written note should be, using the fitted tempo if there is one
+  const tot = g.T.reduce((u,t) => u + t.d, 0);
+  g.T.forEach(t => { const x0 = g.fit ? tx(g.fit.a*t.b + g.fit.b) : tx(t.b/tot*tEnd), x1 = g.fit ? tx(g.fit.a*(t.b+t.d) + g.fit.b) : tx((t.b+t.d)/tot*tEnd);
+    s += `<rect x="${Math.max(L, x0)}" y="${ty(t.m)-6}" width="${Math.max(6, Math.min(W-Rm, x1) - Math.max(L, x0) - 3)}" height="12" rx="5" fill="${col(t.st)}" opacity=".28"/>`; });
+  // the voice
+  let d = ""; g.sm.forEach((m, i) => { if (m == null){ d += " "; return; } const x = tx(fr[i].t), y = ty(m + g.shift); d += (d.endsWith(" ") || !d ? `M${x.toFixed(1)} ${y.toFixed(1)}` : `L${x.toFixed(1)} ${y.toFixed(1)}`); });
+  s += `<path d="${d.replace(/ +/g, " ").trim()}" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+  g.T.forEach((t, i) => { if (t.at == null) return; s += `<circle cx="${tx(t.at)}" cy="${ty(t.sung)}" r="5" fill="${col(t.st)}"/>`; });
+  s += `<text x="${L}" y="${H-8}" font-size="11" class="sf">time →</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Your singing (dark line) against the written notes (coloured bars)">${s}</svg>`;
+}
+function singResultHTML(g){
+  if (!g.heard) return `I didn’t hear any singing. Check the microphone, move a little closer and sing on “la”.`;
+  const chips = g.T.map((t, i) => { const lbl = midiName(t.m);
+    if (t.st === "missed") return `<span class="chip no">${i+1}. ${lbl} — missed</span>`;
+    const c = Math.round(t.dev*100); const way = c > 0 ? "sharp" : "flat";
+    return `<span class="chip ${t.st==="good"?"ok":t.st==="close"?"mid":"no"}">${i+1}. ${lbl} ${t.st==="good" ? "✓" : t.st==="close" ? `a little ${way}` : `— you sang ${midiName(t.sung)}`}</span>`; }).join("");
+  const rh = g.rhythm == null ? "" : ` · Rhythm: <b>${Math.round(g.rhythm*100)}%</b> in time`;
+  return `Notes in tune: <b>${g.good}</b> of ${g.T.length}${g.close ? ` (+${g.close} nearly)` : ""}${rh}.
+   <div class="notation singchart" style="margin-top:8px">${singChartSVG(g)}</div><div class="chips">${chips}</div>
+   <p class="muted" style="margin:.4em 0 0;font-size:.88rem">Dark line = your voice. Bars = the written notes. Any octave counts; within a quarter-tone counts as in tune.${g.shift % 12 ? "" : ""}</p>`;
+}
+
+async function micOpen(){
+  if (MIC.stream) return true;
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error("none"), {name:"NotSupportedError"});
+    MIC.stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false, noiseSuppression:false, autoGainControl:false}});
+    const ctx = audioInit(); MIC.ctx = ctx;
+    MIC.src = ctx.createMediaStreamSource(MIC.stream); MIC.an = ctx.createAnalyser(); MIC.an.fftSize = 2048;
+    MIC.sink = ctx.createGain(); MIC.sink.gain.value = 0; MIC.src.connect(MIC.an); MIC.an.connect(MIC.sink); MIC.sink.connect(ctx.destination);
+    MIC.buf = new Float32Array(2048); MIC.err = null; return true;
+  } catch(e){ MIC.err = (e && e.name) || "Error"; MIC.stream = null; return false; }
+}
+function micClose(){
+  if (MIC.timer){ clearInterval(MIC.timer); MIC.timer = 0; } MIC.on = false; MIC.finish = null;
+  if (MIC.stream){ MIC.stream.getTracks().forEach(t => t.stop()); try { MIC.src.disconnect(); MIC.an.disconnect(); MIC.sink.disconnect(); } catch(e){} MIC.stream = null; }
+}
+function micListen(q, onDone){
+  stopAll(); clearTimeout(doPlay.t);
+  MIC.frames = []; MIC.on = true; MIC.t0 = performance.now();
+  let voiced = 0, silentSince = null, done = false;
+  const maxSec = Math.max(8, q.target.reduce((u,t) => u + t.d, 0) * 1.2 + 6);
+  const finish = (why) => { if (done) return; done = true; clearInterval(MIC.timer); MIC.timer = 0; MIC.on = false; MIC.finish = null; onDone(gradeSinging(MIC.frames, q.target), why); };
+  MIC.finish = finish;
+  MIC.timer = setInterval(() => {
+    if (!MIC.an) return finish("lost");
+    MIC.an.getFloatTimeDomainData(MIC.buf); const r = yin(MIC.buf, MIC.ctx.sampleRate); const t = (performance.now() - MIC.t0)/1000;
+    const m = r.f ? hzToMidi(r.f) : null; MIC.frames.push({t, m, rms:r.rms});
+    if (m != null){ voiced += HOP; silentSince = null; } else if (silentSince == null) silentSince = t;
+    singLive(m, t, voiced);
+    if (t > maxSec) finish("time");
+    else if (voiced > .5 && silentSince != null && t - silentSince > 1.7) finish("done");
+    else if (voiced < .05 && t > 9) finish("quiet");
+  }, HOP*1000);
+}
+function singLive(m, t, voiced){
+  const el = $("#singnote"), nd = $("#singneedle"), st = $("#singstat"); if (!el) return;
+  if (m == null){ el.textContent = voiced > .2 ? "…" : "Sing now"; nd.style.opacity = .25; }
+  else { const c = Math.round((m - Math.round(m))*100); el.textContent = midiName(m); nd.style.opacity = 1; nd.style.left = (50 + c*.9) + "%"; }
+  st.textContent = `${t.toFixed(1)} s`;
+}
+async function singStart(){
+  const R = VIEW.round; if (!R || !R.q || R.answered || !R.q.target) return; const q = R.q; const box = $("#singbox"); const btn = $("#ex [data-act=sing]");
+  if (btn) btn.disabled = true;
+  box.innerHTML = `<div class="singlive"><b>Opening the microphone…</b></div>`;
+  const ok = await micOpen();
+  if (!ok){
+    box.innerHTML = `<div class="feedback show info" style="margin:8px 0">${MIC.err === "NotAllowedError" || MIC.err === "SecurityError" ? "The microphone was blocked." : "This browser can’t use the microphone."} Pages inside the Claude app can’t use the microphone yet, so open Cadenza from your own website to be marked automatically. For now, use the buttons below to mark yourself.</div>`;
+    return;
+  }
+  box.innerHTML = `<div class="singlive" role="status"><div class="row" style="justify-content:space-between"><b>Listening… sing on “la”</b><span class="muted" id="singstat">0.0 s</span></div>
+    <div class="singnote" id="singnote">Sing now</div><div class="singscale" aria-hidden="true"><i class="flat">flat</i><i class="mid"></i><i class="sharp">sharp</i><span id="singneedle"></span></div>
+    <div class="row" style="margin-top:8px"><button class="btn small" data-act="singStop">I’ve finished</button><span class="muted" style="font-size:.85rem">It stops by itself when you go quiet.</span></div></div>`;
+  micListen(q, (g, why) => {
+    if (VIEW.round !== R || R.q !== q || R.answered){ return; }
+    if (!g.heard){ box.innerHTML = `<div class="feedback show bad" style="margin:8px 0">${singResultHTML(g)}</div>`; if (btn) btn.disabled = false; return; }
+    box.innerHTML = "";
+    $$("#ex .selfmark .opt").forEach(x => x.disabled = true);
+    showFeedback(g.val, `${singResultHTML(g)}<p style="margin:.6em 0 0">${q.explain}</p>`);
+  });
 }
 
 /* ===================== THEORY generators ===================== */
@@ -1891,7 +2093,7 @@ function renderPlayers(){
     `<button class="pchip" data-act="addPlayer" aria-label="Add a player">+</button>`;
 }
 const srcTab = s => s === "gym" ? "gym" : (s === "aural" || s === "mock") ? "aural" : "theory";
-function setTab(t){ VIEW.tab = t; if (VIEW.round && srcTab(VIEW.round.src) !== t) { stopAll(); VIEW.round = null; } render(); window.scrollTo({top:0}); }
+function setTab(t){ VIEW.tab = t; if (VIEW.round && srcTab(VIEW.round.src) !== t) { stopAll(); micClose(); VIEW.round = null; } render(); window.scrollTo({top:0}); }
 
 function render(){
   try { fixState(); } catch(e){}
@@ -1914,10 +2116,10 @@ const AURAL_NOTE = {
   majmin:"ABRSM Grades 1–5 ask whether a piece is major or minor. Listen to the 3rd above the keynote.",
   pulse:"Clap or tap along with the music, accenting the strong beat, then say whether it’s in 2, 3 or 4 time (6/8 at higher grades).",
   clap:"Like the Trinity and ABRSM rhythm tests: listen, then tap back the same rhythm. Timing is scored — stay steady!",
-  echo:"ABRSM Grades 1–3 ask you to sing back short phrases. The microphone is off here, so you mark yourself honestly.",
+  echo:"ABRSM Grades 1–3 ask you to sing back short phrases. Tap “Sing it” and the microphone marks every note — or mark yourself honestly.",
   sight:"ABRSM Grades 4–8 include sight-singing. See the phrase, hear the key chord and starting note, then sing. From Grade 6 a piano part or a second voice plays with you.",
   modulation:"ABRSM Grade 6 (from a major key), Grade 7 (from major or minor) and Grade 8 (two key changes in one passage): say where the music travels to.",
-  parts:"ABRSM Grades 6–8, test A: hear a phrase twice, then sing back the upper part (Grade 6), the lower part (Grade 7) or the lowest of three parts (Grade 8). You mark yourself.",
+  parts:"ABRSM Grades 6–8, test A: hear a phrase twice, then sing back the upper part (Grade 6), the lower part (Grade 7) or the lowest of three parts (Grade 8). Sing into the microphone to be marked, or mark yourself.",
   cadchords:"ABRSM Grades 6–8, test C: name the cadence at the end of a phrase and the chords that make it — and at Grade 8, follow a whole progression.",
   style:"ABRSM Grades 6–8, test D: talk about texture, structure, and period and style. Every piece is freshly composed by the app, so you can’t learn answers by heart.",
   changed:"ABRSM Grades 3–5: spot where a melody has been changed the second time it’s played.",
@@ -1958,7 +2160,7 @@ function skillView(){
    <h2>${esc(s.name)}</h2><p class="muted" style="margin-top:0">${esc(AURAL_NOTE[s.id])}</p>
    ${R ? "" : `<div class="levels" role="group" aria-label="Levels">${lvls}</div>
    <div class="panel"><div class="kicker">Level ${VIEW.level} · ${esc(L.g)}</div><h3>${esc(L.t)}</h3>
-   <p class="muted" style="margin:.2em 0 .8em">${s.perRound||10} questions. ${s.auto ? "1★ at 60%, 2★ at 80%, 3★ at 95%." : "You mark yourself — be honest, it’s how you improve!"}</p>
+   <p class="muted" style="margin:.2em 0 .8em">${s.perRound||10} questions. ${s.auto ? "1★ at 60%, 2★ at 80%, 3★ at 95%." : "Sing into the microphone to be marked note by note, or mark yourself — be honest, it’s how you improve!"}</p>
    <button class="btn primary" data-act="startAural">Start level ${VIEW.level}</button></div>`}
    <div id="ex"></div>`;
 }
@@ -2072,7 +2274,8 @@ function paintRound(){
   if (q.play) body += `<div class="playbar"><button class="playbtn" data-act="play">${PLAY_ICON}${esc(q.playLabel || (R.played ? "Play again" : "Play"))}</button>${(q.extra||[]).map((x,i) => `<button class="playbtn alt" data-act="extra" data-arg="${i}">${PLAY_ICON}${esc(x.label)}</button>`).join("")}</div>`;
   if (q.type === "mc") body += `<div class="opts ${q.options.some(o=>o.svg)?"":""}">${q.options.map(o => `<button class="opt ${o.svg?"svgopt":""}" data-act="ans" data-arg="${esc(o.k)}" ${R.answered?"disabled":""}>${o.html}</button>`).join("")}</div>`;
   if (q.type === "self") body += `${q.reveal ? `<details class="panel" style="margin:8px 0;padding:10px 14px"><summary style="cursor:pointer;min-height:40px;display:flex;align-items:center;font-weight:700">Show me the notes (after singing!)</summary><div class="notation" style="margin-top:8px">${q.reveal}</div></details>` : ""}
-     <p class="muted" style="margin:6px 0">How did it go?</p><div class="selfmark"><button class="opt" data-act="self" data-arg="1" ${R.answered?"disabled":""}>Spot on</button><button class="opt" data-act="self" data-arg="0.5" ${R.answered?"disabled":""}>Nearly</button><button class="opt" data-act="self" data-arg="0" ${R.answered?"disabled":""}>Not yet</button></div>`;
+     ${q.target ? `<div class="row" style="margin:6px 0 4px"><button class="btn brass" data-act="sing" ${R.answered?"disabled":""}>Sing it — I’ll mark you</button><span class="muted" style="font-size:.9rem">Uses the microphone</span></div><div id="singbox"></div>` : ""}
+     <p class="muted" style="margin:6px 0">${q.target ? "Or mark yourself:" : "How did it go?"}</p><div class="selfmark"><button class="opt" data-act="self" data-arg="1" ${R.answered?"disabled":""}>Spot on</button><button class="opt" data-act="self" data-arg="0.5" ${R.answered?"disabled":""}>Nearly</button><button class="opt" data-act="self" data-arg="0" ${R.answered?"disabled":""}>Not yet</button></div>`;
   if (q.type === "clap") body += `<button class="pad" id="pad" ${R.clapState==="tap"?"":"disabled"}>${R.clapState==="tap"?"Your turn — tap the rhythm here":R.clapState==="done"?"Scored!":"Listen…"}</button>
      <div class="row" style="margin-top:8px"><span class="muted" id="tapcount">${R.taps.length} tap${R.taps.length===1?"":"s"}</span><button class="btn small ghost" data-act="clapReset" ${R.answered?"disabled":""}>Start again</button><button class="btn small" data-act="clapDone" ${R.answered?"disabled":""}>I’ve finished</button><span class="muted" style="font-size:.85rem">Keyboard: space bar taps too.</span></div>`;
   if (q.type === "feat") body += `<div class="featgrid">${q.cats.map(c => `<fieldset class="${c.opts.every(o => o.lbl.length <= 3) ? "short" : ""}"><legend>${esc(c.lbl)}</legend>${c.opts.map(o => `<label class="chk" data-c="${c.c}" data-o="${o.k}"><input type="radio" name="f_${c.c}" value="${o.k}" ${R.answered?"disabled":""}> ${esc(o.lbl)}</label>`).join("")}</fieldset>`).join("")}</div><div class="row" style="margin-top:10px"><button class="btn primary" data-act="featCheck" ${R.answered?"disabled":""}>Check my answers</button></div>`;
@@ -2135,7 +2338,7 @@ function checkBars(){
   R.answered = false; showFeedback(ok ? 1 : 0, (ok ? "" : "Green = right, pink = shouldn’t be there, gold = missing. ") + q.explain);
 }
 function endRound(){
-  const R = VIEW.round; if (!R) return; stopAll(); R.done = true; const p = P();
+  const R = VIEW.round; if (!R) return; stopAll(); micClose(); R.done = true; const p = P();
   const n = R.res.length, got = R.res.reduce((a,b) => a + (b||0), 0); const frac = n ? got/n : 0;
   R.stars = R.src === "gym" ? 0 : frac >= .95 ? 3 : frac >= .8 ? 2 : frac >= .6 ? 1 : 0;
   if (R.src !== "gym" && n < R.total) R.stars = Math.min(R.stars, 0);
@@ -2255,7 +2458,7 @@ document.addEventListener("click", e => {
   if (!b) return; const act = b.dataset.act, arg = b.dataset.arg; const p = P();
   switch(act){
     case "tab": setTab(arg); break;
-    case "player": stopAll(); STATE.cur = +arg; VIEW.round = null; VIEW.flash = null; VIEW.edit = false; VIEW.grade = null; save(); render(); break;
+    case "player": stopAll(); micClose(); STATE.cur = +arg; VIEW.round = null; VIEW.flash = null; VIEW.edit = false; VIEW.grade = null; save(); render(); break;
     case "addPlayer": modal("Add a player", `<div class="field"><input type="text" id="newName" placeholder="Name" maxlength="24" aria-label="Name"></div><div class="field"><input type="text" id="newInst" placeholder="Instruments, e.g. piano, violin" maxlength="60" aria-label="Instruments"></div>`,
       [["Cancel","ghost"],["Add","primary",() => { const n = ($("#newName").value||"").trim(); if (!n){ $("#newName").focus(); return false; } const inst = ($("#newInst").value||"").split(",").map(s=>s.trim()).filter(Boolean); STATE.players.push(mkPlayer(n, {inst: inst.length?inst:["your instrument"]})); STATE.cur = STATE.players.length-1; VIEW.round = null; save(); render(); }]]); break;
     case "home": stopAll(); VIEW.skill = null; VIEW.mock = null; VIEW.round = null; render(); break;
@@ -2269,12 +2472,14 @@ document.addEventListener("click", e => {
     case "backSkill": VIEW.round = null; render(); break;
     case "again": { const R = VIEW.round; startRound(R.src, R.id, R.level); break; }
     case "nextLevel": { const R = VIEW.round; VIEW.level = R.level+1; startRound("aural", R.id, R.level+1); break; }
-    case "quit": if (VIEW.round && VIEW.round.src === "gym" && VIEW.round.res.length){ endRound(); } else { stopAll(); VIEW.round = null; render(); } break;
+    case "sing": singStart(); break;
+    case "singStop": if (MIC.finish) MIC.finish("stop"); break;
+    case "quit": micClose(); if (VIEW.round && VIEW.round.src === "gym" && VIEW.round.res.length){ endRound(); } else { stopAll(); VIEW.round = null; render(); } break;
     case "play": audioInit(); doPlay(); break;
     case "extra": { audioInit(); const q = VIEW.round && VIEW.round.q; if (q && q.extra[+arg]) q.extra[+arg].fn(); break; }
     case "ans": answerMC(arg); break;
     case "self": if (!VIEW.round.answered){ $$("#ex .selfmark .opt").forEach(x => { x.disabled = true; if (x === b) x.classList.add(+arg>=1?"right":+arg>0?"right":"wrong"); }); showFeedback(+arg, VIEW.round.q.explain); } break;
-    case "next": stopAll(); VIEW.round.i++; nextQ(); break;
+    case "next": stopAll(); if (MIC.finish){ const f = MIC.finish; MIC.finish = null; clearInterval(MIC.timer); MIC.timer = 0; MIC.on = false; } VIEW.round.i++; nextQ(); break;
     case "clapReset": VIEW.round.taps = []; VIEW.round.clapState = "tap"; $("#tapcount").textContent = "0 taps"; { const pad = $("#pad"); pad.disabled = false; pad.textContent = "Your turn — tap the rhythm here"; } break;
     case "clapDone": if (VIEW.round.taps.length) scoreClap(); else toast("Tap the rhythm on the pad first."); break;
     case "featCheck": checkFeat(); break;
