@@ -45,6 +45,16 @@
   .quiz button.right { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
   .quiz button.wrong { border-color: var(--warn); }
   .pieces { display: grid; gap: 6px; margin: 0; padding-left: 18px; }
+  .eras { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .era { border: 1.5px solid var(--line); border-radius: var(--radius); padding: 14px 16px; background: var(--sheet); display: grid; gap: 8px; align-content: start; }
+  .era h3 { margin: 0; font-size: 21px; } .era .when { font-family: var(--f-mono); font-size: 13px; color: var(--accent); }
+  .era ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 15.5px; }
+  .era .who { display: flex; flex-wrap: wrap; gap: 6px; }
+  .era .who button { font: inherit; font-size: 13.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--page); color: var(--ink); cursor: pointer; }
+  .life { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 3px solid var(--accent); }
+  .life li { padding: 6px 0 6px 14px; position: relative; }
+  .life li::before { content: ""; position: absolute; left: -7px; top: 13px; width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+  .life b { font-family: var(--f-mono); margin-right: 6px; }
   .studio { border: 1px dashed var(--brass); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; }
   .studio a.dl { font-weight: 700; }
 </style>
@@ -74,11 +84,13 @@
         <div id="studio"></div>
       </div>
     </div>
+    <section id="periods" style="display:grid;gap:14px;border-top:1px solid var(--line);padding-top:22px"></section>
   </div>
 </main>
 
 <script src="composers.js"></script>
 <script src="composers-stats.js"></script>
+<script src="composers-more.js"></script>
 <script>
 (function () {
   "use strict";
@@ -357,6 +369,12 @@
         var href = "../repertoire/index.html?inst=" + encodeURIComponent(e.inst) + "&lvl=" + e.lvl + "&board=" + e.board + "&q=" + encodeURIComponent(film.short);
         return '<li><a href="' + href + '">' + esc(e.t) + "</a> <span class='muted'>· " + esc(e.inst) + ", " + (e.lvl === "G0" ? "Initial" : e.lvl[0] === "G" ? "Grade " + e.lvl[1] : "diploma") + " (" + e.board + ")</span></li>";
       }).join("") + "</ul>" : "") + (film.checked ? "" : '<p class="note">Draft: these facts and the music are waiting for a final check.</p>');
+    var mo = (window.COMPOSERS_MORE || {})[film.id];
+    var tr = document.getElementById("transcript"), dn = tr.querySelector(".note");
+    if (mo) (dn || tr).insertAdjacentHTML(dn ? "beforebegin" : "beforeend",
+      '<h3 style="margin-top:10px">' + esc(film.short) + "'s life in six moments</h3><ol class='life'>" + mo.life.map(function (e) { return "<li><b>" + e[0] + "</b> " + esc(e[1]) + "</li>"; }).join("") + "</ol>" +
+      "<h3>What the music sounds like</h3><ul class='pieces'>" + mo.style.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" +
+      "<h3>Three pieces to hear</h3><ul class='pieces'>" + mo.listen.map(function (p) { return "<li><b>" + esc(p[0]) + "</b>: listen for " + esc(p[1]) + ".</li>"; }).join("") + "</ul>");
     var qz = film.quiz;
     document.getElementById("quiz").innerHTML = '<p class="kicker">Quick quiz</p><b>' + esc(qz.q) + "</b>" + qz.options.map(function (o, i) { return '<button type="button" data-opt="' + i + '">' + String.fromCharCode(65 + i) + ". " + esc(o) + "</button>"; }).join("") + '<p class="msg" id="quizMsg" role="status"></p>';
     document.getElementById("studio").innerHTML = studio ? '<div class="studio"><b>Studio: make a video for social media</b><div class="row"><button class="btn small" type="button" data-rec="land">Record 16:9 (YouTube)</button><button class="btn small" type="button" data-rec="port">Record 9:16 (Shorts, Reels, TikTok)</button></div><p class="msg" id="studioMsg">The film plays through once while it records. Sound comes from the theme; the narration voice isn\'t recorded, so add your own voice-over afterwards.</p></div>' : "";
@@ -373,6 +391,24 @@
   });
   document.getElementById("studio").addEventListener("click", function (e) { var b = e.target.closest("[data-rec]"); if (b) record(b.dataset.rec); });
   cv.addEventListener("click", function () { if (canWatch(film)) { if (playing) stop(); else start(); } });
+
+  /* ---------- the periods of music (free to read) ---------- */
+  var ERAS = [
+    { n: "Baroque", when: "about 1600–1750", sound: ["Counterpoint: several tunes at once", "A busy, steady rhythm that keeps going", "Terraced dynamics: sudden changes from loud to soft, not gradual", "Lots of ornaments: trills, mordents, turns", "Basso continuo: a bass line with harpsichord or organ filling in chords"], forms: ["Concerto grosso and solo concerto", "Suite of dances (allemande, courante, sarabande, gigue)", "Fugue", "Oratorio and opera", "Trio sonata"], inst: ["Harpsichord and organ", "Strings, recorder, oboe, bassoon, natural trumpet"], era: function (f) { return f.died <= 1760; } },
+    { n: "Classical", when: "about 1750–1820", sound: ["Clear, balanced phrases, often 4 + 4 bars", "Melody with a simple accompaniment, such as an Alberti bass", "Gradual crescendos and diminuendos", "Simpler harmony, with clear cadences"], forms: ["Symphony", "String quartet", "Sonata form", "Rondo and minuet and trio", "Solo concerto"], inst: ["The fortepiano replaces the harpsichord", "The orchestra grows: pairs of woodwind, horns, trumpets and timpani"], era: function (f) { return f.born >= 1720 && f.born <= 1770; } },
+    { n: "Romantic", when: "about 1820–1900", sound: ["Long, expressive melodies", "Rich chromatic harmony and frequent changes of key", "Huge contrasts of dynamics and tempo; rubato", "Music that tells stories or paints pictures", "National styles, using folk tunes"], forms: ["Programme music and the symphonic poem", "Character pieces for piano (nocturne, mazurka, waltz)", "Lied (art song) and song cycle", "Large symphonies and concertos"], inst: ["The modern piano, with an iron frame", "A big orchestra: more brass, valves, extra percussion, harp"], era: function (f) { return f.born >= 1770 && f.born < 1860; } },
+    { n: "20th century and after", when: "about 1900 onwards", sound: ["New scales: whole-tone, modes, pentatonic", "Dissonance that doesn't need to resolve", "Irregular rhythms and changing time signatures", "Jazz, folk and world music influences", "Twelve-note (serial) music and minimalism"], forms: ["Impressionist pieces", "Neo-classical works", "Film music and musicals", "Minimalist pieces built from repeated patterns"], inst: ["Saxophones, electric instruments, synthesizers", "Extended techniques and new percussion"], era: function (f) { return f.born >= 1860; } }
+  ];
+  function periods() {
+    document.getElementById("periods").innerHTML = '<div style="display:grid;gap:6px"><p class="kicker">The periods of music</p><h2 style="font-size:clamp(26px,3.6vw,36px)">Baroque, Classical, Romantic and beyond</h2><p class="lede" style="font-size:17px">Theory papers at Grades 6–8 ask you to recognise the period of a piece from its score. Here is what to look and listen for.</p></div>' +
+      '<div class="eras">' + ERAS.map(function (e) {
+        var who = FILMS.filter(e.era);
+        return '<div class="era"><div><h3>' + esc(e.n) + '</h3><span class="when">' + esc(e.when) + "</span></div><b>What it sounds like</b><ul>" + e.sound.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul><b>Forms</b><ul>" + e.forms.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul><b>Instruments</b><ul>" + e.inst.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" +
+          (who.length ? '<b>Composers in this room</b><div class="who">' + who.map(function (f) { return '<button type="button" data-film="' + f.id + '">' + esc(f.short) + "</button>"; }).join("") + "</div>" : "") + "</div>";
+      }).join("") + "</div>";
+  }
+  document.getElementById("periods").addEventListener("click", function (e) { var b = e.target.closest("[data-film]"); if (b) { choose(b.dataset.film); document.getElementById("stage").scrollIntoView({ behavior: "smooth", block: "start" }); } });
+  periods();
 
   var first = (location.hash.replace("#", "").replace("-studio", "")) || (C.freeComposers || ["beethoven"])[0];
   size(); choose(first);

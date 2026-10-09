@@ -30,6 +30,9 @@ async def main():
                     ids = await pg.evaluate("() => COMPOSERS.map(f => f.id)")
                     for fid in ids:
                         await pg.click(f"[data-film={fid}]"); await pg.wait_for_timeout(150)
+                        tt = await pg.inner_text("#transcript")
+                        if "six moments" not in tt or "Three pieces to hear" not in tt: bad(f"{fid}: no life, style or listening sections")
+                        if await pg.locator("#transcript .life li").count() != 6: bad(f"{fid}: life should have 6 moments")
                         n = await pg.locator("#scenes button").count()
                         for i in range(n):
                             await pg.click(f"#scenes button >> nth={i}"); await pg.wait_for_timeout(60)

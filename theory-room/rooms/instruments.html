@@ -53,6 +53,13 @@
   .quiz button.opt { font: inherit; text-align: left; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
   .quiz button.right { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
   .quiz button.wrong { border-color: var(--warn); }
+  .deep { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .deep .box { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; background: var(--page); align-content: start; }
+  .deep .wide { grid-column: 1 / -1; }
+  .terms { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+  .terms td { padding: 7px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+  .terms td:first-child { font-style: italic; font-weight: 700; white-space: nowrap; width: 1%; }
+  @media (max-width: 520px) { .terms td:first-child { white-space: normal; } }
   .note { font-size: 14px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
 </style>
 </head>
@@ -74,6 +81,7 @@
 
 <script src="instruments.js"></script>
 <script src="instruments-stats.js"></script>
+<script src="instruments-more.js"></script>
 <script src="instrument-film.js"></script>
 <script>
 (function () {
@@ -184,8 +192,21 @@
         (s ? '<div class="box"><h3>In the exams</h3><div class="stat"><div><b>' + s.n.toLocaleString() + "</b><span>pieces on the lists</span></div><div><b>" + s.abrsm + "</b><span>ABRSM</span></div><div><b>" + s.trinity + "</b><span>Trinity</span></div></div><p>From " + esc(s.lo) + " to " + esc(s.hi) + "." +
           (s.top.length ? " Composers you'll meet most: " + s.top.slice(0, 3).map(esc).join(", ") + "." : "") + '</p><p><a href="' + repo + '">See every ' + esc(x.name.toLowerCase()) + " exam piece →</a></p></div>" : "") +
         '<div class="quiz" id="q1"><span class="kicker">Quick quiz</span><b>' + esc(x.quiz.q) + "</b>" + x.quiz.options.map(function (o, i) { return '<button class="opt" type="button" data-q1="' + i + '">' + esc(o) + "</button>"; }).join("") + '<div id="q1fb" aria-live="polite"></div></div>' +
-      "</div></div>" + (x.checked ? "" : '<p class="note">Draft: these facts are waiting for a final check.</p>');
+      "</div></div>" + deepHTML(x) + (x.checked ? "" : '<p class="note">Draft: these facts are waiting for a final check.</p>');
     if (window.INSTRUMENT_FILM) INSTRUMENT_FILM.mount(x);
+  }
+
+  /* ---------- in depth: history, parts, the words in the music, orchestra, relatives, practice tips ---------- */
+  var MORE = window.INSTRUMENTS_MORE || {};
+  function deepHTML(x) {
+    var m = MORE[x.id]; if (!m) return "";
+    var li = function (a) { return "<ul>" + a.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>"; };
+    return '<h3 style="margin:6px 0 0;font-size:24px">In depth</h3><div class="deep">' +
+      '<div class="box wide"><h3>A short history</h3><p>' + esc(m.history) + "</p></div>" +
+      '<div class="box wide"><h3>Words you\'ll see in the music</h3><table class="terms">' + m.tech.map(function (t) { return "<tr><td>" + esc(t[0]) + "</td><td>" + esc(t[1]) + "</td></tr>"; }).join("") + '</table><p class="note" style="margin-top:8px">Many of these turn up in theory papers too.</p></div>' +
+      '<div class="box"><h3>The parts</h3>' + li(m.parts) + "</div>" +
+      '<div class="box"><h3>In the orchestra or band</h3><p>' + esc(m.orchestra) + "</p><h3 style=\"margin-top:6px\">Relatives</h3>" + li(m.relatives) + "</div>" +
+      '<div class="box"><h3>Practice tips</h3>' + li(m.tips) + "</div></div>";
   }
 
   /* ---------- the instrument quiz: ten questions from the whole room ---------- */
@@ -194,7 +215,13 @@
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function others(fn, right, n) { return shuffle(I.filter(function (x) { return fn(x) && x.name !== right; })).slice(0, n).map(function (x) { return x.name; }); }
   function gameQ() {
-    var k = Math.floor(Math.random() * 6), x, opts, right;
+    var k = Math.floor(Math.random() * 8), x, opts, right;
+    if (k >= 6) {  /* the words written in the music */
+      var withT = I.filter(function (y) { return MORE[y.id] && MORE[y.id].tech.length > 2; }); x = pick(withT);
+      var t = pick(MORE[x.id].tech), pool = [];
+      I.forEach(function (y) { (MORE[y.id] ? MORE[y.id].tech : []).forEach(function (u) { if (u[1] !== t[1] && u[0] !== t[0] && pool.indexOf(u[1]) < 0) pool.push(u[1]); }); });
+      return { q: "On a " + x.name.toLowerCase() + " part, what does ‘" + t[0] + "’ mean?", right: t[1], opts: shuffle([t[1]].concat(shuffle(pool).slice(0, 3))) };
+    }
     if (k === 0) { x = pick(I.filter(function (y) { return y.family !== "Voice"; })); return { q: "Which family does the " + x.name.toLowerCase() + " belong to?", right: x.family, opts: shuffle([x.family].concat(shuffle(FAMILIES.slice(1, 6).filter(function (f) { return f !== x.family; })).slice(0, 3))) }; }
     if (k === 1) { x = pick(I.filter(function (y) { return y.clefs[0] !== "treble"; })); right = x.name; return { q: "Which of these mainly reads the " + x.clefs[0] + " clef?", right: right, opts: shuffle([right].concat(others(function (y) { return y.clefs[0] === "treble"; }, right, 3))) }; }
     if (k === 2) { x = pick(I.filter(function (y) { return y.sounds; })); right = x.name; return { q: "Which of these is a transposing instrument?", right: right, opts: shuffle([right].concat(others(function (y) { return !y.sounds && y.family !== "Voice"; }, right, 3))) }; }
@@ -204,7 +231,7 @@
   }
   function game() {
     var el = document.getElementById("game");
-    if (!G) { el.innerHTML = '<div style="display:grid;gap:8px"><h2 style="font-size:28px;margin:0">Instrument quiz</h2><p class="muted" style="margin:0">Ten questions on families, clefs, reeds and transposing instruments, the kind of thing that turns up in theory papers.</p></div><div><button class="btn go" type="button" data-game="start">Start the quiz</button></div>'; return; }
+    if (!G) { el.innerHTML = '<div style="display:grid;gap:8px"><h2 style="font-size:28px;margin:0">Instrument quiz</h2><p class="muted" style="margin:0">Ten questions on families, clefs, reeds, transposing instruments and the playing directions written in the music: the kind of thing that turns up in theory papers.</p></div><div><button class="btn go" type="button" data-game="start">Start the quiz</button></div>'; return; }
     if (G.i >= 10) { el.innerHTML = '<h2 style="font-size:28px;margin:0">You scored ' + G.score + " out of 10</h2><p>" + (G.score >= 9 ? "Brilliant!" : G.score >= 6 ? "Good work. Try again to beat it." : "Have a look at a few instruments above, then try again.") + '</p><div><button class="btn go" type="button" data-game="start">Play again</button></div>'; return; }
     var q = G.q;
     el.innerHTML = '<div class="row" style="justify-content:space-between"><span class="kicker">Question ' + (G.i + 1) + " of 10</span><span class=\"muted\">Score " + G.score + '</span></div><div class="quiz"><b>' + esc(q.q) + "</b>" + q.opts.map(function (o) { return '<button class="opt" type="button" data-g="' + esc(o) + '"' + (G.done ? " disabled" : "") + ">" + esc(o) + "</button>"; }).join("") + (G.done ? '<div><button class="btn go small" type="button" data-game="next">' + (G.i === 9 ? "See your score" : "Next question") + "</button></div>" : "") + "</div>";

@@ -17,6 +17,8 @@ DATA = r"""() => {
     if (12 * (lo.oct + 1) >= 12 * (hi.oct + 1) + 11) out.push(x.id + ": low above high");
     if (!(x.quiz.answer >= 0 && x.quiz.answer < x.quiz.options.length)) out.push(x.id + ": quiz answer");
     if (!INSTRUMENT_STATS[x.id] || !INSTRUMENT_STATS[x.id].n) out.push(x.id + ": no exam stats");
+    const m = (window.INSTRUMENTS_MORE || {})[x.id];
+    if (!m) out.push(x.id + ": no in-depth sections"); else for (const k of ["history", "parts", "tech", "orchestra", "relatives", "tips"]) if (!m[k] || !m[k].length) out.push(x.id + ": no " + k);
     for (const n of [x.low, x.high]) { const s = R.staffSVG(R.parse(n), x.clefs); if (/NaN|undefined/.test(s)) out.push(x.id + " " + n + ": bad stave"); }
   }
   // known stave positions: middle C has one leger line in treble; G3 two leger lines below the treble stave
@@ -47,6 +49,7 @@ async def main():
                         h = await pg.inner_html("#detail")
                         if "NaN" in h or "undefined" in h: bad(f"{i}: NaN/undefined on the page")
                         if "pieces on the lists" not in h: bad(f"{i}: no exam numbers")
+                        if "In depth" not in h or "Words you" not in h: bad(f"{i}: no in-depth sections")
                     await pg.click("[data-inst=clarinet]"); await pg.wait_for_timeout(100)
                     t = await pg.inner_text("#detail")
                     if "major 2nd" not in t or "sounds D3" not in t.replace("♭", "b"): bad(f"clarinet transposition text: {t[:300]!r}")
