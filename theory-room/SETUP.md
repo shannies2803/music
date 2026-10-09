@@ -100,6 +100,8 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 
 - Each instrument is in `rooms/instruments.js` with `checked: false` (shown as Draft) until you've checked its facts; then set `checked: true`.
 - The exam numbers come from the repertoire data: run `python3 build/make_instruments.py` after the lists change.
+- **Instrument films**: each instrument page has a one-minute film. To make videos for social media, open `rooms/instruments.html?studio=1` in Chrome on a computer, choose an instrument and press *Record 16:9* or *Record 9:16*.
+- **The card game** is `rooms/cards.html`: print at 100% on A4 card. Each card is 63 × 88 mm (standard poker size), the size print-on-demand card printers use, so the same designs can later become a boxed deck.
 
 ## The Grade 7 and 8 courses
 

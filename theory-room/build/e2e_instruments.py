@@ -60,6 +60,21 @@ async def main():
                         await pg.locator("#game [data-g]").first.click(); await pg.wait_for_timeout(40)
                         await pg.click("#game [data-game=next]"); await pg.wait_for_timeout(40)
                     if "out of 10" not in await pg.inner_text("#game"): bad("game didn't finish")
+                    # films: every instrument's film builds; one plays, and each scene draws without errors
+                    for i in ids:
+                        await pg.click(f"[data-fam=All]") if i == ids[0] else None
+                        await pg.click(f"[data-inst={i}]"); await pg.wait_for_timeout(40)
+                        st = await pg.evaluate("() => INSTRUMENT_FILM._state()")
+                        if st["scenes"] != 10 or not (30 < st["total"] < 120): bad(f"{i}: film {st}")
+                    await pg.click("[data-inst=trumpet]"); await pg.wait_for_timeout(100)
+                    await pg.click("#ifPlay"); await pg.wait_for_timeout(1200)
+                    if not (await pg.evaluate("() => INSTRUMENT_FILM._state()"))["playing"]: bad("film didn't start")
+                    n = await pg.locator("#ifScenes button").count()
+                    for k in range(n):
+                        await pg.click(f"[data-ifs='{k}']"); await pg.wait_for_timeout(700)
+                        if k == 2: await pg.locator("#ifScreen").screenshot(path=f"{SHOTS}/instrument-film-range.png")
+                        if k == 0: await pg.locator("#ifScreen").screenshot(path=f"{SHOTS}/instrument-film-title.png")
+                    await pg.click("#ifPlay")
                     await pg.goto(URL + "rooms/instruments.html#horn"); await pg.wait_for_timeout(800)
                     if "Horn" not in await pg.inner_text("#detail h2"): bad("#horn link")
                     await pg.screenshot(path=f"{SHOTS}/instruments-horn.png", full_page=True)
@@ -70,6 +85,21 @@ async def main():
                 if sw > 1: bad(f"{w}: sideways scroll {sw}px")
                 if errs: bad(f"{w}: {errs[:3]}")
                 await ctx.close()
+            # the printable card game
+            ctx = await b.new_context(viewport={"width": 1100, "height": 1400}); pg = await ctx.new_page(); errs = []
+            pg.on("pageerror", lambda e: errs.append(str(e)))
+            await pg.goto(URL + "rooms/cards.html"); await pg.wait_for_timeout(1200)
+            n = await pg.locator(".card").count()
+            if n != 54: bad(f"cards: {n} cards (want 22 instruments + 5 rules + 18 questions + 9 backs)")
+            over = await pg.evaluate("() => [...document.querySelectorAll('.card .in')].filter(e => e.scrollHeight > e.clientHeight + 1).length")
+            if over: bad(f"cards: {over} cards overflow")
+            t = await pg.inner_text("#deck")
+            if "NaN" in t or "undefined" in t: bad("cards: broken text")
+            if "B♭3" not in t: bad("cards: the oboe's lowest note should read B♭3")
+            if "Question card 1" not in t.title() and "QUESTION CARD 1" not in t.upper(): bad("cards: question numbering")
+            await pg.click("#optQ"); await pg.wait_for_timeout(100)
+            if await pg.locator(".qcard").count(): bad("cards: question cards didn't hide")
+            if errs: bad(f"cards: {errs[:3]}")
             await b.close()
     finally:
         srv.terminate()
