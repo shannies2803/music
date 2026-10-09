@@ -247,6 +247,67 @@ window.COMPOSERS = [
     famous: ["Gymnopédie No. 1", "Gnossienne No. 1", "Je te veux"],
     quiz: { q: "How many times does Satie's Vexations ask to be played?", options: ["840", "12", "100"], answer: 0 },
     checked: false
+  },
+  {
+    id: "handel", name: "George Frideric Handel", short: "Handel", born: 1685, died: 1759, country: "Germany (later Britain)", era: "Baroque",
+    colours: { bg: "#2a1f12", ink: "#fbf1e2", accent: "#e8b85a" },
+    where: "Born in Halle, Germany, in 1685, the same year as Bach. He moved to London in 1712 and became a British citizen.",
+    theme: { title: "'Hallelujah' chorus, from Messiah", bpm: 84, notes: [
+      [50, 0, 1, .4], [57, 0, 1, .35], [74, 0, 1], [69, 1, .75], [71, 1.75, .25], [69, 2, 1],
+      [50, 4, 1, .4], [57, 4, 1, .35], [74, 4, 1], [69, 5, .75], [71, 5.75, .25], [69, 6, 1],
+      [50, 8, 2, .4], [57, 8, 2, .35], [62, 8, 2, .35], [74, 8, 2]
+    ] },
+    sound: "Four words, sung again and again by the whole choir: ‘Hal-le-lu-jah!’ Audiences have stood up for this chorus for more than 250 years.",
+    facts: [
+      "He wrote Water Music for King George I, who heard it played from a barge on the River Thames in 1717.",
+      "Messiah was first performed in Dublin, in 1742.",
+      "He wrote more than 40 operas, mostly in Italian, for London audiences.",
+      "He is buried in Westminster Abbey in London."
+    ],
+    famous: ["Messiah", "Water Music", "Music for the Royal Fireworks"],
+    quiz: { q: "In which city was Messiah first performed?", options: ["London", "Dublin", "Halle"], answer: 1 },
+    checked: false
+  },
+  {
+    id: "strauss", name: "Johann Strauss II", short: "Strauss", born: 1825, died: 1899, country: "Austria", era: "Romantic",
+    colours: { bg: "#10283a", ink: "#eaf4fb", accent: "#7cc4e8" },
+    where: "Born in Vienna, Austria, in 1825, and lived there all his life. In his time Vienna danced to his music.",
+    theme: { title: "The Blue Danube", bpm: 150, notes: [
+      [62, 0, 1], [62, 1, 1], [66, 2, 1], [69, 3, 1], [69, 4, 3],
+      [81, 8, .8, .6], [81, 9, .8, .6], [78, 11, .8, .6], [78, 12, .8, .6],
+      [50, 4, 1, .35], [57, 5, 1, .3], [62, 6, 1, .3], [50, 7, 1, .35], [57, 8, 1, .3], [62, 9, 1, .3], [50, 10, 1, .35], [57, 11, 1, .3], [62, 12, 1, .3]
+    ] },
+    sound: "A waltz: three beats in a bar, ONE-two-three, with a strong bass note on beat one and light chords on two and three.",
+    facts: [
+      "He was called ‘the Waltz King’.",
+      "His father, Johann Strauss I, also wrote waltzes, and did not want his son to become a musician.",
+      "He wrote around 500 dances: waltzes, polkas, marches and more.",
+      "The Blue Danube, from 1867, is named after the river that flows through Vienna."
+    ],
+    famous: ["The Blue Danube", "Die Fledermaus", "Tritsch-Tratsch-Polka"],
+    quiz: { q: "Which dance made Johann Strauss II famous?", options: ["The waltz", "The tango", "The minuet"], answer: 0 },
+    checked: false
+  },
+  {
+    id: "rimsky", name: "Nikolai Rimsky-Korsakov", short: "Rimsky-Korsakov", born: 1844, died: 1908, country: "Russia", era: "Romantic",
+    colours: { bg: "#2a2410", ink: "#fbf6e4", accent: "#f2cc4a" },
+    where: "Born in Tikhvin, Russia, in 1844. He taught at the St Petersburg Conservatory for almost 40 years.",
+    theme: { title: "Flight of the Bumblebee, from The Tale of Tsar Saltan", bpm: 150, notes: [
+      [88, 0, .25], [87, .25, .25], [86, .5, .25], [85, .75, .25], [86, 1, .25], [85, 1.25, .25], [84, 1.5, .25], [83, 1.75, .25],
+      [84, 2, .25], [83, 2.25, .25], [82, 2.5, .25], [81, 2.75, .25], [80, 3, .25], [79, 3.25, .25], [78, 3.5, .25], [77, 3.75, .25],
+      [76, 4, .25], [75, 4.25, .25], [74, 4.5, .25], [73, 4.75, .25], [74, 5, .25], [73, 5.25, .25], [72, 5.5, .25], [71, 5.75, .25],
+      [72, 6, .25], [71, 6.25, .25], [70, 6.5, .25], [69, 6.75, .25], [68, 7, .25], [67, 7.25, .25], [66, 7.5, .25], [65, 7.75, .25], [64, 8, 1]
+    ] },
+    sound: "Non-stop fast notes, sliding down by semitones and buzzing back up: a bumblebee zooming round a prince.",
+    facts: [
+      "As a young naval officer he sailed across the Atlantic and back on a warship.",
+      "He was one of ‘The Five’, Russian composers who wanted music to sound Russian.",
+      "He taught composition to Igor Stravinsky.",
+      "He was a master of the orchestra and wrote a famous book about orchestration."
+    ],
+    famous: ["Scheherazade", "Flight of the Bumblebee", "Capriccio espagnol"],
+    quiz: { q: "What was Rimsky-Korsakov's first job?", options: ["Naval officer", "Doctor", "Baker"], answer: 0 },
+    checked: false
   }
 ];
 

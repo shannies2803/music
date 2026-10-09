@@ -162,7 +162,7 @@
         (people.length ? '<div class="tablewrap"><table class="grid" style="min-width:0"><thead><tr>' + head + "</tr></thead><tbody>" + rows + "</tbody></table></div>" : "") +
         '<div><button class="btn small" type="button" data-delhw="' + esc(h.id) + '">' + (h._sure ? "Tap again to delete" : "Delete") + "</button></div></div>";
     }).join("");
-    return '<div style="display:grid;gap:14px"><h2 style="font-size:28px">Homework</h2><p class="muted">Tasks tick themselves off as students practise. Families see homework on their My rooms page, with a link straight to each task.</p>' +
+    return '<div style="display:grid;gap:14px"><h2 style="font-size:28px">Homework</h2><p class="muted">Tasks tick themselves off as students practise. Families see homework on their My rooms page, with a link straight to each task. For paper homework, open any theory lesson in the aural &amp; theory room and press <b>Print a worksheet</b>: ten new questions and an answer page every time.</p>' +
       builder() + (list || '<p class="muted">No homework set yet.</p>') + "</div>";
   }
   function options(arr, sel) { return arr.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(sel) ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join(""); }

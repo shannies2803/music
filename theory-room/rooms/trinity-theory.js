@@ -204,6 +204,7 @@
     8: [["cadenza", "a solo passage in an improvised style"], ["étude", "a study piece"], ["nocturne", "a night piece"], ["Lied", "a German art song"], ["mazurka", "a Polish dance in triple time"],
         ["prelude", "an introductory piece"], ["waltz", "a dance in triple time"]]
   };
+  window.TRINITY_TERMS = TT;
   TGEN.tTerms = (p) => {
     const pool = TT[p.g], t = pick(pool), meanings = [...new Set(pool.map(x => x[1]))].filter(m => m !== t[1]);
     if (Math.random() < .35) { const others = shuffle(pool.filter(x => x[1] !== t[1])).slice(0, 3);

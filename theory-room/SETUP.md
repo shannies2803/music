@@ -112,7 +112,7 @@ Run every command below from the top of this repository.
 - **Tests**:
   - `node build/test_backend.mjs`: payment rules and the course gate
   - `sh build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
+  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
 
 ## Not built yet
 

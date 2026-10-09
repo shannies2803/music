@@ -121,25 +121,36 @@
     const marks = X.labels.map((_, j) => j === i ? "*" : "");
     const visual = `<div style="overflow-x:auto">${satbSVG(X.chords, X.k, marks)}</div>`;
     const ask = Math.random();
+    const hear = { play: () => playEvents(X.chords.map((c, j) => ({ m: c.map(midiOf), t: j * 1.5, d: 1.5 })), 66), playLabel: "Hear the passage" };
     if (ask < 0.5) {
       const right = X.figs[i], seen = new Set([figKey(right)]), opts = [opt(figKey(right), figStack(right))];
       shuffle(X.figs.concat(COMMON_FIGS)).forEach(f => { const kk = figKey(f); if (opts.length < 4 && !seen.has(kk)) { seen.add(kk); opts.push(opt(kk, figStack(f))); } });
-      return { prompt: `This passage is in ${key}. Which figures go under the bass at the chord marked <b>*</b>?`, visual, options: shuffle(opts), answer: figKey(right),
+      return { ...hear, prompt: `This passage is in ${key}. Which figures go under the bass at the chord marked <b>*</b>?`, visual, options: shuffle(opts), answer: figKey(right),
         explain: `The chord at * is <b>${esc(X.labels[i])}</b>, so the figures are ${figStack(right)}. ${right.some(x => /[♯♭♮×]/.test(x)) ? "The accidental shows a note that isn't in the key signature." : "Count each note up from the bass."}` };
     }
     if (ask < 0.85) {
       const right = X.labels[i];
       const pool = shuffle([...new Set(X.labels.concat(CHORD_POOL[X.mode]))].filter(c => c !== right)).slice(0, 3);
       const row = X.figs.map((f, j) => j === i ? `<b>*</b>${figStack(f)}` : figStack(f)).join(" &nbsp; ");
-      return { prompt: `This passage is in ${key}. The figures are shown under it. Which chord is marked <b>*</b>?`, visual: visual + `<p style="margin:6px 0 0">Figures: ${row}</p>`, options: shuffle([right, ...pool]).map(v => opt(v)), answer: right,
+      return { ...hear, prompt: `This passage is in ${key}. The figures are shown under it. Which chord is marked <b>*</b>?`, visual: visual + `<p style="margin:6px 0 0">Figures: ${row}</p>`, options: shuffle([right, ...pool]).map(v => opt(v)), answer: right,
         explain: `Count up from the bass with the figures ${figStack(X.figs[i])}: it's <b>${esc(right)}</b>.` };
     }
     const a = X.labels[n - 2], b = X.labels[n - 1];
     const cad = /^V/.test(a) && /^(I|i)$/.test(b) ? "perfect" : b === "V" && a === "ivb" ? "Phrygian" : b === "V" ? "imperfect" : /^(IV|iv)$/.test(a) ? "plagal" : "interrupted";
     const opts = cad === "Phrygian" ? ["perfect", "imperfect", "Phrygian", "plagal"] : ["perfect", "imperfect", "plagal", "interrupted"];
-    return { prompt: `This passage is in ${key}. Which cadence ends it?`, visual: `<div style="overflow-x:auto">${satbSVG(X.chords, X.k)}</div>`, options: opts.map(v => opt(v)), answer: cad,
+    return { ...hear, prompt: `This passage is in ${key}. Which cadence ends it?`, visual: `<div style="overflow-x:auto">${satbSVG(X.chords, X.k)}</div>`, options: opts.map(v => opt(v)), answer: cad,
       explain: `The last two chords are <b>${esc(a)}–${esc(b)}</b>: a ${cad} cadence.` };
   };
+
+  /* question text is written by our own question makers (never by users), so let its bold and line breaks show */
+  if (typeof paintRound === "function") {
+    const paint0 = paintRound;
+    paintRound = function () {
+      paint0();
+      const R = VIEW.round, el = document.querySelector("#ex .prompt");
+      if (R && R.q && el && /<[a-z]/i.test(R.q.prompt || "")) el.innerHTML = R.q.prompt;
+    };
+  }
 
   if (!TGEN.mix) TGEN.mix = (p, diff) => { const l = LESSON_BY[pick(p.ids)], q = TGEN[l.gen](l.p, diff); q.prompt = `<span class="muted" style="font-size:.85em">${esc(l.t)}</span><br>` + q.prompt; return q; };
 

@@ -479,5 +479,105 @@ window.COMPOSER_STATS = {
     "list": "Repertoire list"
    }
   ]
+ },
+ "handel": {
+  "n": 341,
+  "abrsm": 166,
+  "trinity": 175,
+  "insts": 23,
+  "lo": "Initial",
+  "hi": "diploma",
+  "examples": [
+   {
+    "t": "Gavotte in C",
+    "inst": "Piano",
+    "lvl": "G0",
+    "board": "Trinity",
+    "list": "Pieces"
+   },
+   {
+    "t": "Hornpipe (from The Water Music)*",
+    "inst": "Bassoon",
+    "lvl": "G3",
+    "board": "Trinity",
+    "list": "Group A"
+   },
+   {
+    "t": "Bourrée, arr. Suzuki",
+    "inst": "Double bass",
+    "lvl": "G5",
+    "board": "ABRSM",
+    "list": "List A"
+   },
+   {
+    "t": "Any two movts from Concerto in Bb, HWV 294",
+    "inst": "Harp",
+    "lvl": "G8",
+    "board": "Trinity",
+    "list": "Pedal"
+   }
+  ]
+ },
+ "strauss": {
+  "n": 10,
+  "abrsm": 5,
+  "trinity": 5,
+  "insts": 6,
+  "lo": "Grade 1",
+  "hi": "diploma",
+  "examples": [
+   {
+    "t": "The Blue Danube (duet)",
+    "inst": "Trumpet & cornet",
+    "lvl": "G1",
+    "board": "Trinity",
+    "list": "Group A"
+   },
+   {
+    "t": "Tritsch-Tratsch Polka, transc. Cziffra",
+    "inst": "Piano",
+    "lvl": "L7",
+    "board": "Trinity",
+    "list": "Repertoire list"
+   }
+  ]
+ },
+ "rimsky": {
+  "n": 14,
+  "abrsm": 7,
+  "trinity": 7,
+  "insts": 8,
+  "lo": "Grade 3",
+  "hi": "diploma",
+  "examples": [
+   {
+    "t": "Theme from Scheherazade",
+    "inst": "Bassoon",
+    "lvl": "G3",
+    "board": "Trinity",
+    "list": "Group A"
+   },
+   {
+    "t": "Mazurka",
+    "inst": "Double bass",
+    "lvl": "G5",
+    "board": "Trinity",
+    "list": "Pieces"
+   },
+   {
+    "t": "The Bumble-Bee, arr. Szeredi-Saupe",
+    "inst": "Viola",
+    "lvl": "G8",
+    "board": "ABRSM",
+    "list": "List C"
+   },
+   {
+    "t": "The Flight of the Bumblebee",
+    "inst": "Bassoon",
+    "lvl": "L7",
+    "board": "Trinity",
+    "list": "Repertoire list"
+   }
+  ]
  }
 };

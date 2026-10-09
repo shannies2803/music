@@ -134,6 +134,18 @@
     "tr8-form": `<p>Romantic forms: the <b>concerto</b> (soloist and orchestra), the <b>symphonic poem</b> (an orchestral piece that tells a story), <b>character pieces</b> for piano (nocturnes, intermezzi, songs without words), and the <b>song cycle</b>. Twentieth-century <b>serialism</b> builds music from tone rows.</p>`,
     "tr8-terms": `<p>Romantic genres and directions: <i>nocturne</i>, <i>étude</i>, <i>lied</i>, <i>leitmotif</i> (a theme linked to a character), <i>rubato</i> (flexible timing), <i>morendo</i> (dying away), <i>tempo primo</i> (the first speed).</p>`
   };
+  /* the terms lessons show the grade's whole list, from the same table the quiz uses */
+  const TT = window.TRINITY_TERMS || {};
+  const TERM_INTRO = {
+    1: "how loud, how fast and how smoothly to play", 2: "speed, character and holding notes", 3: "mood, movement and the small words that join terms (con, ma, poco, più)",
+    4: "accents, changes of speed and character", 5: "the pedals, freedom of time and stronger moods", 6: "string playing and the Italian names of instruments",
+    7: "the sections of sonata form and other forms", 8: "Romantic genres and forms"
+  };
+  for (let g = 1; g <= 8; g++) {
+    const list = TT[g] || []; if (!list.length) continue;
+    H["tr" + g + "-terms"] = `<p>Grade ${g} adds ${list.length} words about ${TERM_INTRO[g]}. You also need every term from the grades before. Cover the right-hand column, say each meaning aloud, then try the quiz.</p>
+      <div class="glossary" style="margin-top:8px">${list.map(t => `<div class="gl"><i>${esc(t[0])}</i> — ${esc(t[1])}</div>`).join("")}</div>`;
+  }
   window.TRINITY_LESSONS.forEach(l => { if (H[l.id]) l.h = H[l.id]; });
   window.TRINITY_LESSON_TEXT = H;
 })();
