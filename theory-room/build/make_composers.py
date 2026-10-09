@@ -8,6 +8,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 WANT = {  # film id → full name as the repertoire data spells it
     "bach": "Johann Sebastian Bach", "mozart": "Wolfgang Amadeus Mozart", "beethoven": "Ludwig van Beethoven",
     "haydn": "Joseph Haydn", "vivaldi": "Antonio Vivaldi", "brahms": "Johannes Brahms", "grieg": "Edvard Grieg",
+    "pachelbel": "Johann Pachelbel", "dvorak": "Antonín Dvořák", "tchaikovsky": "Pyotr Ilyich Tchaikovsky",
+    "mussorgsky": "Modest Mussorgsky", "satie": "Erik Satie", "chopin": "Frédéric Chopin",
 }
 ORDER = ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "L4", "L6", "L7"]
 NAME = {"G0": "Initial", "L4": "diploma", "L6": "diploma", "L7": "diploma"}

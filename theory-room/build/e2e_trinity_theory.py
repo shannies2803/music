@@ -33,6 +33,7 @@ SWEEP = r"""() => {
       seen[l.id] = (seen[l.id] || new Set()); seen[l.id].add(q.prompt + "|" + q.answer + "|" + (q.visual || "").length);
     } catch (e) { out.push(key + ": THROW " + e.message + " " + (e.stack || "").split("\n")[1]); }
   }
+  for (const l of TRINITY_LESSONS) if (!/mixed$/.test(l.id) && (l.h || "").replace(/<[^>]+>/g, "").length < 150) out.push(l.id + ": explanation too short");
   for (const l of TRINITY_LESSONS) if (seen[l.id] && seen[l.id].size < 3) out.push(l.id + ": only " + seen[l.id].size + " different questions");
   const grades = {}; TRINITY_LESSONS.forEach(l => grades[l.g] = (grades[l.g] || 0) + 1);
   return { out: [...new Set(out)].slice(0, 40), n: TRINITY_LESSONS.length, grades };

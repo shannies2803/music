@@ -20,8 +20,9 @@
       { t: "Start here: figures for any chord", mins: 25, items: [
         { k: "read", h: "<p>Welcome to Grade 8. Week 1 makes sure all the harmony from Grades 6 and 7 is quick and secure, because everything else on the paper depends on it. Today: name any triad or 7th chord and its figures.</p>" },
         { k: "drill", id: "g8-figs" }] },
-      { t: "From bass and figures to the chord", mins: 25, items: [
+      { t: "From bass and figures to the chord", mins: 30, items: [
         { k: "drill", id: "g8-figbass" },
+        { k: "drill", id: "g8-passage", note: "The same skill inside real four-part passages, in a new key each time." },
         { k: "read", h: "<p>When you continue a trio sonata, this is exactly what you do: read the bass and its figures, find the chord, then choose melody notes from it. Get it fast.</p>" }] },
       { t: "Suspensions and chains of suspensions", mins: 30, items: [
         { k: "drill", id: "g8-sus" },
@@ -30,8 +31,8 @@
         { k: "read", h: "<p>All three augmented 6ths have the <b>flattened 6th</b> in the bass and the <b>sharpened 4th</b> above it, making an augmented 6th that opens out to an octave on the dominant. The <b>Italian</b> adds the tonic; the <b>French</b> adds the tonic and the 2nd; the <b>German</b> adds the tonic and the (minor) 3rd.</p><p>The German 6th goes to V through Ic, so that you don't get consecutive 5ths.</p>" },
         { k: "drill", id: "g8-aug6" },
         { k: "task", id: "aug6" }] },
-      { t: "All the chromatic chords", mins: 25, items: [
-        { k: "drill", id: "g8-chromatic" }, { k: "drill", id: "g7-secdom" }] },
+      { t: "All the chromatic chords", mins: 30, items: [
+        { k: "drill", id: "g8-chromatic" }, { k: "drill", id: "g7-secdom" }, { k: "drill", id: "g8-passage", note: "Aim for three stars: augmented 6ths, the Neapolitan and diminished 7ths in context." }] },
       { t: "Modulations to related keys", mins: 25, items: [
         { k: "drill", id: "g8-modkey" },
         { k: "read", h: "<p>At Grade 8, expect modulations to any related key: dominant, subdominant, relative minor or major, and the relatives of the dominant and subdominant. In a trio sonata the figures tell you: a new sharp or natural under the bass is usually the leading note of the new key.</p>" }] },
@@ -98,12 +99,12 @@
         { k: "quiz", id: "c8-mock" }] }] }
   ],
   quizzes: {
-    quiz1: { t: "Review quiz 1: harmony", ids: ["g8-figs", "g8-figbass", "g8-sus", "g8-aug6", "g8-chromatic", "g7-secdom", "g8-modkey"], h: "Questions from this week's drills." },
+    quiz1: { t: "Review quiz 1: harmony", ids: ["g8-figs", "g8-figbass", "g8-passage", "g8-sus", "g8-aug6", "g8-chromatic", "g7-secdom", "g8-modkey"], h: "Questions from this week's drills." },
     quiz2: { t: "Review quiz 2: Baroque harmony", ids: ["g8-figbass", "g8-sus", "tr7-cadences", "g6-consec", "g7-neap", "g7-dim7"], h: "Questions from this week's drills." },
     quiz3: { t: "Review quiz 3: everything so far", ids: ["g8-figs", "g8-figbass", "g8-sus", "g8-aug6", "g8-chromatic", "g8-modkey", "g7-neap", "g7-dim7"], h: "A mix of everything so far." },
-    mock: { t: "Grade 8 mock quiz", ids: ["g8-figs", "g8-figbass", "g8-sus", "g8-aug6", "g8-chromatic", "g8-modkey", "g7-secdom", "g7-neap", "g7-dim7", "tr7-cadences", "g7-transpose", "g8-period", "g8-terms", "g7-terms"], h: "Questions from every part of the course, like the shorter questions on the paper." }
+    mock: { t: "Grade 8 mock quiz", ids: ["g8-figs", "g8-figbass", "g8-passage", "g8-sus", "g8-aug6", "g8-chromatic", "g8-modkey", "g7-secdom", "g7-neap", "g7-dim7", "tr7-cadences", "g7-transpose", "g8-period", "g8-terms", "g7-terms"], h: "Questions from every part of the course, like the shorter questions on the paper." }
   },
-  weakFrom: ["g8-figs", "g8-figbass", "g8-sus", "g8-aug6", "g8-chromatic", "g7-secdom", "g8-modkey", "tr7-cadences", "g6-consec", "g7-neap", "g7-dim7", "g7-transpose", "g8-period", "tr7-form", "g7-terms", "g8-terms"],
+  weakFrom: ["g8-figs", "g8-figbass", "g8-passage", "g8-sus", "g8-aug6", "g8-chromatic", "g7-secdom", "g8-modkey", "tr7-cadences", "g6-consec", "g7-neap", "g7-dim7", "g7-transpose", "g8-period", "tr7-form", "g7-terms", "g8-terms"],
   tasks: {
     chain: { t: "Write a chain of suspensions",
       steps: ["In C major, write a bass falling by step from A to C (A G F E D C), each note a first-inversion chord (figure 6).",

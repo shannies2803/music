@@ -11,7 +11,7 @@ def bad(m): problems.append(m); print("FAIL", m)
 
 SWEEP = r"""() => {
   const out = [];
-  for (const id of ["g7-sus", "g7-figbass", "g8-sus", "g8-figbass"]) {
+  for (const id of ["g7-sus", "g7-figbass", "g8-sus", "g8-figbass", "g7-passage", "g8-passage"]) {
     const l = LESSON_BY[id]; if (!l) { out.push(id + ": missing"); continue; }
     if (!LESSONS.includes(l)) out.push(id + ": not in the drill list");
     for (let n = 0; n < 400; n++) {
@@ -25,6 +25,24 @@ SWEEP = r"""() => {
       } catch (e) { out.push(id + ": THROW " + e.message); }
     }
   }
+  return [...new Set(out)].slice(0, 30);
+}"""
+
+PASS = r"""() => {
+  const out = [], T = C78_TEST;
+  for (const id of Object.keys(PASSAGES)) for (let n = 0; n < 60; n++) {
+    const X = T.passageIn(id, {}), P0 = PASSAGES[id];
+    P0.chords.forEach((c, i) => c.forEach((nm0, v) => {
+      const a = parseN(nm0), b = X.chords[i][v], a0 = parseN(P0.chords[0][0]), b0 = X.chords[0][0];
+      if (Math.abs(b.acc) > 2) out.push(id + ": triple accidental in " + keyName(X.k, X.mode));
+      if ((midiOf(a) - midiOf(a0)) !== (midiOf(b) - midiOf(b0)) || (a.oct * 7 + a.L - a0.oct * 7 - a0.L) !== (b.oct * 7 + b.L - b0.oct * 7 - b0.L)) out.push(id + ": intervals changed in " + keyName(X.k, X.mode));
+    }));
+    if (X.chords.flat().some(x => midiOf(x) < 38 || midiOf(x) > 81)) out.push(id + ": out of range in " + keyName(X.k, X.mode));
+    if (JSON.stringify(X.figs).includes("undefined")) out.push(id + ": bad figures");
+  }
+  const want = (id, kk, i, f) => { for (let t = 0; t < 400; t++) { const X = T.passageIn(id, {}); if (X.k === kk) { if (X.figs[i].join("/") !== f) out.push(`${id} in ${keyName(X.k, X.mode)} chord ${i}: ${X.figs[i].join("/")} not ${f}`); return; } } out.push(id + ": key " + kk + " never chosen"); };
+  want("ger6", 0, 1, "♯6/5"); want("ger6", -4, 1, "♮6/5"); want("neap", 0, 1, "♭6"); want("neap", 1, 1, "♮6");
+  want("phryg", 0, 3, "♯"); want("phryg", -4, 3, "♮"); want("cad64", 0, 2, "6/4"); want("vofv", 0, 2, "6/5"); want("dim7", 0, 2, "♯6/5"); want("it6", -1, 2, "♯6");
   return [...new Set(out)].slice(0, 30);
 }"""
 
@@ -63,6 +81,11 @@ async def main():
             # ---- family plan, desktop ----
             ctx, pg, errs, reqs = await page(b, "paid")
             for x in await pg.evaluate(SWEEP): bad(x)
+            for x in await pg.evaluate(PASS): bad(x)
+            await pg.evaluate("() => { VIEW.tab = 'theory'; VIEW.lesson = 'g8-passage'; render(); }"); await pg.wait_for_timeout(200)
+            await pg.click("[data-act=startLesson]"); await pg.wait_for_timeout(400)
+            await pg.screenshot(path=f"{SHOTS}/passage-question.png", full_page=True)
+            await pg.evaluate("() => { VIEW.lesson = null; VIEW.round = null; render(); }")
             await pg.click("[data-tab=theory]"); await pg.wait_for_timeout(300)
             t = await pg.inner_text("#main")
             for c in ["Guided course: Grade 7", "Guided course: Grade 8"]:
@@ -106,7 +129,8 @@ async def main():
             for i in range(n): await boxes.nth(i).check()
             await pg.wait_for_timeout(200)
             if await pg.evaluate("() => Object.values(P().c78.g7.chk.figure1 || {}).filter(Boolean).length") != n: bad("checklist not saved")
-            if "All done" not in await pg.inner_text("#main"): bad("ticking everything didn't say All done")
+            t5 = await pg.inner_text("#main")
+            if "All done" not in t5 and "1 thing left" not in t5: bad("ticking the checklist didn't leave just the drill")
             if not await pg.locator("#main .satb svg").count(): bad("worked example not drawn")
             await pg.click("[data-c78=play]"); await pg.wait_for_timeout(300)
             await pg.screenshot(path=f"{SHOTS}/course-g7-day5.png", full_page=True)

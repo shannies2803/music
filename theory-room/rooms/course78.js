@@ -79,6 +79,68 @@
     return { prompt: `In ${key}, which figures go under the bass for chord <b>${name}</b>? (The bass note is ${nm(bass)}.)`, options: shuffle(fo).map(x => opt(x, figHTML(FIG[x]))), answer: sev ? inv + "7" : inv,
       explain: `${name}: the bass ${nm(bass)} is the ${["root", "3rd", "5th", "7th"][bi]} of the chord, so the figures are ${figHTML(fig)}${!sev && inv === "a" ? " (usually left blank)" : !sev && inv === "b" ? " (usually just 6)" : sev && inv === "b" ? " (6 5)" : ""}.` };
   };
+  /* ---------- figure the passage: real four-part passages, in any key ---------- */
+  const figStack = arr => arr.length ? `<span class="fig">${arr.map(x => `<span>${x}</span>`).join("")}</span>` : `<span class="muted">none (5 3)</span>`;
+  const figKey = arr => arr.join("/") || "53";
+  const ACC_SYM = { "-2": "♭♭", "-1": "♭", "0": "♮", "1": "♯", "2": "×" };
+  const dia = n => n.oct * 7 + n.L;
+  function transposeTo(name, dL, semis) {
+    const n = parseN(name), tot = n.L + dL, L2 = ((tot % 7) + 7) % 7, oct2 = n.oct + Math.floor(tot / 7);
+    return N(L2, midiOf(n) + semis - (12 * (oct2 + 1) + STEP[L2]), oct2);
+  }
+  /* the figures for a chord, with the accidentals this key needs */
+  function figsFor(chord, base, k) {
+    const sig = scaleOf(majorTonic(k), "major"), sigAcc = L => sig.find(x => x.L === L).acc;
+    const bass = chord[0], marks = {};
+    chord.slice(1).forEach(n => { let g = ((dia(n) - dia(bass)) % 7) + 1; if (g === 1) return; if (n.acc !== sigAcc(n.L)) marks[g] = ACC_SYM[n.acc]; });
+    const out = base.slice().sort((a, b) => b - a).map(x => (marks[x] || "") + x);
+    if (marks[3] && base.indexOf(3) < 0) out.push(marks[3]);
+    return out;
+  }
+  function passageIn(id, p) {
+    const P0 = PASSAGES[id], minor = P0.key === "minor";
+    const k = minor ? pick([-4, -3, -2, -1, 0, 1, 2, 3]) : pick([-3, -2, -1, 0, 1, 2, 3, 4]);
+    const t = minor ? minorTonic(k) : majorTonic(k), base = minor ? { L: 5, s: 9 } : { L: 0, s: 0 };
+    let dL = t.L - base.L, semis = STEP[t.L] + t.acc - base.s;
+    if (semis > 6) { semis -= 12; dL -= 7; } else if (semis < -5) { semis += 12; dL += 7; }
+    /* move a whole octave if that keeps every part in its range */
+    const make = (d, s) => P0.chords.map(c => c.map(nm0 => transposeTo(nm0, d, s)));
+    const fits = ch => { const ms = ch.flat().map(midiOf); return Math.min(...ms) >= 38 && Math.max(...ms) <= 81; };
+    let chords = make(dL, semis);
+    if (!fits(chords)) for (const o of [12, -12]) { const c2 = make(dL + (o > 0 ? 7 : -7), semis + o); if (fits(c2)) { chords = c2; break; } }
+    return { k, mode: P0.key, chords, labels: P0.labels, figs: P0.chords.map((c, i) => figsFor(chords[i], P0.figs[i], k)) };
+  }
+  window.C78_TEST = { passageIn, figsFor };
+  const COMMON_FIGS = [[], ["6"], ["6", "4"], ["7"], ["6", "5"], ["4", "3"], ["4", "2"]];
+  const CHORD_POOL = { major: ["I", "Ib", "Ic", "II", "IIb", "II7b", "IV", "IVb", "V", "Vb", "V7", "V7b", "V7c", "V7d", "VI", "V7b of V"],
+    minor: ["i", "ib", "ic", "iib°", "iv", "ivb", "V", "Vb", "V7", "V7b", "V7d", "VI", "vii°7", "vii°7b", "N6", "Ger6", "It6", "Fr6"] };
+  TGEN.c78pass = (p) => {
+    const ids = Object.keys(window.PASSAGES || {}).filter(id => !p.only || p.only.indexOf(id) >= 0);
+    const id = pick(ids), X = passageIn(id, p), n = X.chords.length;
+    const i = 1 + rnd(n - 1), key = keyName(X.k, X.mode);
+    const marks = X.labels.map((_, j) => j === i ? "*" : "");
+    const visual = `<div style="overflow-x:auto">${satbSVG(X.chords, X.k, marks)}</div>`;
+    const ask = Math.random();
+    if (ask < 0.5) {
+      const right = X.figs[i], seen = new Set([figKey(right)]), opts = [opt(figKey(right), figStack(right))];
+      shuffle(X.figs.concat(COMMON_FIGS)).forEach(f => { const kk = figKey(f); if (opts.length < 4 && !seen.has(kk)) { seen.add(kk); opts.push(opt(kk, figStack(f))); } });
+      return { prompt: `This passage is in ${key}. Which figures go under the bass at the chord marked <b>*</b>?`, visual, options: shuffle(opts), answer: figKey(right),
+        explain: `The chord at * is <b>${esc(X.labels[i])}</b>, so the figures are ${figStack(right)}. ${right.some(x => /[♯♭♮×]/.test(x)) ? "The accidental shows a note that isn't in the key signature." : "Count each note up from the bass."}` };
+    }
+    if (ask < 0.85) {
+      const right = X.labels[i];
+      const pool = shuffle([...new Set(X.labels.concat(CHORD_POOL[X.mode]))].filter(c => c !== right)).slice(0, 3);
+      const row = X.figs.map((f, j) => j === i ? `<b>*</b>${figStack(f)}` : figStack(f)).join(" &nbsp; ");
+      return { prompt: `This passage is in ${key}. The figures are shown under it. Which chord is marked <b>*</b>?`, visual: visual + `<p style="margin:6px 0 0">Figures: ${row}</p>`, options: shuffle([right, ...pool]).map(v => opt(v)), answer: right,
+        explain: `Count up from the bass with the figures ${figStack(X.figs[i])}: it's <b>${esc(right)}</b>.` };
+    }
+    const a = X.labels[n - 2], b = X.labels[n - 1];
+    const cad = /^V/.test(a) && /^(I|i)$/.test(b) ? "perfect" : b === "V" && a === "ivb" ? "Phrygian" : b === "V" ? "imperfect" : /^(IV|iv)$/.test(a) ? "plagal" : "interrupted";
+    const opts = cad === "Phrygian" ? ["perfect", "imperfect", "Phrygian", "plagal"] : ["perfect", "imperfect", "plagal", "interrupted"];
+    return { prompt: `This passage is in ${key}. Which cadence ends it?`, visual: `<div style="overflow-x:auto">${satbSVG(X.chords, X.k)}</div>`, options: opts.map(v => opt(v)), answer: cad,
+      explain: `The last two chords are <b>${esc(a)}–${esc(b)}</b>: a ${cad} cadence.` };
+  };
+
   if (!TGEN.mix) TGEN.mix = (p, diff) => { const l = LESSON_BY[pick(p.ids)], q = TGEN[l.gen](l.p, diff); q.prompt = `<span class="muted" style="font-size:.85em">${esc(l.t)}</span><br>` + q.prompt; return q; };
 
   /* the new drills join the Grade 7 and 8 lists for everyone */
@@ -86,6 +148,8 @@
     { id: "g7-sus", g: 7, topic: "Harmony", t: "Suspensions", gen: "c78sus", p: { g: 7 }, h: "<p>A <b>suspension</b> is a note held over from one chord into the next, where it clashes, then falls a step to a note of the new chord. It happens in three stages: <b>preparation</b> (the note belongs to the first chord), <b>suspension</b> (it's held on a strong beat while the bass moves) and <b>resolution</b> (it falls a step). The figures name the clash and its resolution: <b>4 3</b>, <b>7 6</b> and <b>9 8</b> are the ones you'll meet most.</p>" },
     { id: "g7-figbass", g: 7, topic: "Harmony", t: "From a bass and figures to a chord", gen: "c78fig", p: { degs: [1, 2, 4, 5, 6], sev: "v", acc: true }, h: "<p>To find a chord from a bass and its figures, count up from the bass: <b>5 3</b> (or nothing) means root position, <b>6</b> means the bass is the 3rd, <b>6 4</b> means it's the 5th. For sevenths: <b>7</b>, <b>6 5</b>, <b>4 3</b> and <b>4 2</b>. In a minor key a ♯ or ♮ on its own means ‘raise the 3rd above the bass’, which is how the leading note is shown over the dominant.</p>" },
     { id: "g8-sus", g: 8, topic: "Harmony", t: "Suspensions, chains and the bass suspension", gen: "c78sus", p: { g: 8 }, h: "<p>Everything from Grade 7, plus the <b>bass suspension</b> (the bass is held and falls a step: figured 2 3, or 4 2 then 6) and <b>chains</b> of suspensions over a sequence, which are the backbone of many Baroque trio sonatas.</p>" },
+    { id: "g7-passage", g: 7, topic: "Harmony", t: "Figure the passage", gen: "c78pass", p: { only: ["cad64", "vi-ii", "rise", "ii7", "vofv", "v7d", "phryg", "neap", "dim7", "minor-cad"] }, h: "<p>A short passage in four parts, in a new key each time. Find the chord marked *, then its figures: count each upper note up from the bass, and add an accidental for any note that isn't in the key signature. An accidental on its own means the 3rd above the bass. Some questions show you the figures and ask for the chord; some ask which cadence ends the passage.</p>" },
+    { id: "g8-passage", g: 8, topic: "Harmony", t: "Figure the passage, chromatic chords too", gen: "c78pass", p: {}, h: "<p>The same as Grade 7, now with augmented 6ths as well. Remember: in an augmented 6th the flattened 6th is in the bass and the sharpened 4th is the 6th above it, so the figure is ♯6 (or ♮6 in flat keys).</p>" },
     { id: "g8-figbass", g: 8, topic: "Harmony", t: "Any chord from its bass and figures", gen: "c78fig", p: { degs: [1, 2, 3, 4, 5, 6, 7], sev: "mix", acc: true }, h: "<p>Any triad or 7th chord on any degree, from its bass note and figures. Count up from the bass, find the root, then name the chord and its position.</p>" }
   ];
   NEW.forEach(l => { if (LESSON_BY[l.id]) return; const last = LESSONS.map(x => x.g).lastIndexOf(l.g); LESSONS.splice(last + 1, 0, l); LESSON_BY[l.id] = l; });

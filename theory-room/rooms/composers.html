@@ -55,7 +55,7 @@
     <div style="display:grid;gap:10px">
       <p class="kicker">Room 4 · Composers</p>
       <h1 style="font-size:clamp(34px,5.4vw,56px)">Meet the composers behind your exam pieces</h1>
-      <p class="lede">One-minute films: where they lived, what their music sounds like, three things to know, and how often they turn up on the ABRSM and Trinity lists. Each ends with a quick quiz.</p>
+      <p class="lede">One-minute films: where they lived, what their music sounds like, a few things to know, and how often they turn up on the ABRSM and Trinity lists. Each ends with a quick quiz.</p>
     </div>
     <div class="shelf" id="shelf" role="list"></div>
     <div class="stage" id="stage">
@@ -101,9 +101,7 @@
       { id: "title", label: "Who", dur: 5, say: f.name + ". " + f.born + " to " + f.died + ". " + f.era + " composer from " + f.country + "." },
       { id: "where", label: "Where", dur: 7, say: f.where },
       { id: "sound", label: "Listen", dur: themeLen(f) + 2.4, say: f.sound },
-      { id: "fact", k: 0, label: "Fact 1", dur: 5.5, say: f.facts[0] },
-      { id: "fact", k: 1, label: "Fact 2", dur: 5.5, say: f.facts[1] },
-      { id: "fact", k: 2, label: "Fact 3", dur: 5.5, say: f.facts[2] },
+      ...f.facts.map((x, k) => ({ id: "fact", k, label: "Fact " + (k + 1), dur: 5.5, say: x })),
       { id: "famous", label: "Famous pieces", dur: 6, say: "Famous pieces: " + list + "." },
       { id: "exams", label: "On the lists", dur: 8, say: s ? f.short + " has " + s.n + " places on the ABRSM and Trinity lists, for " + s.insts + " instruments, from " + s.lo + " to " + s.hi + "." : "" },
       { id: "quiz", label: "Quiz", dur: 9, say: f.quiz.q + " " + f.quiz.options.join(", or ") + "?" },

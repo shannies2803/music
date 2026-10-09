@@ -234,7 +234,7 @@
     L(1, "terms", "Grade 1 terms and signs", "Terms & signs", "tTerms", { g: 1 }, "Dynamics, articulation and tempo words for Grade 1."),
     L(2, "ledger", "Two leger lines", "Notes & clefs", "noteName", { clefs: ["treble", "bass"], lo: { treble: "A3", bass: "C2" }, hi: { treble: "C6", bass: "E4" } }, "Notes up to two leger lines above or below the stave."),
     L(2, "values", "Dotted crotchets and semiquavers", "Rhythm", "noteValue", { set: [3, 2, 1.5, 1, .5, .25] }, "A dot adds half the note's value again."),
-    L(2, "time", "6/8, 2/2 and 3/2", "Rhythm", "timeSigBar", { sigs: ["2/4", "3/4", "4/4", "2/2", "3/2"] }, "2/2 and 3/2 count minim beats."),
+    L(2, "time", "2/2 and 3/2", "Rhythm", "timeSigBar", { sigs: ["2/4", "3/4", "4/4", "2/2", "3/2"] }, "2/2 and 3/2 count minim beats."),
     L(2, "keys", "A, D and E minor", "Keys & scales", "keySig", { keys: K1, modes: ["major", "minor"], clefs: ["treble", "bass"] }, "Each minor key shares its key signature with its relative major."),
     L(2, "scales", "Natural and harmonic minor", "Keys & scales", "tScale", { types: ["major", "natural minor (Aeolian)", "harmonic minor"] }, "The harmonic minor raises the 7th."),
     L(2, "intervals", "Intervals up to an octave", "Intervals", "intNum", { keys: K1, modes: ["major", "minor"], clefs: ["treble", "bass"] }, "Grade 2 adds major and minor 2nds and 3rds and perfect 4ths and 5ths."),

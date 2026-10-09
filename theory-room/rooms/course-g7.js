@@ -30,8 +30,9 @@
       { t: "Suspensions", mins: 25, items: [
         { k: "drill", id: "g7-sus" },
         { k: "task", id: "sus" }] },
-      { t: "Figuring a Baroque passage, step by step", mins: 30, items: [
-        { k: "task", id: "figure1" }] },
+      { t: "Figuring a Baroque passage, step by step", mins: 35, items: [
+        { k: "task", id: "figure1" },
+        { k: "drill", id: "g7-passage", note: "Real four-part passages in a new key each time: figure the chord marked *." }] },
       { t: "Notes that aren't part of the chord", mins: 25, items: [
         { k: "read", h: "<p>In a figured-bass question the melody moves faster than the chords. Before you choose a chord, decide which melody notes are <b>passing notes</b> (moving by step between two chord notes), <b>auxiliary notes</b> (stepping away and back), <b>appoggiaturas</b> (a leaning note on the beat that falls a step) or <b>suspensions</b> (held over, then falling). Leave those out when you work out the chord.</p><p>In the bass, a quaver moving by step between two chord notes is usually a passing note too: it doesn't need its own figure.</p>" },
         { k: "task", id: "nonchord" }] },
@@ -51,8 +52,9 @@
       { t: "Spotting modulations", mins: 25, items: [
         { k: "read", h: "<p>Baroque passages often move to a related key: the dominant, the subdominant, the relative minor or major. Look for the new accidental: a <b>sharpened 4th</b> usually means the dominant; a <b>flattened 7th</b> the subdominant; a sharpened 5th in a major key the relative minor.</p><p>A <b>pivot chord</b> belongs to both keys and makes the move smooth. In the figures, the new accidental shows up as soon as you reach the new key's leading note.</p>" },
         { k: "drill", id: "g7-modkey" }] },
-      { t: "Figuring with chromatic chords and a modulation", mins: 30, items: [
-        { k: "task", id: "figure2" }] },
+      { t: "Figuring with chromatic chords and a modulation", mins: 35, items: [
+        { k: "task", id: "figure2" },
+        { k: "drill", id: "g7-passage", note: "Aim for three stars now: look out for the Neapolitan, the diminished 7th and V of V." }] },
       { t: "Cadences and voice-leading", mins: 25, items: [
         { k: "drill", id: "g6-cadmel" }, { k: "drill", id: "g6-consec" }] },
       { t: "Review quiz 2", mins: 20, items: [
@@ -97,12 +99,12 @@
         { k: "quiz", id: "c7-mock" }] }] }
   ],
   quizzes: {
-    quiz1: { t: "Review quiz 1: chords, figures and suspensions", ids: ["g6-chords", "g6-figures", "g7-figbass", "g7-sevenths", "g6-v7", "g7-sus"], h: "Questions from this week's drills." },
-    quiz2: { t: "Review quiz 2: chromatic chords and keys", ids: ["g7-dim7", "g7-neap", "g7-secdom", "g7-modkey", "g6-cadmel", "g6-consec"], h: "Questions from this week's drills." },
+    quiz1: { t: "Review quiz 1: chords, figures and suspensions", ids: ["g6-chords", "g6-figures", "g7-figbass", "g7-sevenths", "g6-v7", "g7-sus", "g7-passage"], h: "Questions from this week's drills." },
+    quiz2: { t: "Review quiz 2: chromatic chords and keys", ids: ["g7-dim7", "g7-neap", "g7-secdom", "g7-modkey", "g6-cadmel", "g6-consec", "g7-passage"], h: "Questions from this week's drills." },
     quiz3: { t: "Review quiz 3: everything so far", ids: ["g7-figbass", "g7-sus", "g7-dim7", "g7-neap", "g7-secdom", "g7-transpose", "g4-ornaments", "g7-terms"], h: "A mix of everything so far." },
-    mock: { t: "Grade 7 mock quiz", ids: ["g6-chords", "g7-figbass", "g7-sevenths", "g7-sus", "g7-dim7", "g7-neap", "g7-secdom", "g7-modkey", "g6-consec", "g7-transpose", "g7-period", "g7-terms", "g4-ornaments", "g5-intervals"], h: "Questions from every part of the course, like the shorter questions on the paper." }
+    mock: { t: "Grade 7 mock quiz", ids: ["g6-chords", "g7-figbass", "g7-passage", "g7-sevenths", "g7-sus", "g7-dim7", "g7-neap", "g7-secdom", "g7-modkey", "g6-consec", "g7-transpose", "g7-period", "g7-terms", "g4-ornaments", "g5-intervals"], h: "Questions from every part of the course, like the shorter questions on the paper." }
   },
-  weakFrom: ["g6-chords", "g6-figures", "g7-figbass", "g7-sevenths", "g6-v7", "g7-sus", "g7-dim7", "g7-neap", "g7-secdom", "g7-modkey", "g6-cadmel", "g6-consec", "g7-transpose", "g7-period", "g7-terms", "g4-ornaments", "g5-intervals"],
+  weakFrom: ["g6-chords", "g6-figures", "g7-figbass", "g7-passage", "g7-sevenths", "g6-v7", "g7-sus", "g7-dim7", "g7-neap", "g7-secdom", "g7-modkey", "g6-cadmel", "g6-consec", "g7-transpose", "g7-period", "g7-terms", "g4-ornaments", "g5-intervals"],
   tasks: {
     sus: { t: "Write three suspensions",
       why: "A suspension needs all three stages, in the same part, in the right rhythm. Writing a few by hand is the quickest way to make it automatic.",
