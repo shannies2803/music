@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Build The Theory Room's product rooms from the family versions in the repo root.
 
-  python3 theory-room/build/make_rooms.py
+  python3 tools/make_theory_rooms.py
+
+This script lives outside theory-room/ on purpose: it names the family, so it must never be
+copied to the public site's own repository (shannies2803/musicexams).
 
 Reads   index.html (Cadenza), theory-faye.html, theory-philip.html   (repo root)
 Writes  theory-room/rooms/aural.html, theory-g1-5.html, theory-g6.html
@@ -13,7 +16,7 @@ trip or personal storage key is left in the output.
 """
 import os, re, sys
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 OUT = os.path.join(ROOT, "theory-room", "rooms")
 
 TR_HEAD = ('<script>window.TR_ROOM = 1;</script><script src="../config.js"></script>'
@@ -162,6 +165,7 @@ def course(src, dst, name, grades, she, her, his_or_her, herself, key, title):
     s = s.replace("your child's corner", "the Practice corner")
 
     os.makedirs(OUT, exist_ok=True)
+    s = re.sub(r"show(faye|philip)\b", "showhow", s)  # internal button names
     open(os.path.join(OUT, dst), "w", encoding="utf-8").write(s)
     return s
 
@@ -203,7 +207,7 @@ def aural():
 
 def check(name, s):
     bad = []
-    for pat in [r"\bFaye\b", r"\bfaye\b", r"\bPhilip\b", r"\bphilip\b", r"\bMum\b", "Chongqing", "Chengdu",
+    for pat in [r"(?i)faye", r"(?i)philip", r"\bMum\b", "Chongqing", "Chengdu",
                 "London\"", "Vietnam\"", "2026-09-25", "2026-10-03", "theory-faye", "theory-philip", "window.parent.claude"]:
         for m in re.finditer(pat, s):
             bad.append(f"{pat}: …{s[max(0, m.start()-60):m.end()+40]!r}…")

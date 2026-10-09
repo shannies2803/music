@@ -58,8 +58,8 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 
 ## 4. Netlify (the website)
 
-1. At netlify.com: **Add new site → Import an existing project → GitHub → shannies2803/music**.
-2. **Base directory**: `theory-room`. Leave the build command empty. Deploy.
+1. At netlify.com: **Add new site → Import an existing project → GitHub → shannies2803/musicexams**.
+2. Leave **Base directory** and the build command empty. Deploy.
 3. **Site configuration → Environment variables**, add:
 
    | Name | Value |
@@ -92,7 +92,7 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 
 - They live in `rooms/composers.js`. Each film starts with `checked: false` and shows **Draft** until you've checked the facts and the music; then change it to `checked: true`.
 - Which film is free: `freeComposers` in `config.js`.
-- The exam-list numbers come from the repertoire data: run `python3 theory-room/build/make_composers.py` after the lists change.
+- The exam-list numbers come from the repertoire data: run `python3 build/make_composers.py` after the lists change.
 - **Making videos for social media**: open `rooms/composers.html?studio=1` in Chrome on a computer, choose a composer, and press *Record 16:9* (YouTube) or *Record 9:16* (Shorts, Reels, TikTok). The film plays once and gives you a video file. Add your own voice-over in any video app.
 
 ## The Grade 7 and 8 courses
@@ -101,14 +101,18 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - Progress is saved with each learner, so teachers can set "reach day N" as homework.
 - They point families to ABRSM's own practice papers for the full papers. Check the day plans against the current ABRSM syllabus each year.
 
+## Running the scripts
+
+Run every command below from the top of this repository.
+
 ## Changing things later
 
 - **Prices**: edit `prices` in `config.js` and the prices in Lemon Squeezy, then commit.
-- **The rooms**: they're made from the family versions in the repo root (`index.html`, `theory-faye.html`, `theory-philip.html`). After changing those, run `python3 theory-room/build/make_rooms.py` (it stops with a message if any family name or date would reach the public site), then `python3 theory-room/build/make_catalog.py`, which updates the list of tasks teachers can set as homework.
+- **The rooms** (`rooms/aural.html`, `theory-g1-5.html`, `theory-g6.html`) are generated from private source files that are kept out of this repository. Don't edit them by hand: changes are made at the source and the rooms rebuilt. After a rebuild, run `python3 build/make_catalog.py`, which updates the list of tasks teachers can set as homework.
 - **Tests**:
-  - `node theory-room/build/test_backend.mjs`: payment rules and the course gate
-  - `sh theory-room/build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 theory-room/build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
+  - `node build/test_backend.mjs`: payment rules and the course gate
+  - `sh build/test_db.sh`: the database set-up and who can see what (needs Postgres)
+  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
 
 ## Not built yet
 

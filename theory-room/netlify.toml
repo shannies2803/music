@@ -1,5 +1,5 @@
 # The Theory Room on Netlify.
-# In Netlify: Add new site → Import from GitHub → this repo → Base directory: theory-room
+# In Netlify: Add new site → Import from GitHub → shannies2803/musicexams. Leave Base directory empty.
 # Nothing to build: the site is plain files. Functions live in netlify/functions and
 # netlify/edge-functions, where Netlify looks for them by default.
 [build]

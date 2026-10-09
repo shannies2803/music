@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """List what a teacher can set as homework (aural tests, mocks, theory drills, films), read from the rooms themselves.
    python3 theory-room/build/make_catalog.py   →  theory-room/rooms/catalog.js   (needs Playwright)
-Run after make_rooms.py whenever the rooms change."""
+Run whenever the rooms change."""
 import asyncio, json, os, subprocess, sys, time
 from playwright.async_api import async_playwright
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

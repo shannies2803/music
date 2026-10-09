@@ -4035,7 +4035,7 @@ document.addEventListener("click", e => {
   else if (act === "hw" && state.homework) { paused = null; const h = state.homework; startRound({ mode: "kid", el: $("kid"), qs: hwRound(h), title: "Homework: " + hwName(h), kind: h.kind, lvl: h.lvl, hw: true }); }
   else if (act === "sethw" && R && R.mode === "parent") { const c = $("hw-clef") ? $("hw-clef").value : ""; state.homework = { kind: R.kind, lvl: R.lvl, n: 10, set: TODAY, done: null }; if (c) state.homework.clef = c; save(); renderHw(); renderSummary(); }
   else if (act === "clearhw") { state.homework = null; save(); renderHw(); renderSummary(); }
-  else if (act === "showfaye") { closeTeach(); setView("kid"); showHow(a.dataset.kind); }
+  else if (act === "showhow") { closeTeach(); setView("kid"); showHow(a.dataset.kind); }
   else if (act === "copysum") copySummary();
   else if (act === "learn") { closeTeach(); setView("kid"); showLearn(+a.dataset.i); }
   else if (act === "learnnext" && LC) showLearn(LC.i, LC.k + 1);
@@ -4197,7 +4197,7 @@ function renderLesson() {
     ${state.runs[TODAY] && i === nextIdx() && !done ? `<div class="runlink"><span class="pill ok">Your child did Today's practice: ${state.runs[TODAY].score}/${state.runs[TODAY].n}</span><button class="btn small" type="button" data-act="markrun" data-i="${i}">Mark Day ${i + 1} done</button></div>` : ""}
     ${(() => { const ks = [dr].concat(focusKinds(i)), mm = state.mistakes.filter(m => ks.includes(m.q.kind)); return mm.length && !done ? `<p class="meta">Your child has <b>${mm.length}</b> saved mistake${mm.length > 1 ? "s" : ""} on this kind of question. They're listed under "Your child's practice" below, to go through together.</p>` : ""; })()}
     ${deepHTML(i)}
-    ${lessonFor(i) ? `<div><button class="btn small" type="button" data-act="learn" data-i="${i}">Show today's picture lesson</button></div>` : HOW[dr] && i > 0 ? `<div><button class="btn small" type="button" data-act="showfaye" data-kind="${dr}">Show the picture lesson: ${DR[dr].name}</button></div>` : ""}
+    ${lessonFor(i) ? `<div><button class="btn small" type="button" data-act="learn" data-i="${i}">Show today's picture lesson</button></div>` : HOW[dr] && i > 0 ? `<div><button class="btn small" type="button" data-act="showhow" data-kind="${dr}">Show the picture lesson: ${DR[dr].name}</button></div>` : ""}
     <div class="pnote"><label for="pnote">Your notes on this session</label><textarea id="pnote" rows="2" placeholder="What stuck, what didn't, what to repeat">${esc(state.notes[id] || "")}</textarea></div>
     <div class="lesson-nav">
       <button class="btn" type="button" id="prev" ${i === 0 ? "disabled" : ""}>← Previous</button>
@@ -4465,7 +4465,7 @@ function renderTimer() {
 function openTeach(i) {
   const [tag, lvl, dr, title, teach, tog, alone, game, check] = S[i], el = $("teach");
   el.innerHTML = `<div class="teach-in">
-    <div class="teach-top"><button class="btn" type="button" data-act="tclose">← Close</button><span class="meta">Day ${i + 1} · ${esc(tag)}</span><span class="spacer"></span>${lessonFor(i) ? `<button class="btn" type="button" data-act="learn" data-i="${i}">Show the picture lesson</button>` : HOW[dr] ? `<button class="btn" type="button" data-act="showfaye" data-kind="${dr}">Show the picture lesson</button>` : ""}</div>
+    <div class="teach-top"><button class="btn" type="button" data-act="tclose">← Close</button><span class="meta">Day ${i + 1} · ${esc(tag)}</span><span class="spacer"></span>${lessonFor(i) ? `<button class="btn" type="button" data-act="learn" data-i="${i}">Show the picture lesson</button>` : HOW[dr] ? `<button class="btn" type="button" data-act="showhow" data-kind="${dr}">Show the picture lesson</button>` : ""}</div>
     <h2>${title}</h2>
     <div class="stimer" id="stimer2"></div>
     ${lessonFor(i) && !lessonFor(i).recap ? `<section class="tsay"><h3>Say it like this</h3><p>“${esc(lessonFor(i).say)}”</p></section>` : ""}

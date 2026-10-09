@@ -6,6 +6,9 @@ from playwright.async_api import async_playwright
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SHOTS = os.path.join(os.environ.get("SHOTS", "/tmp/tr-shots")); os.makedirs(SHOTS, exist_ok=True)
 URL = "http://127.0.0.1:8770/"
+# words that must never reach the public site; kept outside the site's folder so they're never published
+_pw = os.path.join(ROOT, "..", "tools", "private-words.txt")
+PRIVATE = [w.strip() for w in open(_pw, encoding="utf-8") if w.strip()] if os.path.exists(_pw) else []
 problems = []
 
 def bad(msg): problems.append(msg); print("FAIL", msg)
@@ -107,7 +110,7 @@ async def main():
                 title = await pg.title()
                 if want not in title: bad(f"{f}: title {title!r}")
                 body = await pg.inner_text("body")
-                for w in ["Faye", "Philip", "Mum"]:
+                for w in PRIVATE:
                     if w in body: bad(f"{f}: shows {w!r}")
                 await pg.screenshot(path=f"{SHOTS}/{f}.png")
                 await pg.evaluate("() => { const b = [...document.querySelectorAll('button, a')].find(x => /Practice corner|Learner view|kid/i.test(x.textContent)); if (b) b.click(); }")
