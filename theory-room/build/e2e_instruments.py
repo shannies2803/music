@@ -1,0 +1,78 @@
+"""The Instruments room: every instrument's page renders cleanly, its range notes land on the right
+   stave positions, sound and quizzes work, and the page fits a phone.
+   python3 build/e2e_instruments.py"""
+import asyncio, os, subprocess, sys, time
+from playwright.async_api import async_playwright
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+SHOTS = os.environ.get("SHOTS", "/tmp/tr-shots"); os.makedirs(SHOTS, exist_ok=True)
+URL = "http://127.0.0.1:8793/"
+problems = []
+def bad(m): problems.append(m); print("FAIL", m)
+
+DATA = r"""() => {
+  const out = [], R = INSTRUMENTS_ROOM;
+  for (const x of INSTRUMENTS) {
+    for (const k of ["id", "name", "family", "exam", "clefs", "low", "high", "how", "facts", "famous", "quiz"]) if (x[k] == null) out.push(x.id + ": no " + k);
+    const lo = R.parse(x.low), hi = R.parse(x.high);
+    if (12 * (lo.oct + 1) >= 12 * (hi.oct + 1) + 11) out.push(x.id + ": low above high");
+    if (!(x.quiz.answer >= 0 && x.quiz.answer < x.quiz.options.length)) out.push(x.id + ": quiz answer");
+    if (!INSTRUMENT_STATS[x.id] || !INSTRUMENT_STATS[x.id].n) out.push(x.id + ": no exam stats");
+    for (const n of [x.low, x.high]) { const s = R.staffSVG(R.parse(n), x.clefs); if (/NaN|undefined/.test(s)) out.push(x.id + " " + n + ": bad stave"); }
+  }
+  // known stave positions: middle C has one leger line in treble; G3 two leger lines below the treble stave
+  const lines = s => (s.match(/<line/g) || []).length - 5;
+  if (lines(R.staffSVG(R.parse("C4"), ["treble"])) !== 1) out.push("middle C should have 1 leger line");
+  if (lines(R.staffSVG(R.parse("G3"), ["treble"])) !== 2) out.push("G3 should have 2 leger lines in treble");
+  if (lines(R.staffSVG(R.parse("C4"), ["alto"])) !== 0) out.push("middle C in the alto clef is on the stave");
+  if (!/8vb/.test(R.staffSVG(R.parse("A0"), ["treble", "bass"]))) out.push("A0 should use 8vb");
+  for (let i = 0; i < 200; i++) { const q = R.gameQ(); if (!q.opts.includes(q.right) || new Set(q.opts).size !== q.opts.length || q.opts.length < 3) { out.push("game question: " + JSON.stringify(q)); break; } }
+  return out;
+}"""
+
+async def main():
+    srv = subprocess.Popen([sys.executable, "-m", "http.server", "8793", "--bind", "127.0.0.1"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(1)
+    try:
+        async with async_playwright() as p:
+            b = await p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
+            for w, dark in [(1100, False), (390, True)]:
+                ctx = await b.new_context(viewport={"width": w, "height": 900}, color_scheme="dark" if dark else "light"); pg = await ctx.new_page(); errs = []
+                pg.on("pageerror", lambda e: errs.append(str(e)))
+                await pg.goto(URL + "rooms/instruments.html"); await pg.wait_for_timeout(1200)
+                if w == 1100:
+                    for x in await pg.evaluate(DATA): bad(x)
+                    ids = await pg.evaluate("() => INSTRUMENTS.map(x => x.id)")
+                    for i in ids:
+                        await pg.click(f"[data-inst={i}]"); await pg.wait_for_timeout(60)
+                        h = await pg.inner_html("#detail")
+                        if "NaN" in h or "undefined" in h: bad(f"{i}: NaN/undefined on the page")
+                        if "pieces on the lists" not in h: bad(f"{i}: no exam numbers")
+                    await pg.click("[data-inst=clarinet]"); await pg.wait_for_timeout(100)
+                    t = await pg.inner_text("#detail")
+                    if "major 2nd" not in t or "sounds D3" not in t.replace("♭", "b"): bad(f"clarinet transposition text: {t[:300]!r}")
+                    await pg.click("[data-play=range]"); await pg.wait_for_timeout(300)
+                    await pg.click("[data-q1='1']"); await pg.wait_for_timeout(100)
+                    if "right" not in await pg.inner_text("#q1fb"): bad("clarinet quiz")
+                    await pg.click("[data-fam=Brass]"); await pg.wait_for_timeout(100)
+                    if await pg.locator("[data-inst=violin]").count(): bad("family filter")
+                    await pg.click("[data-game=start]")
+                    for _ in range(10):
+                        await pg.locator("#game [data-g]").first.click(); await pg.wait_for_timeout(40)
+                        await pg.click("#game [data-game=next]"); await pg.wait_for_timeout(40)
+                    if "out of 10" not in await pg.inner_text("#game"): bad("game didn't finish")
+                    await pg.goto(URL + "rooms/instruments.html#horn"); await pg.wait_for_timeout(800)
+                    if "Horn" not in await pg.inner_text("#detail h2"): bad("#horn link")
+                    await pg.screenshot(path=f"{SHOTS}/instruments-horn.png", full_page=True)
+                else:
+                    await pg.click("[data-inst=piano]"); await pg.wait_for_timeout(300)
+                    await pg.screenshot(path=f"{SHOTS}/instruments-390.png", full_page=True)
+                sw = await pg.evaluate("() => document.documentElement.scrollWidth - innerWidth")
+                if sw > 1: bad(f"{w}: sideways scroll {sw}px")
+                if errs: bad(f"{w}: {errs[:3]}")
+                await ctx.close()
+            await b.close()
+    finally:
+        srv.terminate()
+    print("\nPROBLEMS:", len(problems)); [print(" -", x) for x in problems]
+    sys.exit(1 if problems else 0)
+asyncio.run(main())

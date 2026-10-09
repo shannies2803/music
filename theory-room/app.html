@@ -119,7 +119,8 @@
       roomCard({ door: "ROOM 1 · THEORY", t: "Guided course: Grade 8", d: "The Baroque trio sonata, Romantic keyboard writing, composition and orchestral scores, in 30 days.", href: "rooms/aural.html" + (lid() ? lid() + "&" : "?") + "tab=theory&course=g8", open: TR.can("course-g8"), lockText: "Family plan or a Grade 8 pack →" }),
       roomCard({ door: "ROOM 2 · AURAL", t: "Aural tests", d: "ABRSM and Trinity aural tests, Initial to Grade 8, with mocks, plus sight-reading marked by the microphone.", href: "rooms/aural.html" + lid(), open: true, openText: openAll }),
       roomCard({ door: "ROOM 3 · REPERTOIRE", t: "Exam pieces, ABRSM and Trinity", d: "Every list for every instrument and voice. Saving and checking programmes comes with the Family plan.", href: "repertoire/", open: true, openText: a.pro ? "Open: everything →" : "Open: browse free →" }),
-      roomCard({ door: "ROOM 4 · COMPOSERS", t: "Composer films", d: "One-minute films on Bach, Vivaldi, Haydn, Mozart, Beethoven, Brahms and Grieg, each with a quiz.", href: "rooms/composers.html", open: true, openText: a.pro ? "Open: every film →" : "Open: Beethoven free →" })
+      roomCard({ door: "ROOM 4 · COMPOSERS", t: "Composer films", d: "One-minute films on 16 composers, from Pachelbel and Bach to Tchaikovsky and Satie, each with a quiz.", href: "rooms/composers.html", open: true, openText: a.pro ? "Open: every film →" : "Open: Beethoven free →" }),
+      roomCard({ door: "ROOM 5 · INSTRUMENTS", t: "Meet the instruments", d: "22 instruments: their sound, range, clef and transposition, with an instrument quiz.", href: "rooms/instruments.html", open: true, openText: "Open: free for everyone →" })
     ].join("");
     var price = function (k, d) { return esc(P[k] || d); };
     var buyMonthly = TR.checkoutUrl("monthly"), buyYearly = TR.checkoutUrl("yearly");

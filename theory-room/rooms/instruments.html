@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Instruments | The Theory Room</title>
+<meta name="description" content="Meet the instruments in the exam syllabuses: how each one makes its sound, its range, its clef, how it transposes, and how many exam pieces it has.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Music&display=swap">
+<link rel="stylesheet" href="../site.css">
+<script>window.TR_ROOM = 1;</script>
+<script src="../config.js"></script>
+<script src="../tr.js"></script>
+<style>
+  main { padding-block: 24px 60px; }
+  main > .wrap { display: grid; gap: 26px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button { font: inherit; font-size: 15px; min-height: 40px; padding: 4px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+  .chips button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .card { font: inherit; text-align: left; display: grid; gap: 2px; padding: 12px 14px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; min-width: 0; }
+  .card:hover { border-color: var(--accent); }
+  .card[aria-current="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .card b { font-family: var(--f-display); font-size: 18px; }
+  .card span { font-size: 13.5px; color: var(--muted); }
+  .detail { border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--sheet); padding: clamp(16px, 3vw, 28px); display: grid; gap: 18px; }
+  .detail h2 { font-size: clamp(30px, 4.6vw, 44px); margin: 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
+  .tag.draft { border-color: var(--warn); color: var(--warn); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  @media (max-width: 820px) { .cols { grid-template-columns: 1fr; } }
+  .box { display: grid; gap: 10px; }
+  .box h3 { margin: 0; font-size: 19px; }
+  .box p, .box li { max-width: 62ch; }
+  .range { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+  .range figure { margin: 0; display: grid; gap: 2px; justify-items: center; }
+  .range figcaption { font-size: 13px; color: var(--muted); }
+  .range svg { display: block; overflow: visible; }
+  .staff line { stroke: var(--ink); stroke-width: 1.2; }
+  .staff .clef { font-family: "Noto Music", "Bravura Text", "Segoe UI Symbol", "Apple Symbols", serif; fill: var(--ink); }
+  .staff .nh { fill: var(--ink); }
+  .staff .acc, .staff .oct { fill: var(--ink); font-family: "Noto Music", "Segoe UI Symbol", serif; }
+  .staff .oct { font-family: var(--f-mono); font-size: 11px; }
+  .playrow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .stat { display: flex; flex-wrap: wrap; gap: 10px; }
+  .stat div { border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; min-width: 110px; }
+  .stat b { display: block; font-family: var(--f-display); font-size: 24px; }
+  .stat span { font-size: 13px; color: var(--muted); }
+  .quiz { border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; background: var(--page); display: grid; gap: 10px; }
+  .quiz button.opt { font: inherit; text-align: left; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+  .quiz button.right { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .quiz button.wrong { border-color: var(--warn); }
+  .note { font-size: 14px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+    <div style="display:grid;gap:10px">
+      <p class="kicker">Room 5 · Instruments</p>
+      <h1 style="font-size:clamp(34px,5.4vw,56px)">Meet the instruments</h1>
+      <p class="lede">How each instrument makes its sound, the notes it can play, the clef it reads, whether it transposes, and how many pieces it has on the ABRSM and Trinity lists. Handy for theory questions about instruments, and for choosing a second instrument.</p>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Instrument family"></div>
+    <div class="shelf" id="shelf"></div>
+    <section class="detail" id="detail" aria-live="polite"></section>
+    <section class="detail" id="game"></section>
+  </div>
+</main>
+
+<script src="instruments.js"></script>
+<script src="instruments-stats.js"></script>
+<script>
+(function () {
+  "use strict";
+  var I = window.INSTRUMENTS, ST = window.INSTRUMENT_STATS || {};
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var FAMILIES = ["All", "Strings", "Woodwind", "Brass", "Keyboard", "Percussion", "Voice"];
+  var fam = "All", cur = I[0];
+
+  /* ---------- notes ---------- */
+  var LET = "CDEFGAB", STEP = [0, 2, 4, 5, 7, 9, 11];
+  function parse(s) { var m = /^([A-G])(#|b)?(-?\d)$/.exec(s); return { L: LET.indexOf(m[1]), acc: m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0, oct: +m[3] }; }
+  var midi = function (n) { return 12 * (n.oct + 1) + STEP[n.L] + n.acc; };
+  var dia = function (n) { return n.oct * 7 + n.L; };
+  var nameOf = function (n) { return LET[n.L] + (n.acc === 1 ? "♯" : n.acc === -1 ? "♭" : "") + n.oct; };
+  var spell = function (m) { var pc = ((m % 12) + 12) % 12, o = Math.floor(m / 12) - 1, sh = [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6][pc], acc = pc - STEP[sh]; return { L: sh, acc: acc, oct: o }; };
+  var CLEF = { treble: { ref: 30, glyph: "\u{1D11E}", dy: 31, size: 46 }, bass: { ref: 18, glyph: "\u{1D122}", dy: 10, size: 40 }, alto: { ref: 24, glyph: "\u{1D121}", dy: 20, size: 40 }, tenor: { ref: 22, glyph: "\u{1D121}", dy: 10, size: 40 } };
+  var NAMES = { treble: "treble", bass: "bass", alto: "alto", tenor: "tenor" };
+
+  /* one note on a stave, in the clef from the list that needs the fewest leger lines; 8va/8vb if still far off */
+  function staffSVG(n, clefs) {
+    var best = null;
+    /* the instrument's main clef wins unless the note needs more than three leger lines there */
+    clefs.forEach(function (c, i) { var d = dia(n) - CLEF[c].ref, led = d < -1 ? Math.ceil((-1 - d) / 2) : d > 9 ? Math.ceil((d - 9) / 2) : 0, score = i === 0 && led <= 3 ? -1 : led; if (!best || score < best.score) best = { c: c, led: led, score: score }; });
+    var c = best.c, shift = 0, d = dia(n) - CLEF[c].ref;
+    while (d > 15) { d -= 7; shift++; } while (d < -7) { d += 7; shift--; }
+    var H = 10, top = 46, bottom = top + 4 * H, W = 128, x = 86, y = bottom - d * H / 2;
+    var s = '<svg class="staff" width="' + W + '" height="140" viewBox="0 0 ' + W + ' 140" role="img" aria-label="' + esc(nameOf(n)) + ' in the ' + c + ' clef">';
+    for (var i = 0; i < 5; i++) s += '<line x1="4" x2="' + (W - 4) + '" y1="' + (top + i * H) + '" y2="' + (top + i * H) + '"/>';
+    s += '<text class="clef" x="8" y="' + (top + CLEF[c].dy) + '" font-size="' + CLEF[c].size + '">' + CLEF[c].glyph + "</text>";
+    for (var k = -2; k >= d; k -= 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - k * H / 2) + '" y2="' + (bottom - k * H / 2) + '"/>';
+    for (var j = 10; j <= d; j += 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - j * H / 2) + '" y2="' + (bottom - j * H / 2) + '"/>';
+    if (n.acc) s += '<text class="acc" x="' + (x - 22) + '" y="' + (y + 5) + '" font-size="18">' + (n.acc > 0 ? "♯" : "♭") + "</text>";
+    s += '<ellipse class="nh" cx="' + x + '" cy="' + y + '" rx="6.4" ry="4.6" transform="rotate(-20 ' + x + " " + y + ')"/>';
+    if (shift) s += '<text class="oct" x="' + (x - 14) + '" y="' + (shift > 0 ? Math.min(y, top) - 14 : Math.max(y, bottom) + 22) + '">' + (shift > 0 ? (shift > 1 ? "15ma" : "8va") : (shift < -1 ? "15mb" : "8vb")) + "</text>";
+    return s + "</svg>";
+  }
+
+  /* ---------- sound: a simple voice for each family, made in the browser ---------- */
+  var actx = null, master = null, voices = [];
+  function audio() { if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); master = actx.createGain(); master.gain.value = .45; master.connect(actx.destination); } if (actx.state === "suspended") actx.resume(); return actx; }
+  function hush() { voices.forEach(function (o) { try { o.stop(); } catch (e) {} }); voices = []; }
+  var REEDS = { oboe: 1, clarinet: 1, bassoon: 1, saxophone: 1 };
+  function tone(inst, m, when, dur) {
+    var f = 440 * Math.pow(2, (m - 69) / 12), out = actx.createGain(), lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.connect(master); out.connect(lp);
+    var fam = inst.family, type = "sine", att = .04, sus = .6, rel = .25, cut = f * 6, vib = 0, partials = null, decay = false;
+    if (fam === "Strings" && inst.id !== "harp" && inst.id !== "guitar") { type = "sawtooth"; att = .09; cut = f * 4; vib = .004; }
+    else if (inst.id === "harp" || inst.id === "guitar") { type = "triangle"; att = .005; decay = true; cut = f * 5; }
+    else if (fam === "Woodwind") { if (REEDS[inst.id]) { type = inst.id === "clarinet" ? "square" : "sawtooth"; cut = f * (inst.id === "clarinet" ? 3 : 5); } else { partials = [[1, 1], [2, .12], [3, .05]]; vib = .003; } att = .05; }
+    else if (fam === "Brass") { type = "sawtooth"; att = .07; cut = f * 3.5; }
+    else if (inst.id === "piano") { partials = [[1, 1], [2, .45], [3, .2], [4, .08]]; att = .006; decay = true; }
+    else if (inst.id === "harpsichord") { type = "sawtooth"; att = .003; decay = true; cut = f * 9; }
+    else if (inst.id === "organ") { partials = [[1, 1], [2, .5], [4, .25], [.5, .3]]; att = .03; }
+    else if (fam === "Percussion") { partials = [[1, 1], [1.5, .3], [2, .2]]; att = .004; decay = true; cut = f * 4; }
+    else if (fam === "Voice") { type = "triangle"; att = .08; vib = .006; cut = f * 4; }
+    lp.frequency.value = Math.min(12000, cut);
+    var peak = .2, len = decay ? Math.max(dur, 1.2) : dur;
+    out.gain.setValueAtTime(.0001, when); out.gain.exponentialRampToValueAtTime(peak, when + att);
+    if (decay) out.gain.exponentialRampToValueAtTime(.0001, when + len);
+    else { out.gain.setValueAtTime(peak * sus, when + att + .08); out.gain.setValueAtTime(peak * sus, when + len); out.gain.exponentialRampToValueAtTime(.0001, when + len + rel); }
+    var lfo = null;
+    if (vib) { lfo = actx.createOscillator(); var lg = actx.createGain(); lfo.frequency.value = 5.5; lg.gain.value = f * vib; lfo.connect(lg); lfo.start(when + .15); lfo.stop(when + len + rel + .05); voices.push(lfo); lfo._g = lg; }
+    (partials || [[1, 1]]).forEach(function (p) {
+      var o = actx.createOscillator(), g = actx.createGain(); o.type = partials ? "sine" : type; o.frequency.value = f * p[0]; g.gain.value = p[1];
+      if (lfo) lfo._g.connect(o.frequency);
+      o.connect(g); g.connect(out); o.start(when); o.stop(when + len + rel + .05); voices.push(o);
+    });
+  }
+  function playNotes(inst, ms, step) { audio(); hush(); var t = actx.currentTime + .05; ms.forEach(function (m, i) { tone(inst, m, t + i * step, step * .95); }); }
+  function rangeMidis(inst) {
+    var lo = midi(parse(inst.low)) + inst.sounds, hi = midi(parse(inst.high)) + inst.sounds, out = [], n = Math.min(10, Math.max(5, Math.round((hi - lo) / 4)));
+    for (var i = 0; i < n; i++) out.push(Math.round(lo + (hi - lo) * i / (n - 1)));
+    return out;
+  }
+
+  /* ---------- page ---------- */
+  function transposeText(inst) {
+    var s = inst.sounds;
+    if (!s) return "It sounds at the written pitch (it doesn't transpose).";
+    var t = { "-2": "a major 2nd (a tone) lower", "-7": "a perfect 5th lower", "-9": "a major 6th lower", "-12": "an octave lower", "12": "an octave higher" }[String(s)] || (s > 0 ? s + " semitones higher" : -s + " semitones lower");
+    return "It is a transposing instrument: it sounds " + t + " than written.";
+  }
+  function chips() {
+    document.getElementById("chips").innerHTML = FAMILIES.map(function (f) { return '<button type="button" data-fam="' + f + '" aria-pressed="' + (f === fam) + '">' + f + "</button>"; }).join("");
+  }
+  function shelf() {
+    document.getElementById("shelf").innerHTML = I.filter(function (x) { return fam === "All" || x.family === fam; }).map(function (x) {
+      return '<button class="card" type="button" data-inst="' + x.id + '" aria-current="' + (x === cur) + '"><b>' + esc(x.name) + "</b><span>" + esc(x.family) + " · " + x.clefs.map(function (c) { return NAMES[c]; }).join(", ") + " clef</span></button>";
+    }).join("");
+  }
+  function detail() {
+    var x = cur, s = ST[x.id], lo = parse(x.low), hi = parse(x.high);
+    var sl = spell(midi(lo) + x.sounds), sh = spell(midi(hi) + x.sounds);
+    var repo = "../repertoire/index.html?inst=" + encodeURIComponent(x.exam);
+    document.getElementById("detail").innerHTML =
+      '<div style="display:grid;gap:8px"><div class="tags"><span class="tag">' + esc(x.family) + "</span>" + (x.checked ? "" : '<span class="tag draft">Draft</span>') + "</div><h2>" + esc(x.name) + "</h2></div>" +
+      '<div class="cols"><div style="display:grid;gap:20px">' +
+        '<div class="box"><h3>How it makes its sound</h3><p>' + esc(x.how) + "</p>" + (x.strings ? "<p>" + esc(x.strings) + "</p>" : "") + "</div>" +
+        '<div class="box"><h3>Range and clef</h3><div class="range"><figure>' + staffSVG(lo, x.clefs) + "<figcaption>Lowest: " + esc(nameOf(lo)) + "</figcaption></figure>" +
+          "<figure>" + staffSVG(hi, x.clefs) + "<figcaption>Highest (usual): " + esc(nameOf(hi)) + "</figcaption></figure></div>" +
+          "<p>Reads the " + x.clefs.map(function (c, i) { return (i === 0 ? "<b>" : "") + NAMES[c] + (i === 0 ? "</b>" : ""); }).join(", ").replace(/, ([^,]*)$/, " and $1") + " clef" + (x.clefs.length > 1 ? "s" : "") + ". " + transposeText(x) +
+          (x.sounds ? " Written " + esc(nameOf(lo)) + "–" + esc(nameOf(hi)) + " sounds " + esc(nameOf(sl)) + "–" + esc(nameOf(sh)) + "." : "") + "</p>" +
+          '<div class="playrow"><button class="btn go small" type="button" data-play="range">▶ Hear the range</button><button class="btn small" type="button" data-play="low">Lowest note</button><button class="btn small" type="button" data-play="high">Highest note</button></div>' +
+          '<p class="note">The sound is made in your browser, so it gives you the pitch and a rough idea of the colour, not a real recording.</p></div>' +
+        '<div class="box"><h3>Three things to know</h3><ul>' + x.facts.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul></div>" +
+        '<div class="box"><h3>Famous music</h3><ul>' + x.famous.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul></div>" +
+      '</div><div style="display:grid;gap:18px">' +
+        (s ? '<div class="box"><h3>In the exams</h3><div class="stat"><div><b>' + s.n.toLocaleString() + "</b><span>pieces on the lists</span></div><div><b>" + s.abrsm + "</b><span>ABRSM</span></div><div><b>" + s.trinity + "</b><span>Trinity</span></div></div><p>From " + esc(s.lo) + " to " + esc(s.hi) + "." +
+          (s.top.length ? " Composers you'll meet most: " + s.top.slice(0, 3).map(esc).join(", ") + "." : "") + '</p><p><a href="' + repo + '">See every ' + esc(x.name.toLowerCase()) + " exam piece →</a></p></div>" : "") +
+        '<div class="quiz" id="q1"><span class="kicker">Quick quiz</span><b>' + esc(x.quiz.q) + "</b>" + x.quiz.options.map(function (o, i) { return '<button class="opt" type="button" data-q1="' + i + '">' + esc(o) + "</button>"; }).join("") + '<div id="q1fb" aria-live="polite"></div></div>' +
+      "</div></div>" + (x.checked ? "" : '<p class="note">Draft: these facts are waiting for a final check.</p>');
+  }
+
+  /* ---------- the instrument quiz: ten questions from the whole room ---------- */
+  var G = null;
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function others(fn, right, n) { return shuffle(I.filter(function (x) { return fn(x) && x.name !== right; })).slice(0, n).map(function (x) { return x.name; }); }
+  function gameQ() {
+    var k = Math.floor(Math.random() * 6), x, opts, right;
+    if (k === 0) { x = pick(I.filter(function (y) { return y.family !== "Voice"; })); return { q: "Which family does the " + x.name.toLowerCase() + " belong to?", right: x.family, opts: shuffle([x.family].concat(shuffle(FAMILIES.slice(1, 6).filter(function (f) { return f !== x.family; })).slice(0, 3))) }; }
+    if (k === 1) { x = pick(I.filter(function (y) { return y.clefs[0] !== "treble"; })); right = x.name; return { q: "Which of these mainly reads the " + x.clefs[0] + " clef?", right: right, opts: shuffle([right].concat(others(function (y) { return y.clefs[0] === "treble"; }, right, 3))) }; }
+    if (k === 2) { x = pick(I.filter(function (y) { return y.sounds; })); right = x.name; return { q: "Which of these is a transposing instrument?", right: right, opts: shuffle([right].concat(others(function (y) { return !y.sounds && y.family !== "Voice"; }, right, 3))) }; }
+    if (k === 3) { var dr = pick(["oboe", "bassoon"]); x = I.filter(function (y) { return y.id === dr; })[0]; right = x.name; return { q: "Which of these uses a double reed?", right: right, opts: shuffle([right].concat(shuffle(["Clarinet", "Saxophone", "Flute", "Recorder"]).slice(0, 3))) }; }
+    if (k === 4) { var pair = pick([["doublebass", "the lowest bowed string instrument"], ["tuba", "the lowest brass instrument"], ["violin", "the highest bowed string instrument"], ["harpsichord", "a keyboard instrument whose strings are plucked"], ["trombone", "the brass instrument with a slide"], ["timpani", "drums that can be tuned to notes"]]); x = I.filter(function (y) { return y.id === pair[0]; })[0]; right = x.name; return { q: "Which is " + pair[1] + "?", right: right, opts: shuffle([right].concat(others(function (y) { return y.family === x.family || y.family === "Brass"; }, right, 3))) }; }
+    x = pick(I); return { q: x.quiz.q, right: x.quiz.options[x.quiz.answer], opts: x.quiz.options.slice() };
+  }
+  function game() {
+    var el = document.getElementById("game");
+    if (!G) { el.innerHTML = '<div style="display:grid;gap:8px"><h2 style="font-size:28px;margin:0">Instrument quiz</h2><p class="muted" style="margin:0">Ten questions on families, clefs, reeds and transposing instruments, the kind of thing that turns up in theory papers.</p></div><div><button class="btn go" type="button" data-game="start">Start the quiz</button></div>'; return; }
+    if (G.i >= 10) { el.innerHTML = '<h2 style="font-size:28px;margin:0">You scored ' + G.score + " out of 10</h2><p>" + (G.score >= 9 ? "Brilliant!" : G.score >= 6 ? "Good work. Try again to beat it." : "Have a look at a few instruments above, then try again.") + '</p><div><button class="btn go" type="button" data-game="start">Play again</button></div>'; return; }
+    var q = G.q;
+    el.innerHTML = '<div class="row" style="justify-content:space-between"><span class="kicker">Question ' + (G.i + 1) + " of 10</span><span class=\"muted\">Score " + G.score + '</span></div><div class="quiz"><b>' + esc(q.q) + "</b>" + q.opts.map(function (o) { return '<button class="opt" type="button" data-g="' + esc(o) + '"' + (G.done ? " disabled" : "") + ">" + esc(o) + "</button>"; }).join("") + (G.done ? '<div><button class="btn go small" type="button" data-game="next">' + (G.i === 9 ? "See your score" : "Next question") + "</button></div>" : "") + "</div>";
+    if (G.done) el.querySelectorAll("[data-g]").forEach(function (b) { if (b.dataset.g === q.right) b.classList.add("right"); else if (b.dataset.g === G.picked) b.classList.add("wrong"); });
+  }
+
+  function render() { chips(); shelf(); detail(); game(); }
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-fam]"))) { fam = b.dataset.fam; var list = I.filter(function (x) { return fam === "All" || x.family === fam; }); if (list.indexOf(cur) < 0) cur = list[0]; render(); return; }
+    if ((b = e.target.closest("[data-inst]"))) { hush(); cur = I.filter(function (x) { return x.id === b.dataset.inst; })[0]; history.replaceState(null, "", "#" + cur.id); shelf(); detail(); if (innerWidth < 820) document.getElementById("detail").scrollIntoView({ behavior: "smooth" }); return; }
+    if ((b = e.target.closest("[data-play]"))) { var r = rangeMidis(cur); playNotes(cur, b.dataset.play === "range" ? r : [b.dataset.play === "low" ? r[0] : r[r.length - 1]], b.dataset.play === "range" ? .42 : 1.2); return; }
+    if ((b = e.target.closest("[data-q1]"))) { var ok = +b.dataset.q1 === cur.quiz.answer; document.querySelectorAll("[data-q1]").forEach(function (x) { x.disabled = true; if (+x.dataset.q1 === cur.quiz.answer) x.classList.add("right"); }); if (!ok) b.classList.add("wrong"); document.getElementById("q1fb").textContent = ok ? "That's right!" : "Not quite: the answer is highlighted."; return; }
+    if ((b = e.target.closest("[data-game]"))) { if (b.dataset.game === "start") G = { i: 0, score: 0, q: gameQ(), done: false }; else { G.i++; G.q = gameQ(); G.done = false; G.picked = null; } game(); return; }
+    if ((b = e.target.closest("[data-g]"))) { if (G.done) return; G.done = true; G.picked = b.dataset.g; if (G.picked === G.q.right) G.score++; game(); return; }
+  });
+  function fromHash() { var h = (location.hash || "").slice(1); I.forEach(function (x) { if (x.id === h) { cur = x; if (fam !== "All" && fam !== x.family) fam = "All"; } }); }
+  fromHash();
+  window.addEventListener("hashchange", function () { hush(); fromHash(); render(); });
+  window.INSTRUMENTS_ROOM = { staffSVG: staffSVG, parse: parse, rangeMidis: rangeMidis, gameQ: gameQ };
+  render();
+})();
+</script>
+</body>
+</html>
