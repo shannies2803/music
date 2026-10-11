@@ -179,7 +179,7 @@
     });
     var styles = [].slice.call(document.querySelectorAll("style")).map(function (s) { return s.textContent; }).join("\n");
     var title = (isT ? "Trinity" : "ABRSM") + " Grade " + g + " theory: mock paper";
-    var mins = g <= 3 ? 90 : g <= 5 ? 120 : 180;
+    var mins = isT ? (g === 1 ? 60 : g <= 4 ? 90 : g <= 6 ? 120 : 150) : (g <= 3 ? 90 : g <= 5 ? 120 : 180);
     return '<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title) + "</title><style>" + styles +
       ":root{color-scheme:light}body{background:#fff!important;color:#111!important;margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.sheet{max-width:820px;margin:0 auto}" +
       "header.w{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:12px}header.w h1{font-size:23px;margin:0}.kick{font:600 12px system-ui;letter-spacing:.08em;text-transform:uppercase;color:#555}" +

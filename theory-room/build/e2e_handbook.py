@@ -62,6 +62,14 @@ async def main():
                         if "C minor" not in kt or "B♭ E♭ A♭" not in kt or "E♭ major" not in kt: bad(f"C minor panel: {kt[:200]!r}")
                         await pg.click("[data-scale='1']")
                     await pg.screenshot(path=f"{SHOTS}/handbook-{t}-{w}.png", full_page=True)
+                # speed games: every question is answerable, and a round runs and scores
+                chk = await pg.evaluate("""() => { const out = []; for (const id of ["keys", "notes", "ivs"]) for (let i = 0; i < 300; i++) { const q = HANDBOOK.makeQ(id); if (!q.opts.includes(q.right)) out.push(id + ": answer not offered"); if (/NaN|undefined/.test(q.svg + q.right)) out.push(id + ": broken"); } return [...new Set(out)]; }""")
+                for x in chk: bad("games " + x)
+                await pg.click("[data-tab=games]"); await pg.click("[data-game=ivs]")
+                for _ in range(5):
+                    await pg.click("[data-ga] >> nth=0")
+                if "right" not in await pg.inner_text("#gamebox"): bad("game round")
+                await pg.screenshot(path=f"{SHOTS}/handbook-games-{w}.png", full_page=True)
                 sw = await pg.evaluate("() => document.documentElement.scrollWidth - innerWidth")
                 if sw > 1: bad(f"{w}: sideways scroll {sw}px")
                 if errs: bad(f"{w}: {errs[:3]}")

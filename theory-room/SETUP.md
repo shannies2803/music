@@ -102,8 +102,18 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - On the theory tab, under **Mock exams**: a timed mock (30 questions, marked at once, with a topic breakdown) and a printable written paper with an answer key, for every grade of both boards. Both are made fresh each time from the lessons, in `rooms/mockpapers.js`.
 - The papers are written in the style of the boards' papers but are not official: check each year's syllabus for changes to the layout.
 
+## Revision tools
+
+- On the theory tab, under **Revision**: *Today's review* (spaced revision across the lessons you've done), *Fix my mistakes* (with the mistakes notebook), printable revision books for every grade of both boards, and an exam countdown plan. After a timed mock, learners can go through every answer. The Progress tab shows exam readiness for each grade and the next three steps. All in `rooms/revision.js`.
+
+## The Practical tab and the exam guide
+
+- The aural room's **Practical** tab (`rooms/practical.js`, free) has a scales and arpeggios coach for 15 instruments, an examiner mode that asks for scales from a chosen set, and a practice diary. Scale lists differ by board and instrument, so the page asks learners to check their syllabus.
+- `rooms/exam-guide.html` (Room 7, free) explains both boards' practical and theory exams. The marks and timings were checked in October 2026: check them against the boards' websites each year.
+
 ## The handbook
 
+- The **Speed games** tab has 60-second games for key signatures, note names and intervals; best scores are kept on the device.
 - The dictionary collects every term from the theory room and the instrument directions. After the term lists change, run `python3 build/make_handbook.py`.
 
 ## The instruments room
@@ -130,7 +140,7 @@ Run every command below from the top of this repository.
 - **Tests**:
   - `node build/test_backend.mjs`: payment rules and the course gate
   - `sh build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`, `e2e_instruments.py`, `e2e_handbook.py`, `e2e_mocks.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
+  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`, `e2e_instruments.py`, `e2e_handbook.py`, `e2e_mocks.py`, `e2e_revision.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
 
 ## Not built yet
 

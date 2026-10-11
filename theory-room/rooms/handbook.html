@@ -66,7 +66,7 @@
     <div style="display:grid;gap:10px">
       <p class="kicker">Room 6 · Handbook · free</p>
       <h1 style="font-size:clamp(34px,5.4vw,56px)">The theory handbook</h1>
-      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, note values, clefs and ornaments. Free for everyone.</p>
+      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
     </div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <section id="view"></section>
@@ -79,7 +79,7 @@
 (function () {
   "use strict";
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["ornaments", "Ornaments"]];
+  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
   var tab = (location.hash || "").slice(1) || "dict";
   if (!TABS.some(function (t) { return t[0] === tab; })) tab = "dict";
 
@@ -249,14 +249,62 @@
     }).join("") + "</div></div>";
   }
 
+
+  /* ---------- 7. speed games: 60 seconds against the clock ---------- */
+  var GAMES = [["keys", "Key signature sprint", "See a key signature, name the key."], ["notes", "Note-naming sprint", "Name notes in the treble, bass and alto clefs."], ["ivs", "Interval sprint", "Name the interval between two notes."]];
+  var G = { id: null, on: false, end: 0, score: 0, tries: 0, q: null, fb: "", timer: 0 };
+  var bestOf = function (id) { try { return +(localStorage.getItem("tr-hb-best-" + id) || 0); } catch (e) { return 0; } };
+  var setBest = function (id, v) { try { localStorage.setItem("tr-hb-best-" + id, String(v)); } catch (e) {} };
+  var rnd = function (a) { return a[Math.floor(Math.random() * a.length)]; };
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function optsFrom(right, pool) { var o = [right]; shuffle(pool).forEach(function (x) { if (o.length < 4 && o.indexOf(x) < 0) o.push(x); }); return shuffle(o); }
+  var CLEF_RANGE = { treble: ["G3", "C6"], bass: ["B1", "E4"], alto: ["A2", "D5"] };
+  function makeQ(id) {
+    if (id === "keys") {
+      var k = Math.floor(Math.random() * 15) - 7, mode = Math.random() < .5 ? "major" : "minor", clef = rnd(["treble", "bass"]), name = (mode === "major" ? MAJ : MIN)[String(k)] + " " + mode;
+      var pool = Object.keys(MAJ).map(function (x) { return (mode === "major" ? MAJ : MIN)[x] + " " + mode; });
+      return { ask: "Which " + mode + " key has this key signature?", svg: stave({ clef: clef, k: k, notes: [], w: 46 + Math.abs(k) * 11 + 40, h: 110, label: "key signature" }), right: name, opts: optsFrom(name, pool) };
+    }
+    if (id === "notes") {
+      var c = rnd(["treble", "bass", "alto"]), r = CLEF_RANGE[c], lo = dia(parse(r[0])), hi = dia(parse(r[1])), d = lo + Math.floor(Math.random() * (hi - lo + 1)), n = N(((d % 7) + 7) % 7, 0, Math.floor(d / 7));
+      return { ask: "Name this note (" + c + " clef).", svg: stave({ clef: c, notes: [{ n: n }], gap: 50, h: 130, w: 150, label: c + " clef note" }), right: LET[n.L], opts: LET.split("") };
+    }
+    var v, top, low;
+    for (var tries = 0; tries < 50; tries++) {
+      v = rnd(IV); var steps = { "2nd": 1, "3rd": 2, "4th": 3, "5th": 4, "6th": 5, "7th": 6, "octave": 7 }[v[0].split(" ")[1]];
+      low = N(Math.floor(Math.random() * 7), rnd([0, 0, 0, 1, -1]), 4);
+      var td = dia(low) + steps; top = N(((td % 7) + 7) % 7, 0, Math.floor(td / 7)); top.acc = midi(low) + v[2] - midi(top);
+      if (Math.abs(top.acc) <= 1 && dia(top) <= 38) break;
+    }
+    var names = IV.map(function (x) { return x[0]; });
+    return { ask: "Name the interval (lower note to higher).", svg: stave({ clef: "treble", notes: [{ n: low, showAcc: low.acc !== 0 }, { n: top, showAcc: top.acc !== 0 }], gap: 54, h: 130, w: 190, label: "two notes" }), right: v[0], opts: optsFrom(v[0], names) };
+  }
+  function games() {
+    if (!G.id) return '<div class="panel2"><p style="margin:0">Sixty seconds, as many right as you can. Quick recognition of keys, notes and intervals saves precious minutes in the theory exam. Your best scores are kept on this device.</p><div class="grid2">' +
+      GAMES.map(function (g) { return '<div class="card2"><h3>' + esc(g[1]) + "</h3><p style=\"margin:0\">" + esc(g[2]) + '</p><p class="muted" style="margin:0">Best: <b>' + bestOf(g[0]) + '</b></p><button class="btn" type="button" data-game="' + g[0] + '">Play</button></div>'; }).join("") + "</div></div>";
+    var title = GAMES.filter(function (g) { return g[0] === G.id; })[0][1];
+    if (!G.on) {
+      var best = bestOf(G.id);
+      return '<div class="panel2" id="gamebox"><h2 style="margin:0">' + esc(title) + '</h2><p style="font-size:22px;margin:0"><b>' + G.score + "</b> right out of " + G.tries + (G.newBest ? " · <b>New best!</b>" : " · best " + best) + '</p><div class="chips"><button class="btn" type="button" data-game="' + G.id + '">Play again</button><button type="button" data-game="">All games</button></div></div>';
+    }
+    var q = G.q;
+    return '<div class="panel2" id="gamebox"><div class="chips" style="justify-content:space-between"><b style="font-size:20px">' + esc(title) + '</b><span><b id="gleft" style="font-size:24px;font-variant-numeric:tabular-nums">' + Math.max(0, Math.ceil((G.end - Date.now()) / 1000)) + '</b> s · <b>' + G.score + "</b> right</span></div>" +
+      '<p style="margin:0;font-size:18px">' + esc(q.ask) + "</p><div>" + q.svg + '</div><div class="chips">' + q.opts.map(function (o) { return '<button type="button" data-ga="' + esc(o) + '" style="min-width:64px">' + esc(o) + "</button>"; }).join("") + '</div><p class="note" id="gfb" style="margin:0;min-height:22px">' + G.fb + "</p></div>";
+  }
+  function gameEnd() { clearInterval(G.timer); G.on = false; G.newBest = G.score > bestOf(G.id); if (G.newBest) setBest(G.id, G.score); render(); }
+
   /* ---------- page ---------- */
   function render() {
     document.getElementById("tabs").innerHTML = TABS.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + esc(t[1]) + "</button>"; }).join("");
-    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, ornaments: ornaments }[tab]();
+    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, ornaments: ornaments, games: games }[tab]();
   }
   document.addEventListener("click", function (e) {
     var b;
-    if ((b = e.target.closest("[data-tab]"))) { tab = b.dataset.tab; history.replaceState(null, "", "#" + tab); render(); return; }
+    if ((b = e.target.closest("[data-tab]"))) { clearInterval(G.timer); G.on = false; G.id = null; tab = b.dataset.tab; history.replaceState(null, "", "#" + tab); render(); return; }
+    if ((b = e.target.closest("[data-game]"))) { var id = b.dataset.game; clearInterval(G.timer); if (!id) { G.id = null; G.on = false; render(); return; }
+      G.id = id; G.on = true; G.score = 0; G.tries = 0; G.fb = ""; G.end = Date.now() + 60000; G.q = makeQ(id);
+      G.timer = setInterval(function () { var el = document.getElementById("gleft"); if (Date.now() >= G.end) gameEnd(); else if (el) el.textContent = Math.ceil((G.end - Date.now()) / 1000); }, 250); render(); return; }
+    if ((b = e.target.closest("[data-ga]"))) { if (!G.on) return; G.tries++; var ok = b.dataset.ga === G.q.right; if (ok) G.score++; G.fb = ok ? "✓ Yes!" : "✗ It was " + esc(G.q.right) + "."; G.q = makeQ(G.id); render(); return; }
     if ((b = e.target.closest("[data-db]"))) { D.b = b.dataset.db; D.g = 0; D.flash = null; render(); return; }
     if ((b = e.target.closest("[data-d]"))) {
       var a = b.dataset.d, F = D.flash;
@@ -274,7 +322,7 @@
   document.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest(".seg")) { e.preventDefault(); e.target.closest(".seg").dispatchEvent(new MouseEvent("click", { bubbles: true })); } });
   document.addEventListener("input", function (e) { if (e.target.id === "dq") { D.q = e.target.value; D.flash = null; document.getElementById("dlist").innerHTML = dictList(); } });
   document.addEventListener("change", function (e) { if (e.target.id === "dg") { D.g = +e.target.value; D.flash = null; render(); } });
-  window.HANDBOOK = { entries: ENTRIES, scale: scale, sigAcc: sigAcc, parse: parse, midi: midi, nm: nm, stave: stave };
+  window.HANDBOOK = { entries: ENTRIES, scale: scale, sigAcc: sigAcc, parse: parse, midi: midi, nm: nm, stave: stave, makeQ: makeQ };
   render();
 })();
 </script>
