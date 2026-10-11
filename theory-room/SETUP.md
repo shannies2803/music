@@ -15,6 +15,7 @@ Plan on an unhurried morning for steps 1–4. You only edit one file, `config.js
 | `rooms/course-g7.js`, `rooms/course-g8.js` | The Grade 7 and 8 guided courses, which open inside the theory tab (paid; checked on the server) |
 | `rooms/composers.html` | The composer films (Room 4) |
 | `rooms/instruments.html` | The instrument guide (Room 5, free): data in `rooms/instruments.js` |
+| `rooms/handbook.html` | The theory handbook (Room 6, free): terms dictionary, keys, intervals, note values, clefs, ornaments |
 | `teacher.html` | The class view for teachers |
 | `repertoire/` | The ABRSM & Trinity repertoire guide |
 | `config.js` | **The only file you edit**: your links, keys and prices |
@@ -96,6 +97,10 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - The exam-list numbers come from the repertoire data: run `python3 build/make_composers.py` after the lists change.
 - **Making videos for social media**: open `rooms/composers.html?studio=1` in Chrome on a computer, choose a composer, and press *Record 16:9* (YouTube) or *Record 9:16* (Shorts, Reels, TikTok). The film plays once and gives you a video file. Add your own voice-over in any video app.
 
+## The handbook
+
+- The dictionary collects every term from the theory room and the instrument directions. After the term lists change, run `python3 build/make_handbook.py`.
+
 ## The instruments room
 
 - Each instrument is in `rooms/instruments.js` with `checked: false` (shown as Draft) until you've checked its facts; then set `checked: true`.
@@ -120,7 +125,7 @@ Run every command below from the top of this repository.
 - **Tests**:
   - `node build/test_backend.mjs`: payment rules and the course gate
   - `sh build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`, `e2e_instruments.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
+  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`, `e2e_instruments.py`, `e2e_handbook.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
 
 ## Not built yet
 

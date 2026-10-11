@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Handbook | The Theory Room</title>
+<meta name="description" content="A free music theory handbook: a dictionary of every ABRSM and Trinity term, every key signature and the circle of fifths, intervals, note values, clefs and ornaments.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Music&display=swap">
+<link rel="stylesheet" href="../site.css">
+<script>window.TR_ROOM = 1;</script>
+<script src="../config.js"></script>
+<script src="../tr.js"></script>
+<style>
+  main { padding-block: 24px 60px; }
+  main > .wrap { display: grid; gap: 22px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .tabs button, .chips button { font: inherit; font-size: 15px; min-height: 40px; padding: 4px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+  .tabs button[aria-selected="true"], .chips button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel2 { border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--sheet); padding: clamp(14px, 2.6vw, 24px); display: grid; gap: 14px; }
+  input.search, select { font: inherit; font-size: 17px; min-height: 46px; padding: 6px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--page); color: var(--ink); }
+  input.search { width: 100%; max-width: 520px; }
+  .dict { display: grid; gap: 0; }
+  .dict .letter { font-family: var(--f-display); font-size: 22px; margin: 14px 0 4px; color: var(--accent); }
+  .dict .row1 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 4px 14px; padding: 8px 4px; border-top: 1px solid var(--line); align-items: baseline; }
+  .dict .row1 i { font-weight: 700; }
+  .dict .src { font-family: var(--f-mono); font-size: 12px; color: var(--muted); white-space: nowrap; text-align: right; }
+  @media (max-width: 640px) { .dict .row1 { grid-template-columns: 1fr; } .dict .src { text-align: left; } }
+  .flash { border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 22px; text-align: center; display: grid; gap: 12px; background: var(--page); }
+  .flash .term { font-family: var(--f-display); font-size: clamp(28px, 5vw, 40px); font-style: italic; }
+  .flash .meaning { font-size: 21px; min-height: 30px; }
+  .cof { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .cof { grid-template-columns: 1fr; } }
+  .cof svg.circle { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+  .orn .tg { font-family: "Noto Music", "Segoe UI Symbol", serif; font-style: normal; font-weight: 400; font-size: 84px; text-anchor: middle; }
+  .cof .seg { cursor: pointer; }
+  .cof .seg circle { fill: var(--page); stroke: var(--line); stroke-width: 1.5; }
+  .cof .seg:hover circle, .cof .seg.on circle { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+  .cof text { fill: var(--ink); font-family: var(--f-display); text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+  .cof text.mi { font-size: 13px; fill: var(--muted); }
+  .staff line { stroke: var(--ink); stroke-width: 1.2; }
+  .staff .clef, .glyph { font-family: "Noto Music", "Bravura Text", "Segoe UI Symbol", "Apple Symbols", serif; }
+  .staff .clef, .staff .nh, .staff .acc { fill: var(--ink); }
+  .staff .acc { font-family: "Noto Music", "Segoe UI Symbol", serif; }
+  .staff .lbl { fill: var(--muted); font: 12px var(--f-mono); text-anchor: middle; }
+  .staves { display: flex; flex-wrap: wrap; gap: 12px; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 16px; }
+  table.t th, table.t td { text-align: left; padding: 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+  table.t th { font-size: 13px; font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); border-top: 0; }
+  .glyph { font-size: 34px; line-height: 1; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .card2 { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; background: var(--page); display: grid; gap: 8px; align-content: start; }
+  .card2 h3 { margin: 0; font-size: 19px; }
+  .orn svg { width: 64px; height: 40px; }
+  .orn path, .orn line { stroke: var(--ink); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .orn text { fill: var(--ink); font: italic 700 22px Georgia, serif; }
+  .note { font-size: 14px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+    <div style="display:grid;gap:10px">
+      <p class="kicker">Room 6 · Handbook · free</p>
+      <h1 style="font-size:clamp(34px,5.4vw,56px)">The theory handbook</h1>
+      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, note values, clefs and ornaments. Free for everyone.</p>
+    </div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <section id="view"></section>
+  </div>
+</main>
+<script src="handbook-terms.js"></script>
+<script src="instruments.js"></script>
+<script src="instruments-more.js"></script>
+<script>
+(function () {
+  "use strict";
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["ornaments", "Ornaments"]];
+  var tab = (location.hash || "").slice(1) || "dict";
+  if (!TABS.some(function (t) { return t[0] === tab; })) tab = "dict";
+
+  /* ---------- notes and staves ---------- */
+  var LET = "CDEFGAB", STEP = [0, 2, 4, 5, 7, 9, 11];
+  var N = function (L, acc, oct) { return { L: L, acc: acc, oct: oct }; };
+  function parse(s) { var m = /^([A-G])(##|#|bb|b)?(-?\d)$/.exec(s); return N(LET.indexOf(m[1]), { "#": 1, "##": 2, b: -1, bb: -2 }[m[2]] || 0, +m[3]); }
+  var midi = function (n) { return 12 * (n.oct + 1) + STEP[n.L] + n.acc; };
+  var dia = function (n) { return n.oct * 7 + n.L; };
+  var ACC = { "-2": "♭♭", "-1": "♭", "0": "", "1": "♯", "2": "×" };
+  var nm = function (n) { return LET[n.L] + ACC[n.acc]; };
+  var CLEF = { treble: { ref: 30, glyph: "\u{1D11E}", dy: 31, size: 46 }, bass: { ref: 18, glyph: "\u{1D122}", dy: 10, size: 40 }, alto: { ref: 24, glyph: "\u{1D121}", dy: 20, size: 40 }, tenor: { ref: 22, glyph: "\u{1D121}", dy: 10, size: 40 } };
+  /* key signature positions (diatonic numbers) in the treble clef; bass is two octaves lower, alto one */
+  var SIG = { sharp: [38, 35, 39, 36, 33, 37, 34], flat: [34, 37, 33, 36, 32, 35, 31] };
+  function stave(o) {
+    var c = CLEF[o.clef], H = 10, top = 34, bottom = top + 4 * H, k = o.k || 0, shift = { treble: 0, bass: -14, alto: -7, tenor: -7 }[o.clef];
+    var ks = Math.abs(k), sigW = ks * 11, x0 = 46 + sigW + 12, gap = o.gap || 46, W = o.w || (x0 + (o.notes || []).length * gap + 14), s = "";
+    s += '<svg class="staff" width="' + W + '" height="' + (o.h || 120) + '" viewBox="0 0 ' + W + " " + (o.h || 120) + '" role="img" aria-label="' + esc(o.label || o.clef + " clef") + '">';
+    for (var i = 0; i < 5; i++) s += '<line x1="2" x2="' + (W - 2) + '" y1="' + (top + i * H) + '" y2="' + (top + i * H) + '"/>';
+    s += '<text class="clef" x="6" y="' + (top + c.dy) + '" font-size="' + c.size + '">' + c.glyph + "</text>";
+    for (var j = 0; j < ks; j++) { var d = (k > 0 ? SIG.sharp : SIG.flat)[j] + shift - c.ref;
+      s += '<text class="acc" x="' + (44 + j * 11) + '" y="' + (bottom - d * H / 2 + (k > 0 ? 5 : 3)) + '" font-size="19">' + (k > 0 ? "♯" : "♭") + "</text>"; }
+    (o.notes || []).forEach(function (n, i) {
+      var x = x0 + i * gap + 10, d = dia(n.n) - c.ref, y = bottom - d * H / 2;
+      for (var q = -2; q >= d; q -= 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - q * H / 2) + '" y2="' + (bottom - q * H / 2) + '"/>';
+      for (var r = 10; r <= d; r += 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - r * H / 2) + '" y2="' + (bottom - r * H / 2) + '"/>';
+      if (n.showAcc) s += '<text class="acc" x="' + (x - 22) + '" y="' + (y + 5) + '" font-size="18">' + (ACC[n.n.acc] || "♮") + "</text>";
+      s += '<ellipse class="nh" cx="' + x + '" cy="' + y + '" rx="6.4" ry="4.6" transform="rotate(-20 ' + x + " " + y + ')"/>';
+      if (n.label) s += '<text class="lbl" x="' + x + '" y="' + ((o.h || 120) - 6) + '">' + esc(n.label) + "</text>";
+    });
+    return s + "</svg>";
+  }
+
+  /* ---------- sound ---------- */
+  var actx = null;
+  function play(ms, step, together) {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume();
+    var t0 = actx.currentTime + .05;
+    ms.forEach(function (m, i) {
+      var t = t0 + (together ? 0 : i * step), f = 440 * Math.pow(2, (m - 69) / 12), g = actx.createGain(); g.connect(actx.destination);
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.18, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + (together ? 1.6 : step * 1.6));
+      [[1, 1], [2, .4], [3, .15]].forEach(function (p) { var o = actx.createOscillator(), gg = actx.createGain(); o.frequency.value = f * p[0]; gg.gain.value = p[1]; o.connect(gg); gg.connect(g); o.start(t); o.stop(t + 2); });
+    });
+  }
+
+  /* ---------- 1. the dictionary ---------- */
+  var HT = window.HANDBOOK_TERMS || { abrsm: [], trinity: [] }, MORE = window.INSTRUMENTS_MORE || {}, INST = window.INSTRUMENTS || [];
+  var ENTRIES = [];
+  HT.abrsm.forEach(function (t) { ENTRIES.push({ t: t[0], m: t[1], b: "ABRSM", g: t[2], lang: t[3] }); });
+  HT.trinity.forEach(function (t) { ENTRIES.push({ t: t[0], m: t[1], b: "Trinity", g: t[2] }); });
+  INST.forEach(function (x) { (MORE[x.id] ? MORE[x.id].tech : []).forEach(function (t) { ENTRIES.push({ t: t[0], m: t[1], b: "Instruments", inst: x.name }); }); });
+  var fold = function (s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[‘’'()]/g, ""); };
+  ENTRIES.sort(function (a, b) { return fold(a.t).localeCompare(fold(b.t)); });
+  var D = { q: "", b: "All", g: 0, flash: null };
+  function filtered() {
+    /* match every word of the search, by its stem, so ‘slowing’ also finds ‘slower’ and ‘slowly’ */
+    var words = fold(D.q).split(/\s+/).filter(Boolean).map(function (w) { return w.length > 4 ? w.replace(/(ing|ly|er|ed|es|s)$/, "") : w; });
+    return ENTRIES.filter(function (e) {
+      if (!(D.b === "All" || e.b === D.b) || (D.g && e.g !== D.g)) return false;
+      var hay = fold(e.t) + " " + fold(e.m);
+      return words.every(function (w) { return hay.indexOf(w) >= 0; });
+    });
+  }
+  function srcOf(e) { return e.b === "Instruments" ? e.inst : e.b + " Grade " + e.g + (e.lang === "Fr" ? " · French" : e.lang === "De" ? " · German" : ""); }
+  function dictList() {
+    var list = filtered(), last = "", h = "";
+    list.forEach(function (e) { var L = fold(e.t).charAt(0).toUpperCase(); if (!/[A-Z]/.test(L)) L = "#"; if (L !== last) { h += '<div class="letter">' + L + "</div>"; last = L; } h += '<div class="row1"><i>' + esc(e.t) + "</i><span>" + esc(e.m) + '</span><span class="src">' + esc(srcOf(e)) + "</span></div>"; });
+    return '<p class="muted" style="margin:0">' + list.length + " of " + ENTRIES.length + " terms</p>" + (h ? '<div class="dict">' + h + "</div>" : '<p>No terms match. Try fewer letters.</p>');
+  }
+  function flashHTML() {
+    var F = D.flash; if (F.i >= F.deck.length) return '<div class="flash"><div class="term" style="font-style:normal">Done!</div><p>You knew ' + F.known + " of " + F.deck.length + '.</p><div><button class="btn go" type="button" data-d="flash">Another 10</button> <button class="btn" type="button" data-d="endflash">Back to the list</button></div></div>';
+    var e = F.deck[F.i];
+    return '<div class="flash"><span class="muted">' + (F.i + 1) + " / " + F.deck.length + " · " + esc(srcOf(e)) + '</span><div class="term">' + esc(e.t) + '</div><div class="meaning">' + (F.show ? esc(e.m) : "") + "</div>" +
+      (F.show ? '<div><button class="btn" type="button" data-d="no">Not yet</button> <button class="btn go" type="button" data-d="yes">I knew it</button></div>' : '<div><button class="btn go" type="button" data-d="show">Show the meaning</button></div>') + "</div>";
+  }
+  function dict() {
+    var grades = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    return '<div class="panel2"><input class="search" id="dq" type="search" placeholder="Search a term or a meaning (e.g. ‘slowing’)" value="' + esc(D.q) + '" aria-label="Search terms">' +
+      '<div class="chips">' + ["All", "ABRSM", "Trinity", "Instruments"].map(function (b) { return '<button type="button" data-db="' + b + '" aria-pressed="' + (D.b === b) + '">' + (b === "Instruments" ? "Instrument directions" : b) + "</button>"; }).join("") +
+      (D.b === "ABRSM" || D.b === "Trinity" ? '<select id="dg" aria-label="Grade">' + grades.map(function (g) { return '<option value="' + g + '"' + (D.g === g ? " selected" : "") + ">" + (g ? "Grade " + g : "Every grade") + "</option>"; }).join("") + "</select>" : "") +
+      '<button class="btn small go" type="button" data-d="flash" style="margin-left:auto">Test me on these (10 cards)</button></div>' +
+      (D.flash ? flashHTML() : "") + '<div id="dlist">' + dictList() + "</div></div>";
+  }
+
+  /* ---------- 2. keys and the circle of fifths ---------- */
+  var MAJ = { "-7": "C♭", "-6": "G♭", "-5": "D♭", "-4": "A♭", "-3": "E♭", "-2": "B♭", "-1": "F", "0": "C", "1": "G", "2": "D", "3": "A", "4": "E", "5": "B", "6": "F♯", "7": "C♯" };
+  var MIN = { "-7": "A♭", "-6": "E♭", "-5": "B♭", "-4": "F", "-3": "C", "-2": "G", "-1": "D", "0": "A", "1": "E", "2": "B", "3": "F♯", "4": "C♯", "5": "G♯", "6": "D♯", "7": "A♯" };
+  var CIRCLE = [[0], [1], [2], [3], [4], [5, -7], [6, -6], [-5, 7], [-4], [-3], [-2], [-1]];
+  var K = { k: 0, mode: "major" };
+  function sigAcc(k, L) { var sh = "FCGDAEB", fl = "BEADGCF", ch = LET[L]; if (k > 0) return sh.indexOf(ch) < k ? 1 : 0; if (k < 0) return fl.indexOf(ch) < -k ? -1 : 0; return 0; }
+  function tonicOf(k, mode) { var name = (mode === "major" ? MAJ : MIN)[String(k)], L = LET.indexOf(name[0]); return N(L, name.length > 1 ? (name[1] === "♯" ? 1 : -1) : 0, 4); }
+  function scale(k, mode, kind) {
+    var t = tonicOf(k, mode), out = [];
+    for (var i = 0; i < 8; i++) { var L = (t.L + i) % 7, oct = t.oct + Math.floor((t.L + i) / 7), a = sigAcc(k, L); if (mode === "minor" && ((kind !== "natural" && i === 6) || (kind === "melodic" && i === 5))) a += 1; out.push(N(L, a, oct)); }
+    if (dia(out[0]) > 32) out = out.map(function (n) { return N(n.L, n.acc, n.oct - 1); });   /* keep the scale low enough to read */
+    return out;
+  }
+  function circleSVG() {
+    var s = '<svg class="circle" viewBox="0 0 400 400" role="group" aria-label="Circle of fifths">', cx = 200, cy = 200;
+    var MINL = [["Am", 0], ["Em", 1], ["Bm", 2], ["F♯m", 3], ["C♯m", 4], ["G♯m", 5], ["E♭m", -6], ["B♭m", -5], ["Fm", -4], ["Cm", -3], ["Gm", -2], ["Dm", -1]];
+    CIRCLE.forEach(function (ks, i) {
+      var a = (i / 12) * Math.PI * 2 - Math.PI / 2, x = cx + 158 * Math.cos(a), y = cy + 158 * Math.sin(a), xi = cx + 100 * Math.cos(a), yi = cy + 100 * Math.sin(a), on = ks.indexOf(K.k) >= 0;
+      var majLbl = ks.map(function (k) { return MAJ[String(k)]; }).join("/"), minLbl = MINL[i][0], mk = MINL[i][1], onMin = K.mode === "minor" && (K.k === mk || ks.indexOf(K.k) >= 0);
+      s += '<g class="seg' + (on && K.mode === "major" ? " on" : "") + '" data-k="' + ks[0] + '" data-mode="major" tabindex="0" role="button" aria-label="' + esc(majLbl) + ' major"><circle cx="' + x + '" cy="' + y + '" r="' + (ks.length > 1 ? 34 : 28) + '"/><text x="' + x + '" y="' + y + '" font-size="' + (ks.length > 1 ? 14 : 19) + '">' + esc(majLbl) + "</text></g>";
+      s += '<g class="seg' + (onMin ? " on" : "") + '" data-k="' + mk + '" data-mode="minor" tabindex="0" role="button" aria-label="' + esc(minLbl.replace("m", " minor")) + '"><circle cx="' + xi + '" cy="' + yi + '" r="23"/><text class="mi" x="' + xi + '" y="' + yi + '">' + esc(minLbl) + "</text></g>";
+    });
+    return s + '<text x="200" y="192" font-size="13" class="mi">majors outside</text><text x="200" y="210" font-size="13" class="mi">minors inside</text></svg>';
+  }
+  function keys() {
+    var k = K.k, mode = K.mode, name = (mode === "major" ? MAJ : MIN)[String(k)] + " " + mode, rel = mode === "major" ? MIN[String(k)] + " minor" : MAJ[String(k)] + " major";
+    var n = Math.abs(k), list = k > 0 ? "FCGDAEB".slice(0, k).split("").map(function (c) { return c + "♯"; }) : "BEADGCF".slice(0, -k).split("").map(function (c) { return c + "♭"; });
+    var enh = Math.abs(k) >= 5 ? (mode === "major" ? MAJ : MIN)[String(k > 0 ? k - 12 : k + 12)] : null;
+    var scales = mode === "major" ? [["Major scale", scale(k, mode)]] : [["Natural minor", scale(k, mode, "natural")], ["Harmonic minor (raised 7th)", scale(k, mode, "harmonic")], ["Melodic minor going up (raised 6th and 7th)", scale(k, mode, "melodic")]];
+    return '<div class="panel2"><div class="cof"><div>' + circleSVG() + '<p class="note">Going clockwise, each key is a 5th higher and adds a sharp (or loses a flat). The inner ring shows each relative minor, which shares the key signature.</p></div>' +
+      '<div style="display:grid;gap:12px"><h2 style="margin:0;font-size:32px">' + esc(name) + "</h2><p style=\"margin:0\">" + (n ? n + " " + (k > 0 ? "sharp" : "flat") + (n > 1 ? "s" : "") + ": <b>" + list.join(" ") + "</b>" : "No sharps or flats.") + "<br>Relative " + (mode === "major" ? "minor" : "major") + ": <b>" + esc(rel) + "</b>" + (enh && Math.abs(k > 0 ? k - 12 : k + 12) <= 7 ? "<br>Sounds the same as: <b>" + esc(enh + " " + mode) + "</b> (enharmonic)" : "") + "</p>" +
+      '<div class="staves">' + stave({ clef: "treble", k: k, label: "key signature, treble clef" }) + stave({ clef: "bass", k: k, label: "key signature, bass clef" }) + stave({ clef: "alto", k: k, label: "key signature, alto clef" }) + "</div>" +
+      scales.map(function (sc, i) { var notes = sc[1]; return "<div><b>" + esc(sc[0]) + '</b><div style="overflow-x:auto">' + stave({ clef: "treble", k: k, notes: notes.map(function (x, j) { return { n: x, label: nm(x), showAcc: x.acc !== sigAcc(k, x.L) }; }), gap: 36, h: 130, label: sc[0] }) + '</div><button class="btn small" type="button" data-scale="' + i + '">▶ Hear it</button></div>'; }).join("") +
+      '<div class="chips"><button type="button" data-mode="major" aria-pressed="' + (mode === "major") + '">Major</button><button type="button" data-mode="minor" aria-pressed="' + (mode === "minor") + '">Minor</button></div></div></div></div>';
+  }
+
+  /* ---------- 3. intervals ---------- */
+  var IV = [["minor 2nd", "Db4", 1], ["major 2nd", "D4", 2], ["minor 3rd", "Eb4", 3], ["major 3rd", "E4", 4], ["perfect 4th", "F4", 5], ["augmented 4th", "F#4", 6], ["diminished 5th", "Gb4", 6], ["perfect 5th", "G4", 7], ["minor 6th", "Ab4", 8], ["major 6th", "A4", 9], ["minor 7th", "Bb4", 10], ["major 7th", "B4", 11], ["perfect octave", "C5", 12]];
+  function intervals() {
+    return '<div class="panel2"><p style="margin:0">Count the <b>letters</b> for the number (C up to E: C D E = a 3rd), then count the <b>semitones</b> for the type. Here is every interval up from middle C:</p>' +
+      '<div style="overflow-x:auto"><table class="t"><tr><th>Interval</th><th>Semitones</th><th>From C</th><th></th></tr>' + IV.map(function (v, i) {
+        var top = parse(v[1]);
+        return "<tr><td><b>" + esc(v[0]) + "</b></td><td>" + v[2] + "</td><td>" + stave({ clef: "treble", notes: [{ n: parse("C4") }, { n: top, showAcc: top.acc !== 0 }], gap: 40, h: 96, w: 170, label: "C up to " + nm(top) }) + '</td><td><button class="btn small" type="button" data-iv="' + i + '">▶</button></td></tr>';
+      }).join("") + "</table></div>" +
+      '<div class="grid2"><div class="card2"><h3>Making intervals bigger or smaller</h3><p>One semitone bigger: minor → major → augmented; perfect → augmented. One semitone smaller: major → minor → diminished; perfect → diminished.</p></div>' +
+      '<div class="card2"><h3>Inverting an interval</h3><p>Move the lower note up an octave. The numbers add up to 9 (a 3rd becomes a 6th); major ↔ minor, augmented ↔ diminished, perfect stays perfect.</p></div>' +
+      '<div class="card2"><h3>Compound intervals</h3><p>Bigger than an octave: a 9th is an octave plus a 2nd, a 10th an octave plus a 3rd, and so on. Name them as compound (major 10th) or as the simple interval plus an octave.</p></div></div></div>';
+  }
+
+  /* ---------- 4. note values and rests ---------- */
+  var VALUES = [["breve", "double whole note", "8", "\u{1D15C}", "\u{1D13A}"], ["semibreve", "whole note", "4", "\u{1D15D}", "\u{1D13B}"], ["minim", "half note", "2", "\u{1D15E}", "\u{1D13C}"], ["crotchet", "quarter note", "1", "\u{1D15F}", "\u{1D13D}"], ["quaver", "eighth note", "½", "\u{1D160}", "\u{1D13E}"], ["semiquaver", "sixteenth note", "¼", "\u{1D161}", "\u{1D13F}"], ["demisemiquaver", "thirty-second note", "⅛", "\u{1D162}", "\u{1D140}"]];
+  function values() {
+    return '<div class="panel2"><div style="overflow-x:auto"><table class="t"><tr><th>Note</th><th>Rest</th><th>British name</th><th>American name</th><th>Crotchet beats</th></tr>' + VALUES.map(function (v) {
+      return '<tr><td class="glyph">' + v[3] + '</td><td class="glyph">' + v[4] + "</td><td><b>" + v[0] + "</b></td><td>" + v[1] + "</td><td>" + v[2] + "</td></tr>";
+    }).join("") + "</table></div>" +
+      '<div class="grid2"><div class="card2"><h3>Dots</h3><p>A dot adds half the note\'s value again: a dotted minim is 2 + 1 = 3 beats. A second dot adds half of the first dot: a double-dotted minim is 2 + 1 + ½ = 3½ beats.</p></div>' +
+      '<div class="card2"><h3>Ties</h3><p>A tie joins two notes of the same pitch into one longer sound. A slur, which looks similar, joins notes of different pitches: play them smoothly.</p></div>' +
+      '<div class="card2"><h3>Triplets and duplets</h3><p>A triplet fits three notes into the time of two (marked 3). A duplet fits two into the time of three, in compound time (marked 2).</p></div>' +
+      '<div class="card2"><h3>Time signatures</h3><p>Simple time: the beat divides into two (2/4, 3/4, 4/4, 2/2). Compound time: the beat is dotted and divides into three (6/8, 9/8, 12/8). Irregular: 5/4, 7/8 and so on.</p></div></div></div>';
+  }
+
+  /* ---------- 5. clefs ---------- */
+  var CLEFS = [["treble", "Treble (G) clef", "Curls round the G line. Middle C is one leger line below the stave.", "Violin, flute, oboe, clarinet, saxophone, recorder, trumpet, horn, guitar, piano right hand, high voices"], ["bass", "Bass (F) clef", "Its two dots sit either side of the F line. Middle C is one leger line above the stave.", "Cello, double bass, bassoon, trombone, tuba, timpani, piano left hand, low voices"], ["alto", "Alto (C) clef", "Points to middle C on the middle line.", "Viola (and occasionally the alto trombone)"], ["tenor", "Tenor (C) clef", "Points to middle C on the fourth line up.", "High passages for cello, bassoon and trombone"]];
+  function clefs() {
+    return '<div class="panel2"><p style="margin:0">Each clef fixes one note on the stave, so the same middle C sits in a different place in each.</p><div class="grid2">' + CLEFS.map(function (c) {
+      return '<div class="card2"><h3>' + esc(c[1]) + "</h3>" + stave({ clef: c[0], notes: [{ n: parse("C4"), label: "middle C" }], gap: 50, h: 120, w: 200, label: c[1] + " with middle C" }) + "<p>" + esc(c[2]) + '</p><p class="muted" style="margin:0"><b>Used by:</b> ' + esc(c[3]) + "</p></div>";
+    }).join("") + "</div></div>";
+  }
+
+  /* ---------- 6. ornaments ---------- */
+  var ORN = [
+    ["Trill (shake)", '<text x="4" y="28">tr</text><path d="M30 20 q4-8 8 0 t8 0 t8 0 t8 0"/>', "Alternate quickly between the written note and the note above. In Baroque music it usually starts on the note above.", "Written D: E D E D E D… (or D E D E… in later music)"],
+    ["Upper mordent", '<path d="M8 26 l7-12 l7 12 l7-12 l7 12 l7-12 l7 12"/>', "Play the written note, the note above, then the written note again, quickly, on the beat.", "Written D: D E D"],
+    ["Lower mordent", '<path d="M8 26 l7-12 l7 12 l7-12 l7 12 l7-12 l7 12"/><line x1="32" y1="6" x2="32" y2="34"/>', "Like the upper mordent but with the note below.", "Written D: D C D"],
+    ["Turn", '<text class="tg" x="24" y="42">\u{1D197}</text>', "Note above, written note, note below, written note.", "Written D: E D C D"],
+    ["Inverted turn", '<text class="tg" x="24" y="42">\u{1D197}</text><line x1="24" y1="6" x2="24" y2="36"/>', "Note below, written note, note above, written note.", "Written D: C D E D"],
+    ["Acciaccatura (crushed note)", '<path d="M14 30 c-6 0-6-7 0-7 c6 0 6 7 0 7 M20 27 V6 l8 5 M12 22 l16-10"/>', "A small note with a stroke through its tail, squeezed in as quickly as possible before the main note.", "Played almost at the same time as the main note"],
+    ["Appoggiatura (leaning note)", '<path d="M14 30 c-6 0-6-7 0-7 c6 0 6 7 0 7 M20 27 V6 l8 5"/>', "A small note without a stroke. It leans on the beat and takes time from the main note, usually half its value.", "Written small D before a C minim: D crotchet, C crotchet"]
+  ];
+  function ornaments() {
+    return '<div class="panel2"><p style="margin:0">Ornaments decorate a note. How exactly to play them depends on the period, so check your edition, but these are the usual meanings.</p><div class="grid2">' + ORN.map(function (o) {
+      return '<div class="card2 orn"><svg viewBox="0 0 64 40" aria-hidden="true">' + o[1] + "</svg><h3>" + esc(o[0]) + "</h3><p style=\"margin:0\">" + esc(o[2]) + '</p><p class="muted" style="margin:0"><b>For example:</b> ' + esc(o[3]) + "</p></div>";
+    }).join("") + "</div></div>";
+  }
+
+  /* ---------- page ---------- */
+  function render() {
+    document.getElementById("tabs").innerHTML = TABS.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + esc(t[1]) + "</button>"; }).join("");
+    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, ornaments: ornaments }[tab]();
+  }
+  document.addEventListener("click", function (e) {
+    var b;
+    if ((b = e.target.closest("[data-tab]"))) { tab = b.dataset.tab; history.replaceState(null, "", "#" + tab); render(); return; }
+    if ((b = e.target.closest("[data-db]"))) { D.b = b.dataset.db; D.g = 0; D.flash = null; render(); return; }
+    if ((b = e.target.closest("[data-d]"))) {
+      var a = b.dataset.d, F = D.flash;
+      if (a === "flash") { var pool = filtered(); for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = pool[i]; pool[i] = pool[j]; pool[j] = t; } D.flash = { deck: pool.slice(0, 10), i: 0, show: false, known: 0 }; }
+      if (a === "endflash") D.flash = null;
+      if (a === "show") F.show = true;
+      if (a === "yes" || a === "no") { if (a === "yes") F.known++; F.i++; F.show = false; }
+      render(); return;
+    }
+    if ((b = e.target.closest(".seg"))) { K.k = +b.dataset.k; K.mode = b.dataset.mode; render(); return; }
+    if ((b = e.target.closest("[data-mode]"))) { K.mode = b.dataset.mode; render(); return; }
+    if ((b = e.target.closest("[data-scale]"))) { var mode = K.mode, kinds = mode === "major" ? [null] : ["natural", "harmonic", "melodic"], sc = scale(K.k, mode, kinds[+b.dataset.scale]); play(sc.map(midi).concat(sc.slice(0, 7).reverse().map(midi)), .32); return; }
+    if ((b = e.target.closest("[data-iv]"))) { var v = IV[+b.dataset.iv]; play([60, midi(parse(v[1]))], .55); setTimeout(function () { play([60, midi(parse(v[1]))], 0, true); }, 1300); return; }
+  });
+  document.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest(".seg")) { e.preventDefault(); e.target.closest(".seg").dispatchEvent(new MouseEvent("click", { bubbles: true })); } });
+  document.addEventListener("input", function (e) { if (e.target.id === "dq") { D.q = e.target.value; D.flash = null; document.getElementById("dlist").innerHTML = dictList(); } });
+  document.addEventListener("change", function (e) { if (e.target.id === "dg") { D.g = +e.target.value; D.flash = null; render(); } });
+  window.HANDBOOK = { entries: ENTRIES, scale: scale, sigAcc: sigAcc, parse: parse, midi: midi, nm: nm, stave: stave };
+  render();
+})();
+</script>
+</body>
+</html>
