@@ -12,7 +12,7 @@
     <p class="muted">Check ABRSM's current Grade 7 theory syllabus and a recent practice paper for the exact layout and marks, because these can change.</p>`,
   grownup: `<p><b>What this course is.</b> A day-by-day plan for the ABRSM Grade 7 theory exam. The drills mark themselves. The written tasks are done on paper and come with a checklist your child ticks when they've checked their own work.</p>
     <p><b>How to help (no music reading needed).</b> Ask to see the manuscript paper on written-task days and ask them to play or sing what they wrote. Look at the stars on drill days: one star means it's done, three means it's secure. If a day takes much longer than 30 minutes, split it over two days.</p>
-    <p><b>Worth buying.</b> ABRSM's Grade 7 theory practice papers (for days 27–28 and extra practice), manuscript paper and a soft pencil.</p>
+    <p><b>Practice papers.</b> The course prints its own Grade 7 mock papers, with answers, as often as you like (Theory tab → Mock exams → Written paper). ABRSM's official Grade 7 practice papers are good extra practice for days 27–28 if you want them. You'll also need manuscript paper and a soft pencil.</p>
     <p><b>Where a teacher helps.</b> Composition and completing a passage have more than one good answer. If you can, ask a teacher to look over one composition and one completed passage before the exam.</p>
     <p><b>Booking the exam.</b> Check ABRSM's website for the current dates and closing dates for entries in your area. Book once days 1–20 feel comfortable.</p>`,
   weeks: [
@@ -96,7 +96,7 @@
         { k: "weak" }] },
       { t: "Exam day ready", mins: 20, items: [
         { k: "read", h: "<p><b>The day before:</b> one last mixed quiz, then stop. Pack two sharp pencils, a rubber and a watch.</p><p><b>In the exam:</b> read the whole paper first. Do the question you feel surest about first. Leave ten minutes at the end to play everything through in your head and check for consecutive 5ths and octaves, missing accidentals and wrong numbers of beats in a bar.</p>" },
-        { k: "quiz", id: "c7-mock" }] }] }
+        { k: "drill", id: "mock-abrsm-g7", note: "A full timed mock: 30 questions, marked at once, with the topics to revise." }, { k: "quiz", id: "c7-mock" }] }] }
   ],
   quizzes: {
     quiz1: { t: "Review quiz 1: chords, figures and suspensions", ids: ["g6-chords", "g6-figures", "g7-figbass", "g7-sevenths", "g6-v7", "g7-sus", "g7-passage"], h: "Questions from this week's drills." },
@@ -189,12 +189,12 @@
         "Say which period it comes from and give two reasons from the music."],
       check: ["Every answer names a bar number and a beat.", "Keys and chords are spelt correctly.", "Your period answer gives reasons from the music, not just the composer's name."] },
     paperA: { t: "Practice paper: the harmony questions",
-      steps: ["Use a Grade 7 practice paper. Set a timer for about 90 minutes.",
+      steps: ["Print a Grade 7 written mock paper: Theory tab → Mock exams → Grade 7 → Written paper (or use an ABRSM practice paper). Set a timer for about 90 minutes.",
         "Do the figured-bass question and the completion question, under exam conditions: no keyboard, no help.",
         "When the timer ends, use the checklists from days 5, 12, 16 and 17 to check your own work. Mark anything you'd change in a different colour."],
       check: ["Finished inside the time.", "Checked every cadence and every accidental.", "Checked for consecutive 5ths and octaves.", "Noted one thing to improve next time."] },
     paperB: { t: "Practice paper: composition and score questions",
-      steps: ["Use the same practice paper. Set a timer for about 90 minutes.",
+      steps: ["Use the same paper (or print a new one). Set a timer for about 90 minutes.",
         "Do the composition and the score questions under exam conditions.",
         "Check the composition with the checklists from days 22–24. Check the score answers with the paper's answer booklet if you have it."],
       check: ["Finished inside the time.", "The composition has a modulation, a high point and full directions.", "Every score answer gives the bar and beat.", "Noted one thing to improve next time."] }

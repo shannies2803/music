@@ -12,7 +12,7 @@
     <p class="muted">Check ABRSM's current Grade 8 theory syllabus and a recent practice paper for the exact layout, choices and marks, because these can change.</p>`,
   grownup: `<p><b>What this course is.</b> A day-by-day plan for the ABRSM Grade 8 theory exam, the last and hardest theory grade. Expect 25–40 minutes a day.</p>
     <p><b>How to help (no music reading needed).</b> On written-task days ask to hear what was written: played on their instrument or the piano. Look at the stars on drill days: three stars means secure. If the trio-sonata week feels slow, that's normal; let it take two weeks.</p>
-    <p><b>Worth buying.</b> ABRSM's Grade 8 theory practice papers (for days 28–29 and extra practice), manuscript paper, a soft pencil and a rubber.</p>
+    <p><b>Practice papers.</b> The course prints its own Grade 8 mock papers, with answers, as often as you like (Theory tab → Mock exams → Written paper). ABRSM's official Grade 8 practice papers are good extra practice for days 28–29 if you want them. You'll also need manuscript paper and a soft pencil.</p>
     <p><b>Where a teacher helps.</b> The trio sonata, the keyboard completion and the composition all have many good answers. If you can, ask a teacher to mark one of each before the exam.</p>
     <p><b>Booking the exam.</b> Check ABRSM's website for current dates and closing dates in your area. Book once days 1–22 feel comfortable.</p>`,
   weeks: [
@@ -96,7 +96,7 @@
       { t: "Weak spots, then exam day", mins: 30, items: [
         { k: "weak" },
         { k: "read", h: "<p><b>The day before:</b> one last mixed quiz, then rest. Pack two sharp pencils, a rubber and a watch.</p><p><b>In the exam:</b> read the whole paper first. Start with the question you're surest of. Plan the time: the trio sonata and the keyboard completion need the longest. Leave ten minutes at the end to hear everything in your head and check accidentals, consecutives and beats in every bar.</p>" },
-        { k: "quiz", id: "c8-mock" }] }] }
+        { k: "drill", id: "mock-abrsm-g8", note: "A full timed mock: 30 questions, marked at once, with the topics to revise." }, { k: "quiz", id: "c8-mock" }] }] }
   ],
   quizzes: {
     quiz1: { t: "Review quiz 1: harmony", ids: ["g8-figs", "g8-figbass", "g8-passage", "g8-sus", "g8-aug6", "g8-chromatic", "g7-secdom", "g8-modkey"], h: "Questions from this week's drills." },
@@ -189,12 +189,12 @@
         "Say which period and which composer it might be by, and give three reasons from the music."],
       check: ["Every answer gives a bar and beat.", "Chords and keys are spelt correctly.", "Your style answer gives reasons from the music."] },
     paperA: { t: "Practice paper: trio sonata and keyboard",
-      steps: ["Use a Grade 8 practice paper. Set a timer for about 90 minutes.",
+      steps: ["Print a Grade 8 written mock paper: Theory tab → Mock exams → Grade 8 → Written paper (or use an ABRSM practice paper). Set a timer for about 90 minutes.",
         "Do the trio-sonata question and the keyboard question under exam conditions.",
         "Check your work with the checklists from days 9, 11, 16 and 17."],
       check: ["Finished inside the time.", "Every cadence and accidental checked.", "Consecutive 5ths and octaves checked.", "One thing noted to improve."] },
     paperB: { t: "Practice paper: composition and scores",
-      steps: ["Use the same practice paper. Set a timer for about 90 minutes.",
+      steps: ["Use the same paper (or print a new one). Set a timer for about 90 minutes.",
         "Do the composition and the score questions under exam conditions.",
         "Check with the checklists from days 20–22 and 26."],
       check: ["Finished inside the time.", "The composition has a form, a modulation and full markings.", "Every score answer gives the bar and beat.", "One thing noted to improve."] }
