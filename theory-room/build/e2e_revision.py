@@ -125,14 +125,24 @@ async def main():
             books = await pg.evaluate(r"""() => { const out = [];
               for (const b of ["abrsm", "trinity"]) for (let g = 1; g <= 8; g++) {
                 const h = TR_REVBOOK(b, g), d = new DOMParser().parseFromString(h, "text/html");
-                const n = d.querySelectorAll(".lb").length, want = (b === "trinity" ? TRINITY_LESSONS : LESSONS.filter(l => !l.board)).filter(l => l.g === g && !/mixed$|^c[78]-|^mock-|^review-/.test(l.id) && l.gen !== "mix").length;
+                const n = d.querySelectorAll(".lb").length, want = (b === "trinity" ? TRINITY_LESSONS : LESSONS.filter(l => !l.board)).filter(l => l.g === g && !/mixed$|^c[78]-|^mock-|^review-|^hw-/.test(l.id) && l.gen !== "mix" && l.gen !== "rread").length;
                 if (n !== want) out.push(b + g + ": " + n + " of " + want + " lessons");
                 if (/NaN|undefined|\[object/.test(d.body.textContent)) out.push(b + g + ": broken text");
                 if (d.querySelectorAll(".answers .a").length < n * .7) out.push(b + g + ": few answers");
               } return out; }""")
             for x in books: bad("book " + x)
 
-            # --- progress tab ---
+            # --- weekly report, scale chart, paper clock ---
+            rep = await pg.evaluate("() => TR_WEEKLY()")
+            if "weekly report" not in rep or "NaN" in rep or "undefined" in rep: bad("weekly report")
+            clk = await pg.evaluate("() => TR_MOCKPAPER('trinity', 4)")
+            if "Start the clock" not in clk or "90*60" not in clk: bad("paper clock")
+            await pg.click("nav.tabs [data-tab=prac]"); await pg.click("[data-pc-mode=exam]")
+            await pg.evaluate("() => { window.__doc = null; const o = window.TR_OPENDOC; window.TR_OPENDOC = (t, b, x) => { window.__doc = b; return o(t, b, x); }; }")
+            await pg.click("[data-pc=printSet]")
+            doc = await pg.evaluate("() => window.__doc || ''")
+            if doc.count("<svg") < 5 or "NaN" in doc: bad("scale chart")
+                        # --- progress tab ---
             await pg.click("nav.tabs [data-tab=progress]"); await pg.wait_for_timeout(200)
             if await pg.locator("#readiness").count() != 1: bad("no readiness panel")
             txt = await pg.inner_text("#readiness")

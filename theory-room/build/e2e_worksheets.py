@@ -11,7 +11,7 @@ def bad(m): problems.append(m); print("FAIL", m)
 
 ALL = r"""() => {
   const out = [], none = [];
-  const ids = Object.keys(LESSON_BY).filter(id => !/^c[78]-/.test(id));
+  const ids = Object.keys(LESSON_BY).filter(id => !/^c[78]-|^review-/.test(id) && !LESSON_BY[id].tap && !LESSON_BY[id].mock);
   for (const id of ids) {
     const h = TR_WORKSHEET(id);
     if (!h) { none.push(id); continue; }

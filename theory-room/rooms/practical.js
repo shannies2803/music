@@ -173,7 +173,8 @@
       <div class="chips" role="group" aria-label="Scale types">${TYPES.map(t => `<button class="gbtn" data-pc-st="${t.id}" aria-pressed="${st.types.includes(t.id)}" style="min-height:40px">${t.t.replace(" scale", "")}</button>`).join("")}</div>
       <div class="row" style="margin-top:10px;gap:8px"><span style="font-weight:700">Keys up to</span>${[0, 1, 2, 3, 4, 5, 6, 7].map(a => `<button class="gbtn" data-pc-sacc="${a}" aria-pressed="${a === st.acc}" style="min-width:44px">${a}</button>`).join("")}<span class="muted">sharps or flats</span></div>
       <div class="row" style="margin-top:8px;gap:8px"><span style="font-weight:700">Range</span>${[1, 2, 3].map(o => `<button class="gbtn" data-pc-soct="${o}" aria-pressed="${o === st.oct}">${octWord(o)}</button>`).join("")}</div>
-      <p class="muted" style="margin:.6em 0 0">${all.length} scales and arpeggios in this set · <b>${done}</b> secure (right twice in a row).</p></section>`;
+      <p class="muted" style="margin:.6em 0 0">${all.length} scales and arpeggios in this set · <b>${done}</b> secure (right twice in a row).</p>
+      <div class="row" style="margin-top:8px"><button class="btn small ghost" data-pc="printSet" ${all.length ? "" : "disabled"}>Print this set as a scale chart</button></div></section>`;
     let ask = "";
     if (S.ask) {
       const sc = S.ask;
@@ -265,6 +266,15 @@
     if (act === "selfmark") { S.phase = "self"; paintBox(); return; }
     if (act === "show") { S.shown = true; render(); return; }
     if (act === "ask") { askNext(p); render(); return; }
+    if (act === "printSet") {
+      if (!window.TR_OPENDOC) return;
+      const all = setList(p), groups = {};
+      all.forEach(k => { const sc = scFrom(k); (groups[sc.type] = groups[sc.type] || []).push(sc); });
+      const body = "<p>For " + esc(inst.name) + ", " + octWord(set(p).oct) + ". Tick each one when you can play it from memory, evenly, at a steady speed. Check your syllabus for the exact list, articulation and speed.</p>" +
+        TYPES.filter(t => groups[t.id]).map(t => '<section class="sec"><h2>' + esc(t.t.replace(" scale", " scales")) + "</h2>" + groups[t.id].map(sc => '<div class="q"><div class="qp">☐ ' + esc(label(sc)) + (secure(prog(p)[scKey(sc)]) ? " ✓ secure" : "") + '</div><div class="notation">' + svgOf(sc, inst) + "</div></div>").join("") + "</section>").join("");
+      window.TR_OPENDOC("Scale chart: " + inst.name, body, "");
+      return;
+    }
     if (act === "stop") { if (MIC.finish) MIC.finish("done"); return; }
     if (act === "mic") {
       const sc = cur(); if (!sc) return;

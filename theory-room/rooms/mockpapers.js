@@ -11,7 +11,7 @@
   "use strict";
   if (typeof TGEN === "undefined" || typeof LESSON_BY === "undefined") return;
   var N_Q = 30, LETTERS = "ABCDEFGH";
-  var usable = function (l) { return l && !/mixed$|^c[78]-|^mock-/.test(l.id) && l.gen !== "mix"; };
+  var usable = function (l) { return l && !/mixed$|^c[78]-|^mock-|^hw-/.test(l.id) && l.gen !== "mix" && l.gen !== "rread"; };
   function source(board) { return board === "trinity" ? (window.TRINITY_LESSONS || []) : LESSONS.filter(function (l) { return !l.board; }); }
   function pools(board, g) { var src = source(board).filter(usable); return { cur: src.filter(function (l) { return l.g === g; }), prev: src.filter(function (l) { return l.g < g; }) }; }
 
@@ -189,7 +189,7 @@
       ".line{border-bottom:1px solid #999;height:28px;margin-top:4px}.answers{break-before:page;page-break-before:always;margin-top:28px}.a{margin:8px 0;break-inside:avoid}.ex{color:#444;font-size:14px}" +
       ".wsbar{display:flex;gap:10px;margin:0 auto 16px;max-width:820px;height:auto;background:none}.wsbar button{font:600 15px system-ui;padding:10px 16px;border-radius:10px;border:1.5px solid #111;background:#fff;cursor:pointer}.wsbar .go{background:#111;color:#fff}" +
       ".trscore{display:grid;gap:4px}.trbar{font-size:11px;color:#666}footer.f{margin-top:18px;font-size:12px;color:#666}@media print{.wsbar{display:none}body{padding:0}}</style></head><body>" +
-      '<div class="wsbar"><button class="go" onclick="window.print()">Print or save as PDF</button><button onclick="window.close()">Close</button></div><div class="sheet">' +
+      '<div class="wsbar"><button class="go" onclick="window.print()">Print or save as PDF</button><button onclick="(function(b){var t0=Date.now(),lim=' + mins + '*60;b.disabled=true;b.textContent=&quot;Clock running&quot;;setInterval(function(){var l=lim-Math.floor((Date.now()-t0)/1000),a=Math.abs(l);document.getElementById(&quot;clk&quot;).textContent=(l>=0?&quot;Time left &quot;:&quot;Over time &quot;)+Math.floor(a/60)+&quot;:&quot;+String(a%60).padStart(2,&quot;0&quot;);},500);})(this)">Start the clock</button><b id="clk" style="align-self:center;font:700 18px system-ui"></b><button onclick="window.close()">Close</button></div><div class="sheet">' +
       '<header class="w"><div><div class="kick">The Theory Room · mock paper in the style of the ' + (isT ? "Trinity" : "ABRSM") + " Grade " + g + " theory exam</div><h1>" + esc(title) + '</h1></div><div class="lines"><div>Name <span>&nbsp;</span></div><div>Date <span>&nbsp;</span></div></div></header>' +
       "<p><b>Time guide:</b> about " + (mins >= 120 ? mins / 60 + " hours" : mins + " minutes") + ". Answer every question in pencil. Work without help, then mark your paper with the answers at the end.</p>" +
       paperHTML + '<section class="answers"><header class="w"><div><div class="kick">Answers and marking guide</div><h1>' + esc(title) + "</h1></div></header>" + ansHTML + "</section>" +

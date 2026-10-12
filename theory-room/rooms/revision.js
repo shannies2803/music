@@ -15,7 +15,7 @@
   "use strict";
   if (typeof TGEN === "undefined" || typeof LESSON_BY === "undefined") return;
   const strip = h => String(h == null ? "" : h).replace(/<svg[\s\S]*?<\/svg>/g, " [music] ").replace(/<br\s*\/?>/g, " ").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, " ").trim();
-  const real = l => l && !/mixed$|^c[78]-|^mock-|^review-/.test(l.id) && l.gen !== "mix" && l.gen !== "mockmix" && l.gen !== "revmix" && !l.mock;
+  const real = l => l && !/mixed$|^c[78]-|^mock-|^review-|^hw-/.test(l.id) && l.gen !== "rread" && l.gen !== "mix" && l.gen !== "mockmix" && l.gen !== "revmix" && !l.mock;
   const boardOf = l => l.board === "trinity" ? "trinity" : "abrsm";
   const lessonsOf = (board, g) => (board === "trinity" ? (window.TRINITY_LESSONS || []) : LESSONS.filter(l => !l.board)).filter(l => l.g === g && real(l));
   const can = g => !window.TR || TR.can("theory", g);
@@ -188,6 +188,7 @@
     w.document.open(); w.document.write(html); w.document.close(); return html;
   }
   window.TR_REVBOOK = (b, g) => bookHTML(b, g);
+  window.TR_OPENDOC = openDoc;
 
   /* ---------- the Revision section on the Theory tab ---------- */
   function section() {
@@ -241,6 +242,7 @@
       R.map(r => '<tr style="border-top:1px solid var(--line)"><td style="padding:6px"><b>' + r.g + "</b></td><td>" + r.st + "/" + r.n + "</td><td>" + pct(r.acc) + "</td><td>" + pct(r.best) + '</td><td><span class="pill" style="background:none;border:2px solid ' + r.v[1] + '">' + r.v[0] + "</span></td></tr>").join("") + "</table></div>" +
       '<p class="muted" style="font-size:.85rem;margin:.5em 0 0">"Ready" means a timed mock of 85% or more and most lessons starred. The pass mark is around two-thirds; aim well above it so a hard question on the day doesn\'t matter.</p>' +
       '<h3 style="margin:16px 0 6px">Practical exam</h3><div class="statgrid" style="margin:6px 0"><div class="stat"><b>' + secure + '</b><span>scales secure</span></div><div class="stat"><b>' + read.good + "/" + read.n + '</b><span>sight-reading played well</span></div><div class="stat"><b>' + Math.round(week) + '</b><span>practice minutes this week</span></div><div class="stat"><b>' + Object.keys(p.mocks || {}).length + '</b><span>aural mocks tried</span></div></div>' +
+      '<div class="row" style="margin-top:12px"><button class="btn small ghost" data-report="1">Weekly report for a parent or teacher</button></div>' +
       (steps.length ? '<h3 style="margin:16px 0 6px">Your next three steps</h3><div class="lessons">' + steps.map((s, i) => '<button class="lesson" ' + s[0] + ' data-totheory="1"><span class="n">' + (i + 1) + '</span><div><div style="font-weight:700">' + esc(s[1]) + '</div><div class="muted" style="font-size:.85rem">' + esc(s[2]) + "</div></div></button>").join("") + "</div>" : "") + "</div>";
   }
   const pv0 = progressView;
@@ -250,11 +252,35 @@
     return at >= 0 ? h.slice(0, at) + s.replace('style="margin-top:16px" id', 'style="margin-bottom:16px" id') + h.slice(at) : h + s;
   };
 
+
+  /* ---------- weekly report ---------- */
+  function weekly(p) {
+    const T = todayStr(), from = addDays(T, -6), inWeek = d => d && d >= from && d <= T;
+    let q = 0, c = 0; for (let i = 0; i < 7; i++) { const d = p.days[addDays(T, -i)]; if (d) { q += d.q; c += d.c; } }
+    const lessons = Object.keys(p.tl || {}).filter(id => real(LESSON_BY[id]) && inWeek(p.tl[id].last)).map(id => LESSON_BY[id]);
+    const mocks = []; Object.keys(p.mockT || {}).forEach(id => (p.mockT[id] || []).filter(x => inWeek(x.d)).forEach(x => mocks.push([LESSON_BY[id] ? LESSON_BY[id].t : id, x])));
+    const pr = p.prac || {}, mins = {}; for (let i = 0; i < 7; i++) Object.entries(pr[addDays(T, -i)] || {}).forEach(([k, v]) => { mins[k] = (mins[k] || 0) + v; });
+    const CAT = { pieces: "Pieces", scales: "Scales & technical", sight: "Sight-reading", aural: "Aural", theory: "Theory", other: "Other" };
+    const totalMin = Object.values(mins).reduce((a, b) => a + b, 0), wrongWeek = (p.miss || []).filter(m => inWeek(m.d)).length, waiting = missList(p).reduce((a, x) => a + x.w, 0);
+    const steps = nextSteps(p), plan = p.plan;
+    const body = '<p><b>' + esc(p.name) + "</b> · the week from " + esc(from) + " to " + esc(T) + "</p>" +
+      '<table class="pl"><tr><th>Theory and aural questions answered</th><td>' + q + (q ? " (" + Math.round(100 * c / q) + "% right)" : "") + "</td></tr>" +
+      "<tr><th>Lessons practised</th><td>" + (lessons.length ? lessons.map(l => esc((l.board === "trinity" ? "Trinity " : "") + "Grade " + l.g + ": " + l.t)).join("<br>") : "None this week") + "</td></tr>" +
+      "<tr><th>Timed mocks</th><td>" + (mocks.length ? mocks.map(([t, x]) => esc(t) + ": " + Math.round(100 * x.s / x.n) + "% (" + esc(x.d) + ")").join("<br>") : "None this week") + "</td></tr>" +
+      "<tr><th>Practice diary</th><td>" + (totalMin ? Math.round(totalMin) + " minutes: " + Object.entries(mins).map(([k, v]) => esc(CAT[k] || k) + " " + Math.round(v)).join(", ") : "Nothing logged") + "</td></tr>" +
+      "<tr><th>Mistakes</th><td>" + wrongWeek + " new this week · " + waiting + " still to fix</td></tr>" +
+      (plan ? "<tr><th>Exam plan</th><td>" + BOARD(plan.board) + " Grade " + plan.g + " on " + esc(plan.date) + " (" + Math.max(0, daysBetween(T, plan.date)) + " days to go)</td></tr>" : "") +
+      "</table><h2 style=\"font-size:18px;margin-top:18px\">Next steps</h2><ol>" + (steps.length ? steps.map(s => "<li>" + esc(s[1]) + " <span style=\"color:#666\">(" + esc(s[2]) + ")</span></li>").join("") : "<li>Keep going with today's review.</li>") + "</ol>";
+    return openDoc("The Theory Room: weekly report", body, "");
+  }
+  window.TR_WEEKLY = () => weekly(P());
+
   /* ---------- events ---------- */
   document.addEventListener("click", function (e) {
     const t = e.target;
     let b = t.closest("[data-totheory]");
     if (b) { VIEW.tab = "theory"; VIEW.course = null; }   /* the lesson action below then opens it */
+    if ((b = t.closest("[data-report]"))) { weekly(P()); return; }
     if ((b = t.closest("[data-rdb]"))) { VIEW.rdBoard = b.dataset.rdb; render(); return; }
     if ((b = t.closest("[data-rvonly]"))) { const only = b.dataset.rvonly === "1"; document.querySelectorAll(".rvq").forEach(x => { x.style.display = only && x.dataset.ok === "1" ? "none" : ""; }); return; }
     if ((b = t.closest("[data-book]"))) { e.preventDefault(); const a = b.dataset.book.split(":"); if (!can(+a[1])) { toast("Grade " + a[1] + " comes with a plan."); return; } bookHTML(a[0], +a[1]); return; }

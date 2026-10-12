@@ -66,7 +66,7 @@
     <div style="display:grid;gap:10px">
       <p class="kicker">Room 6 · Handbook · free</p>
       <h1 style="font-size:clamp(34px,5.4vw,56px)">The theory handbook</h1>
-      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
+      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, chords and cadences, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
     </div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <section id="view"></section>
@@ -79,7 +79,7 @@
 (function () {
   "use strict";
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
+  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["chords", "Chords & harmony"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
   var tab = (location.hash || "").slice(1) || "dict";
   if (!TABS.some(function (t) { return t[0] === tab; })) tab = "dict";
 
@@ -103,11 +103,16 @@
     for (var j = 0; j < ks; j++) { var d = (k > 0 ? SIG.sharp : SIG.flat)[j] + shift - c.ref;
       s += '<text class="acc" x="' + (44 + j * 11) + '" y="' + (bottom - d * H / 2 + (k > 0 ? 5 : 3)) + '" font-size="19">' + (k > 0 ? "♯" : "♭") + "</text>"; }
     (o.notes || []).forEach(function (n, i) {
-      var x = x0 + i * gap + 10, d = dia(n.n) - c.ref, y = bottom - d * H / 2;
-      for (var q = -2; q >= d; q -= 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - q * H / 2) + '" y2="' + (bottom - q * H / 2) + '"/>';
-      for (var r = 10; r <= d; r += 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - r * H / 2) + '" y2="' + (bottom - r * H / 2) + '"/>';
-      if (n.showAcc) s += '<text class="acc" x="' + (x - 22) + '" y="' + (y + 5) + '" font-size="18">' + (ACC[n.n.acc] || "♮") + "</text>";
-      s += '<ellipse class="nh" cx="' + x + '" cy="' + y + '" rx="6.4" ry="4.6" transform="rotate(-20 ' + x + " " + y + ')"/>';
+      var x = x0 + i * gap + 10;
+      var prevD = null, shifted = false;
+      (n.ns || [n.n]).slice().sort(function (a, b2) { return dia(a) - dia(b2); }).forEach(function (nn, j) {
+        var d = dia(nn) - c.ref, y = bottom - d * H / 2, x = x0 + i * gap + 10;
+        if (prevD !== null && d - prevD === 1 && !shifted) { x += 13; shifted = true; } else shifted = false; prevD = d;
+        for (var q = -2; q >= d; q -= 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - q * H / 2) + '" y2="' + (bottom - q * H / 2) + '"/>';
+        for (var r = 10; r <= d; r += 2) s += '<line x1="' + (x - 11) + '" x2="' + (x + 11) + '" y1="' + (bottom - r * H / 2) + '" y2="' + (bottom - r * H / 2) + '"/>';
+        if (n.showAcc || (n.ns && nn.acc)) s += '<text class="acc" x="' + (x - 22) + '" y="' + (y + 5) + '" font-size="18">' + (ACC[nn.acc] || "♮") + "</text>";
+        s += '<ellipse class="nh" cx="' + x + '" cy="' + y + '" rx="6.4" ry="4.6" transform="rotate(-20 ' + x + " " + y + ')"/>';
+      });
       if (n.label) s += '<text class="lbl" x="' + x + '" y="' + ((o.h || 120) - 6) + '">' + esc(n.label) + "</text>";
     });
     return s + "</svg>";
@@ -233,6 +238,31 @@
     }).join("") + "</div></div>";
   }
 
+
+  /* ---------- 6b. chords and harmony ---------- */
+  var P_ = function (a) { return a.map(parse); };
+  var DEG_MAJ = [["I", "major", ["C4", "E4", "G4"]], ["II", "minor", ["D4", "F4", "A4"]], ["III", "minor", ["E4", "G4", "B4"]], ["IV", "major", ["F4", "A4", "C5"]], ["V", "major", ["G4", "B4", "D5"]], ["VI", "minor", ["A4", "C5", "E5"]], ["VII", "diminished", ["B4", "D5", "F5"]]];
+  var DEG_MIN = [["I", "minor", ["A3", "C4", "E4"]], ["II", "diminished", ["B3", "D4", "F4"]], ["III", "augmented", ["C4", "E4", "G#4"]], ["IV", "minor", ["D4", "F4", "A4"]], ["V", "major", ["E4", "G#4", "B4"]], ["VI", "major", ["F4", "A4", "C5"]], ["VII", "diminished", ["G#4", "B4", "D5"]]];
+  var INV = [["Root position", "a", "5 3", ["C4", "E4", "G4"]], ["First inversion", "b", "6 3 (or just 6)", ["E4", "G4", "C5"]], ["Second inversion", "c", "6 4", ["G4", "C5", "E5"]]];
+  var SEV = [["V7", "7 (or 7 5 3)", ["G3", "B3", "D4", "F4"]], ["V7b", "6 5", ["B3", "D4", "F4", "G4"]], ["V7c", "4 3", ["D4", "F4", "G4", "B4"]], ["V7d", "4 2", ["F4", "G4", "B4", "D5"]]];
+  var CADS = [["Perfect", "V – I", "Sounds finished, like a full stop.", [["G3", "B3", "D4", "G4"], ["C3", "C4", "E4", "G4"]]],
+    ["Plagal", "IV – I", "The 'Amen' at the end of a hymn: finished, but softer.", [["F3", "A3", "C4", "F4"], ["C3", "G3", "C4", "E4"]]],
+    ["Imperfect", "any chord – V", "Ends on V, like a comma or a question.", [["C3", "G3", "C4", "E4"], ["G2", "G3", "B3", "D4"]]],
+    ["Interrupted", "V – VI", "Sounds as if it's going home, then surprises you.", [["G3", "B3", "D4", "G4"], ["A3", "C4", "E4", "A4"]]],
+    ["Phrygian (minor keys)", "ivb – V", "A special imperfect cadence: the bass falls a semitone to the dominant.", [["F3", "A3", "D4", "F4"], ["E3", "G#3", "B3", "E4"]]]];
+  var RULES = [["Ranges", "Soprano: about C4–G5 · Alto: G3–D5 · Tenor: C3–G4 · Bass: E2–C4."], ["Spacing", "No more than an octave between soprano and alto, or alto and tenor. The tenor and bass can be further apart."], ["Doubling", "In root-position major and minor chords, double the root. Never double the leading note. In a 6/4 chord, double the bass."], ["Consecutives", "No two parts may move in parallel perfect 5ths or octaves (or unisons)."], ["Leading note and 7ths", "The leading note rises to the tonic, especially in the outer parts. The 7th of a 7th chord falls by step."], ["Smooth inner parts", "Keep notes the chords share in the same part. Alto and tenor move by step or stay still where they can."], ["Second inversions", "Use 6/4 chords only in set patterns: the cadential 6/4 (Ic–V), the passing 6/4 (I–Vc–Ib) and the auxiliary 6/4 (I–IVc–I)."]];
+  function chordsTab() {
+    var row = function (list, k, clef) { return stave({ clef: clef || "treble", k: k || 0, notes: list.map(function (x) { return { ns: P_(x[2]), label: x[0] }; }), gap: 50, h: 136, label: "chords" }); };
+    return '<div class="panel2"><p style="margin:0">A <b>triad</b> is three notes, each a 3rd apart: the root, 3rd and 5th. Build one on every note of the scale and you get the chords of the key, numbered with Roman numerals.</p>' +
+      '<div class="grid2"><div class="card2"><h3>Chords of C major</h3><div style="overflow-x:auto">' + row(DEG_MAJ) + '</div><p style="margin:0">Major: I, IV, V · Minor: II, III, VI · Diminished: VII. The primary chords I, IV and V contain every note of the scale between them.</p></div>' +
+      '<div class="card2"><h3>Chords of A minor (harmonic)</h3><div style="overflow-x:auto">' + row(DEG_MIN) + '</div><p style="margin:0">The raised 7th (G♯) makes V major, so it can lead home. II and VII are diminished, III is augmented.</p></div></div>' +
+      '<h3>Inversions</h3><div class="grid2">' + INV.map(function (v) { return '<div class="card2"><b>' + esc(v[0]) + " (" + v[1] + ")</b>" + stave({ clef: "treble", notes: [{ ns: P_(v[3]), label: "I" + (v[1] === "a" ? "" : v[1]) }], gap: 50, h: 136, w: 150, label: v[0] }) + '<p style="margin:0">Figures: <b>' + esc(v[2]) + "</b>. " + (v[1] === "a" ? "The root is the lowest note." : v[1] === "b" ? "The 3rd is the lowest note." : "The 5th is the lowest note.") + "</p></div>"; }).join("") + "</div>" +
+      '<h3>The dominant 7th and its inversions (C major)</h3><div style="overflow-x:auto">' + stave({ clef: "treble", notes: SEV.map(function (v) { return { ns: P_(v[2]), label: v[0] }; }), gap: 70, h: 136, label: "dominant sevenths" }) + '</div><p style="margin:0">' + SEV.map(function (v) { return "<b>" + v[0] + "</b>: " + esc(v[1]); }).join(" · ") + ". The 7th (F) falls to E; the leading note (B) rises to C.</p>" +
+      '<h3>Cadences</h3><div class="grid2">' + CADS.map(function (c, i) { return '<div class="card2"><b>' + esc(c[0]) + "</b><span class=\"muted\">" + esc(c[1]) + " · " + (i === 4 ? "in A minor" : "in C major") + "</span><p style=\"margin:0\">" + esc(c[2]) + '</p><button class="btn small" type="button" data-cad="' + i + '">▶ Hear it</button></div>'; }).join("") + "</div>" +
+      '<h3>Four-part writing: the rules</h3><div style="overflow-x:auto"><table class="t">' + RULES.map(function (r) { return "<tr><td><b>" + esc(r[0]) + "</b></td><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</table></div>" +
+      '<p class="note">Chord names: ABRSM uses Roman numerals with a, b, c for inversions (IIb, V7c). You may also see chord symbols such as C, Dm, G7 and C/E (C major with E in the bass). The Harmony workshop in the Theory tab builds passages step by step.</p></div>';
+  }
+
   /* ---------- 6. ornaments ---------- */
   var ORN = [
     ["Trill (shake)", '<text x="4" y="28">tr</text><path d="M30 20 q4-8 8 0 t8 0 t8 0 t8 0"/>', "Alternate quickly between the written note and the note above. In Baroque music it usually starts on the note above.", "Written D: E D E D E D… (or D E D E… in later music)"],
@@ -296,7 +326,7 @@
   /* ---------- page ---------- */
   function render() {
     document.getElementById("tabs").innerHTML = TABS.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + esc(t[1]) + "</button>"; }).join("");
-    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, ornaments: ornaments, games: games }[tab]();
+    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, chords: chordsTab, ornaments: ornaments, games: games }[tab]();
   }
   document.addEventListener("click", function (e) {
     var b;
@@ -305,6 +335,7 @@
       G.id = id; G.on = true; G.score = 0; G.tries = 0; G.fb = ""; G.end = Date.now() + 60000; G.q = makeQ(id);
       G.timer = setInterval(function () { var el = document.getElementById("gleft"); if (Date.now() >= G.end) gameEnd(); else if (el) el.textContent = Math.ceil((G.end - Date.now()) / 1000); }, 250); render(); return; }
     if ((b = e.target.closest("[data-ga]"))) { if (!G.on) return; G.tries++; var ok = b.dataset.ga === G.q.right; if (ok) G.score++; G.fb = ok ? "✓ Yes!" : "✗ It was " + esc(G.q.right) + "."; G.q = makeQ(G.id); render(); return; }
+    if ((b = e.target.closest("[data-cad]"))) { var cd = CADS[+b.dataset.cad][3]; play(cd[0].map(function (x) { return midi(parse(x)); }), 0, true); setTimeout(function () { play(cd[1].map(function (x) { return midi(parse(x)); }), 0, true); }, 1100); return; }
     if ((b = e.target.closest("[data-db]"))) { D.b = b.dataset.db; D.g = 0; D.flash = null; render(); return; }
     if ((b = e.target.closest("[data-d]"))) {
       var a = b.dataset.d, F = D.flash;

@@ -52,7 +52,7 @@ async def main():
                     if "You knew 10 of 10" not in await pg.inner_text("#view"): bad("flashcards")
                     await pg.click("[data-db=Instruments]"); await pg.fill("#dq", "col legno"); await pg.wait_for_timeout(200)
                     if "wood of the bow" not in await pg.inner_text("#dlist"): bad("instrument directions in the dictionary")
-                for t in ["dict", "keys", "intervals", "values", "clefs", "ornaments"]:
+                for t in ["dict", "keys", "intervals", "values", "clefs", "chords", "ornaments"]:
                     await pg.click(f"[data-tab={t}]"); await pg.wait_for_timeout(150)
                     h = await pg.inner_html("#view")
                     if "NaN" in h or "undefined" in h: bad(f"{t}: broken text")
