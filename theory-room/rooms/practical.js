@@ -126,6 +126,33 @@
     return `<ol style="margin:.4em 0 0;padding-left:1.2em">${parts.map(([t, f]) => `<li><b>${Math.max(2, Math.round(mins * f))} min</b> · ${t}</li>`).join("")}</ol>`;
   }
 
+
+  /* ---------- my pieces ---------- */
+  const STAGES = ["Learning the notes", "Notes secure, working on details", "Up to speed", "Performance-ready"];
+  const pcs = p => p.pieces = p.pieces || [];
+  function pieces(p) {
+    const list = pcs(p), T = todayStr();
+    const card = (x, i) => {
+      const days = Object.keys(x.days || {}).length, today = !!(x.days || {})[T], st = x.stage || 0;
+      return `<section class="panel" style="margin-top:12px"><div class="row" style="justify-content:space-between"><div><div class="kicker">${esc(x.list ? "List " + x.list : "Piece " + (i + 1))}</div><h3 style="margin:.15em 0">${esc(x.t)}</h3></div>
+        <button class="btn small ${today ? "" : "primary"}" data-pc-play="${i}" ${today ? "disabled" : ""}>${today ? "✓ Played today" : "I played it today"}</button></div>
+        <div class="meter" aria-hidden="true" style="margin:8px 0"><i style="width:${(st + 1) * 25}%"></i></div>
+        <div class="chips" role="group" aria-label="How far along">${STAGES.map((s, j) => `<button class="gbtn" data-pc-stage="${i}:${j}" aria-pressed="${j === st}" style="min-height:40px">${s}</button>`).join("")}</div>
+        <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><label for="pcTricky${i}" style="font-weight:700">Tricky bars</label><input id="pcTricky${i}" data-pc-tricky="${i}" value="${esc(x.tricky || "")}" placeholder="e.g. bars 9–12, the last line" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px;flex:1;min-width:180px">
+         <label for="pcTempo${i}" style="font-weight:700">Speed now</label><input id="pcTempo${i}" data-pc-tempo-now="${i}" type="number" min="20" max="240" value="${x.now || ""}" style="width:80px;font:inherit;min-height:40px;border-radius:10px;padding:4px 8px"><span class="muted">of</span><input data-pc-tempo-goal="${i}" type="number" min="20" max="240" value="${x.goal || ""}" aria-label="Target speed" style="width:80px;font:inherit;min-height:40px;border-radius:10px;padding:4px 8px"></div>
+        <p class="muted" style="margin:.5em 0 0;font-size:.9rem">Played on ${days} day${days === 1 ? "" : "s"}. ${tipFor(st)}</p>
+        <div class="row" style="margin-top:6px"><button class="btn small ghost" data-pc-del="${i}">Remove</button></div></section>`;
+    };
+    return `<section class="panel"><h3 style="margin-top:0">Your exam pieces</h3><p class="muted" style="margin-top:0">Add the pieces you're preparing. Mark how far along each one is, note the tricky bars, and tick it off each day you play it. Choosing pieces? The repertoire room lists every piece on the ABRSM and Trinity lists.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><input id="pcNewT" placeholder="Piece title and composer" maxlength="80" style="font:inherit;min-height:44px;border-radius:10px;padding:4px 10px;flex:1;min-width:200px" aria-label="Piece title and composer">
+       <select id="pcNewL" aria-label="List" style="font:inherit;min-height:44px;border-radius:10px;padding:4px 10px"><option value="">List (optional)</option><option>A</option><option>B</option><option>C</option></select>
+       <button class="btn primary" data-pc="addPiece" ${list.length >= 6 ? "disabled" : ""}>Add piece</button></div></section>
+      ${list.map(card).join("")}`;
+  }
+  function tipFor(st) {
+    return ["Slowly, hands (or sections) separately, with the right fingering from the start.", "Work on dynamics, articulation and phrasing, a few bars at a time.", "Now play it through without stopping, and to someone else.", "Keep it fresh: one run-through a day, and practise starting calmly."][st];
+  }
+
   /* ---------- views ---------- */
   function instSelect(p, inst) { return `<label for="pcInst" style="font-weight:700">Instrument</label><select id="pcInst" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${INST.map(i => `<option value="${esc(i.id)}"${i.id === inst.id ? " selected" : ""}>${esc(i.name)}</option>`).join("")}</select>`; }
   function playRow() {
@@ -217,11 +244,11 @@
   }
   function view() {
     const p = P(), inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin");
-    const tabs = [["coach", "Scales coach"], ["exam", "Examiner mode"], ["diary", "Practice diary"]];
+    const tabs = [["coach", "Scales coach"], ["exam", "Examiner mode"], ["pieces", "My pieces"], ["diary", "Practice diary"]];
     return `<h2>Practical exam</h2><p class="muted" style="margin-top:0">Scales and arpeggios for your instrument, an examiner who asks for them, and a practice diary. Sight-reading and aural have their own tabs.</p>
       <div class="gradebar" role="tablist" aria-label="Practical">${tabs.map(([id, t]) => `<button class="gbtn" data-pc-mode="${id}" aria-pressed="${S.mode === id}">${t}</button>`).join("")}</div>
-      ${S.mode !== "diary" ? `<div class="row" style="gap:10px;margin:0 0 10px">${instSelect(p, inst)}</div>` : ""}
-      ${S.mode === "coach" ? coach(p, inst) : S.mode === "exam" ? examiner(p, inst) : diary(p)}`;
+      ${S.mode === "coach" || S.mode === "exam" ? `<div class="row" style="gap:10px;margin:0 0 10px">${instSelect(p, inst)}</div>` : ""}
+      ${S.mode === "coach" ? coach(p, inst) : S.mode === "exam" ? examiner(p, inst) : S.mode === "pieces" ? pieces(p) : diary(p)}`;
   }
 
   /* ---------- the tab ---------- */
@@ -244,13 +271,16 @@
 
   document.addEventListener("change", e => {
     if (VIEW.tab !== "prac") return; const p = P();
+    if (e.target.dataset && e.target.dataset.pcTricky != null) { pcs(p)[+e.target.dataset.pcTricky].tricky = e.target.value.slice(0, 120); save(); }
+    if (e.target.dataset && e.target.dataset.pcTempoNow != null) { pcs(p)[+e.target.dataset.pcTempoNow].now = +e.target.value || null; save(); }
+    if (e.target.dataset && e.target.dataset.pcTempoGoal != null) { pcs(p)[+e.target.dataset.pcTempoGoal].goal = +e.target.value || null; save(); }
     if (e.target.id === "pcInst") { p.readInst = e.target.value; save(); render(); }
     if (e.target.id === "pcType") { S.sc.type = e.target.value; S.phase = "idle"; S.res = null; render(); }
     if (e.target.id === "pcKey") { S.sc.v = e.target.value; S.phase = "idle"; S.res = null; render(); }
   });
   document.addEventListener("click", async e => {
     if (VIEW.tab !== "prac") return;
-    const b = e.target.closest("[data-pc],[data-pc-mode],[data-pc-oct],[data-pc-tempo],[data-pc-self],[data-pc-st],[data-pc-sacc],[data-pc-soct],[data-pc-cat],[data-pc-goal]"); if (!b) return;
+    const b = e.target.closest("[data-pc-play],[data-pc-stage],[data-pc-del],[data-pc],[data-pc-mode],[data-pc-oct],[data-pc-tempo],[data-pc-self],[data-pc-st],[data-pc-sacc],[data-pc-soct],[data-pc-cat],[data-pc-goal]"); if (!b) return;
     const p = P(), inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin"), d = b.dataset;
     if (d.pcMode) { S.mode = d.pcMode; S.phase = "idle"; S.res = null; try { micClose(); } catch (err) {} render(); return; }
     if (d.pcOct) { S.sc.oct = +d.pcOct; S.phase = "idle"; S.res = null; render(); return; }
@@ -294,6 +324,10 @@
     if (act === "start") { S.tm.on = true; S.tm.t0 = Date.now(); render(); return; }
     if (act === "pause") { S.tm.acc = elapsed(); S.tm.on = false; render(); return; }
     if (act === "saveTime") { const m = elapsed() / 60000; S.tm = { on: false, t0: 0, acc: 0, cat: S.tm.cat }; if (m >= .05) { logMinutes(S.tm.cat, m); toast(`Saved ${Math.max(1, Math.round(m))} minute${Math.round(m) === 1 ? "" : "s"} of ${CATS.find(c => c[0] === S.tm.cat)[1].toLowerCase()}.`); } render(); return; }
+    if (d.pcPlay) { const x = pcs(p)[+d.pcPlay]; x.days = x.days || {}; x.days[todayStr()] = 1; logMinutes("pieces", 0); save(); toast("Ticked. Well done!"); render(); return; }
+    if (d.pcStage) { const [i, j] = d.pcStage.split(":").map(Number); pcs(p)[i].stage = j; save(); render(); return; }
+    if (d.pcDel) { const i = +d.pcDel; modal("Remove this piece?", "<p>" + esc(pcs(p)[i].t) + " and its record will go.</p>", [["Keep it", "ghost"], ["Remove", "primary", () => { pcs(p).splice(i, 1); save(); render(); }]]); return; }
+    if (act === "addPiece") { const t = (document.getElementById("pcNewT").value || "").trim(); if (!t) { toast("Type the piece's title first."); return; } pcs(p).push({ t, list: document.getElementById("pcNewL").value, stage: 0, days: {} }); save(); render(); return; }
     if (act === "addMins") { const v = +(document.getElementById("pcMins") || {}).value; if (!(v > 0 && v <= 240)) { toast("Type the minutes first (1 to 240)."); return; } logMinutes(S.tm.cat, v); toast("Added."); render(); return; }
   });
   if (new URLSearchParams(location.search).get("tab") === "prac") Promise.resolve(window.TR && TR.ready).then(() => setTimeout(() => setTab("prac"), 30));

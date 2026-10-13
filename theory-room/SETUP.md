@@ -114,6 +114,7 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 ## Musicianship
 
 - `rooms/musicianship.js`: questions on a piece (Grades 1–8), spot the mistake (Grades 1–5), periods and styles, and form. The periods and forms data also feeds the Handbook's *Form & style* tab.
+- `rooms/drills-more.js`: grouping (beaming), complete the bar, ornaments, and which music did you hear. The Practical tab's *My pieces* tracker is in `rooms/practical.js`.
 
 ## The Practical tab and the exam guide
 

@@ -15,6 +15,8 @@ GEN = r"""() => {
     const ks = q.options.map(o => o.k);
     if (!ks.includes(String(q.answer))) out.push(id + ": answer not offered");
     if (new Set(ks).size !== ks.length) out.push(id + ": repeated option " + ks.join("|"));
+    if (ks.length < 3) out.push(id + ": only " + ks.length + " options");
+    if (new Set(q.options.map(o => o.html)).size !== ks.length) out.push(id + ": two options look the same");
     if (/NaN|undefined|\[object/.test(q.prompt + q.explain + (q.visual || "") + q.options.map(o => o.html).join(""))) out.push(id + ": broken text");
     if (l.gen === "spotbar") { const m = /adds up to <b>([^<]+)<\/b> instead of (\d+)/.exec(q.explain); if (!m || m[1] === m[2] + " beats") out.push(id + ": bad mistake " + q.explain.slice(0, 80)); }
   }
@@ -32,11 +34,19 @@ async def main():
             for x in r["out"]: bad(x)
             await pg.click("nav.tabs [data-tab=theory]"); await pg.wait_for_timeout(200)
             if "Musicianship" not in await pg.inner_text("#main"): bad("no musicianship section")
-            for lid in ["ms-piece-g5", "ms-spot-g2", "ms-periods", "ms-form"]:
+            for lid in ["ms-piece-g5", "ms-spot-g2", "ms-periods", "ms-form", "ms-group-g4", "ms-complete-g3", "ms-ornaments", "ms-hear-g2"]:
                 await pg.click(f"[data-arg={lid}]"); await pg.click("[data-act=startLesson]"); await pg.wait_for_selector("#ex .opt")
                 await pg.click("#ex .opt >> nth=0"); await pg.wait_for_selector("#fb.show")
                 await pg.screenshot(path=f"{SHOTS}/{lid}.png", full_page=True)
                 await pg.click("[data-act=quit]"); await pg.click("[data-act=theoryHome] >> nth=0"); await pg.wait_for_timeout(150)
+            # practical: my pieces
+            await pg.click("nav.tabs [data-tab=prac]"); await pg.click("[data-pc-mode=pieces]")
+            await pg.fill("#pcNewT", "Minuet in G (test)"); await pg.select_option("#pcNewL", "A"); await pg.click("[data-pc=addPiece]")
+            await pg.click("[data-pc-stage='0:2']"); await pg.click("[data-pc-play='0']")
+            await pg.fill("#pcTricky0", "bars 9-12"); await pg.press("#pcTricky0", "Tab")
+            st = await pg.evaluate("() => P().pieces[0]")
+            if st.get("stage") != 2 or not st.get("days") or st.get("tricky") != "bars 9-12": bad("pieces tracker: " + str(st))
+            await pg.screenshot(path=f"{SHOTS}/pieces.png", full_page=True)
             await pg.goto(URL + "rooms/handbook.html#style"); await pg.wait_for_timeout(600)
             t = await pg.inner_text("#view")
             if "Baroque" not in t or "Rondo" not in t: bad("handbook form & style")
