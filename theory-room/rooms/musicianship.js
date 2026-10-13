@@ -90,6 +90,19 @@
       explain: "Bar " + (bad + 1) + " adds up to <b>" + word(total) + "</b> instead of " + word(beats) + ". Count every bar of your answers in the exam, the same way." };
   };
 
+
+  /* ---------- major or relative minor? ---------- */
+  TGEN.keymm = function (p) {
+    const want = Math.random() < .5 ? "minor" : "major"; let pc; for (let i = 0; i < 40; i++) { pc = SIGHTREAD.makePiece(p.g, FLUTE); if (pc.mode === want) break; }
+    const ns = pc.notes.filter(n => !n.rest), sp = n => fromMidiInKey(n.m, pc.k, pc.mode), maj = keyName(pc.k, "major"), min = keyName(pc.k, "minor");
+    const right = pc.mode === "minor" ? min : maj, last = nm(sp(ns[ns.length - 1]));
+    const lt = pc.mode === "minor" ? nm(upBy(minorTonic(pc.k), 7, "M")) : null, hasLT = lt && ns.some(n => nm(sp(n)) === lt);
+    return { prompt: "The key signature fits " + maj + " and " + min + ". Which key is this piece in?", visual: SIGHTREAD.scoreSVG(pc, FLUTE),
+      options: [opt(maj), opt(min)], answer: right,
+      play: () => playEvents(ns.map(n => ({ m: n.m, t: n.t, d: n.d, v: .8 })), pc.tempo), playLabel: "Hear it",
+      explain: "It ends on <b>" + last + "</b>" + (pc.mode === "minor" ? (hasLT ? ", and the raised 7th (" + lt + ") appears as an accidental" : "") + ": " + min + "." : ", the keynote of " + maj + ".") + " Check the last note, and look for the minor key's raised 7th." };
+  };
+
   /* ---------- lessons ---------- */
   const L = [
     { id: "ms-periods", g: 5, topic: "Musicianship", t: "Periods and styles", gen: "period", p: {}, h: "<p>Knowing the periods helps with the aural test about style, the questions on a score and choosing how to play your pieces.</p>" + P_.map(x => "<p><b>" + x.n + "</b> (" + x.d + "). " + x.c.join(", ") + ".<br>" + x.f.join(" · ") + ".</p>").join("") },
@@ -97,6 +110,7 @@
   ];
   for (let g = 1; g <= 8; g++) L.push({ id: "ms-piece-g" + g, g, topic: "Musicianship", t: "Questions on a piece", gen: "pieceq", p: { g }, h: "<p>A new short piece each time, with the kind of questions both boards ask about music on the page: the key, the time signature, the number of bars, the highest and lowest notes, intervals and the last note. Look carefully before you answer, and play or sing it if you can.</p>" });
   for (let g = 1; g <= 5; g++) L.push({ id: "ms-spot-g" + g, g, topic: "Musicianship", t: "Spot the mistake", gen: "spotbar", p: { g }, h: "<p>Exam papers often ask you to find or correct a mistake. Count the beats in every bar: one bar here has too many or too few. Tap the beat as you count, and remember that a dot adds half the note's value.</p>" });
+  for (let g = 2; g <= 5; g++) L.push({ id: "ms-keymm-g" + g, g, topic: "Musicianship", t: "Major or relative minor?", gen: "keymm", p: { g }, h: "<p>Every key signature belongs to a major key and its relative minor. To tell which one a piece is in: look at the <b>last note</b> (usually the keynote), and look for the minor key's <b>raised 7th</b>, written as an accidental (G♯ in A minor, C♯ in D minor). Hear it too: minor keys often sound darker.</p>" });
   L.forEach(l => { LESSON_BY[l.id] = l; });
 
   const can = g => !window.TR || TR.can("theory", g);
@@ -105,6 +119,7 @@
     const card = (id, n, t, d) => can(LESSON_BY[id].g) ? '<button class="lesson" data-act="lesson" data-arg="' + id + '"><span class="n">' + n + '</span><div><div style="font-weight:700">' + t + '</div><div class="muted" style="font-size:.85rem">' + d + "</div></div></button>" : '<a class="lesson" href="../app.html#plans" style="text-decoration:none;color:inherit"><span class="n">' + n + '</span><div><div style="font-weight:700">' + t + ' 🔒</div><div class="muted" style="font-size:.85rem">Comes with a plan</div></div></a>';
     return '<h2 style="margin-top:22px">Musicianship</h2><p class="muted" style="margin-top:0">For the questions about music on the page, the style questions in aural tests and Trinity\'s musical knowledge test.</p><div class="lessons">' +
       '<div class="lesson" style="cursor:default"><span class="n">?</span><div style="flex:1"><div style="font-weight:700">Questions on a piece</div><div class="muted" style="font-size:.85rem">A new piece each time · choose a grade</div><div class="row" style="gap:4px;margin-top:6px">' + row("ms-piece-g", 8) + "</div></div></div>" +
+      '<div class="lesson" style="cursor:default"><span class="n">♭</span><div style="flex:1"><div style="font-weight:700">Major or relative minor?</div><div class="muted" style="font-size:.85rem">Find the key of a piece · choose a grade</div><div class="row" style="gap:4px;margin-top:6px">' + row("ms-keymm-g", 5).replace(/<(button|a)[^>]*>1(🔒)?<\/(button|a)>/, "") + "</div></div></div>" +
       '<div class="lesson" style="cursor:default"><span class="n">✗</span><div style="flex:1"><div style="font-weight:700">Spot the mistake</div><div class="muted" style="font-size:.85rem">Find the bar with the wrong beats · choose a grade</div><div class="row" style="gap:4px;margin-top:6px">' + row("ms-spot-g", 5) + "</div></div></div>" +
       card("ms-periods", "♪", "Periods and styles", "Baroque, Classical, Romantic, 20th century") + card("ms-form", "§", "Form and structure", "Binary, ternary, rondo, variations, sonata form") + "</div>";
   }

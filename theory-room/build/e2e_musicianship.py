@@ -15,7 +15,7 @@ GEN = r"""() => {
     const ks = q.options.map(o => o.k);
     if (!ks.includes(String(q.answer))) out.push(id + ": answer not offered");
     if (new Set(ks).size !== ks.length) out.push(id + ": repeated option " + ks.join("|"));
-    if (ks.length < 3) out.push(id + ": only " + ks.length + " options");
+    if (ks.length < (l.gen === "keymm" ? 2 : 3)) out.push(id + ": only " + ks.length + " options");
     if (new Set(q.options.map(o => o.html)).size !== ks.length) out.push(id + ": two options look the same");
     if (/NaN|undefined|\[object/.test(q.prompt + q.explain + (q.visual || "") + q.options.map(o => o.html).join(""))) out.push(id + ": broken text");
     if (l.gen === "spotbar") { const m = /adds up to <b>([^<]+)<\/b> instead of (\d+)/.exec(q.explain); if (!m || m[1] === m[2] + " beats") out.push(id + ": bad mistake " + q.explain.slice(0, 80)); }
@@ -34,7 +34,7 @@ async def main():
             for x in r["out"]: bad(x)
             await pg.click("nav.tabs [data-tab=theory]"); await pg.wait_for_timeout(200)
             if "Musicianship" not in await pg.inner_text("#main"): bad("no musicianship section")
-            for lid in ["ms-piece-g5", "ms-spot-g2", "ms-periods", "ms-form", "ms-group-g4", "ms-complete-g3", "ms-ornaments", "ms-hear-g2", "ms-score"]:
+            for lid in ["ms-piece-g5", "ms-spot-g2", "ms-periods", "ms-form", "ms-group-g4", "ms-complete-g3", "ms-ornaments", "ms-hear-g2", "ms-score", "ms-keymm-g4"]:
                 await pg.click(f"[data-arg={lid}]"); await pg.click("[data-act=startLesson]"); await pg.wait_for_selector("#ex .opt")
                 await pg.click("#ex .opt >> nth=0"); await pg.wait_for_selector("#fb.show")
                 await pg.screenshot(path=f"{SHOTS}/{lid}.png", full_page=True)
@@ -47,6 +47,15 @@ async def main():
             st = await pg.evaluate("() => P().pieces[0]")
             if st.get("stage") != 2 or not st.get("days") or st.get("tricky") != "bars 9-12": bad("pieces tracker: " + str(st))
             await pg.screenshot(path=f"{SHOTS}/pieces.png", full_page=True)
+            # metronome and tuner
+            await pg.click("[data-pc-mode=metro]"); await pg.click("[data-mt-b='3']"); await pg.click("[data-mt-d='5']")
+            if "85" not in await pg.inner_text("#mtBpm"): bad("metronome +5")
+            await pg.click("[data-pc=mtStart]"); await pg.wait_for_timeout(1600)
+            lit = await pg.evaluate("() => [...document.querySelectorAll('#mtDots [data-dot]')].filter(d => d.style.background && !/line/.test(d.style.background)).length")
+            if lit != 1: bad("metronome beat light: %d" % lit)
+            await pg.click("[data-pc=mtStop]")
+            await pg.click("[data-pc-mode=tuner]")
+            if "Tuner" not in await pg.inner_text("#main"): bad("tuner view")
             # questions on my piece
             await pg.click("[data-pc-mode=know]"); await pg.click("[data-pc-kg='3']"); await pg.click("[data-pc=kAsk]"); await pg.click("[data-pc=kShow]")
             if "A good answer includes" not in await pg.inner_text("#main"): bad("knowledge cards")

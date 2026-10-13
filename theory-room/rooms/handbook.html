@@ -209,11 +209,15 @@
 
   /* ---------- 3. intervals ---------- */
   var IV = [["minor 2nd", "Db4", 1], ["major 2nd", "D4", 2], ["minor 3rd", "Eb4", 3], ["major 3rd", "E4", 4], ["perfect 4th", "F4", 5], ["augmented 4th", "F#4", 6], ["diminished 5th", "Gb4", 6], ["perfect 5th", "G4", 7], ["minor 6th", "Ab4", 8], ["major 6th", "A4", 9], ["minor 7th", "Bb4", 10], ["major 7th", "B4", 11], ["perfect octave", "C5", 12]];
+  /* the opening of a well-known tune, rising by that interval */
+  var SONGS = { "minor 2nd": "The Jaws theme", "major 2nd": "Frère Jacques", "minor 3rd": "Greensleeves", "major 3rd": "When the Saints Go Marching In", "perfect 4th": "Here Comes the Bride; Amazing Grace",
+    "augmented 4th": "Maria (West Side Story)", "diminished 5th": "Maria (West Side Story)", "perfect 5th": "Twinkle, Twinkle, Little Star", "minor 6th": "The Entertainer (the leap up)", "major 6th": "My Bonnie Lies Over the Ocean",
+    "minor 7th": "Somewhere (West Side Story); the Star Trek theme", "major 7th": "Take On Me (the chorus)", "perfect octave": "Somewhere Over the Rainbow" };
   function intervals() {
-    return '<div class="panel2"><p style="margin:0">Count the <b>letters</b> for the number (C up to E: C D E = a 3rd), then count the <b>semitones</b> for the type. Here is every interval up from middle C:</p>' +
-      '<div style="overflow-x:auto"><table class="t"><tr><th>Interval</th><th>Semitones</th><th>From C</th><th></th></tr>' + IV.map(function (v, i) {
+    return '<div class="panel2"><p style="margin:0">Count the <b>letters</b> for the number (C up to E: C D E = a 3rd), then count the <b>semitones</b> for the type. Here is every interval up from middle C, with the opening of a well-known tune that starts with it, to help you recognise it by ear:</p>' +
+      '<div style="overflow-x:auto"><table class="t"><tr><th>Interval</th><th>Semitones</th><th>From C</th><th>Remember it by</th><th></th></tr>' + IV.map(function (v, i) {
         var top = parse(v[1]);
-        return "<tr><td><b>" + esc(v[0]) + "</b></td><td>" + v[2] + "</td><td>" + stave({ clef: "treble", notes: [{ n: parse("C4") }, { n: top, showAcc: top.acc !== 0 }], gap: 40, h: 96, w: 170, label: "C up to " + nm(top) }) + '</td><td><button class="btn small" type="button" data-iv="' + i + '">▶</button></td></tr>';
+        return "<tr><td><b>" + esc(v[0]) + "</b></td><td>" + v[2] + "</td><td>" + stave({ clef: "treble", notes: [{ n: parse("C4") }, { n: top, showAcc: top.acc !== 0 }], gap: 40, h: 96, w: 170, label: "C up to " + nm(top) }) + '</td><td class="muted" style="font-size:15px">' + esc(SONGS[v[0]] || "") + '</td><td><button class="btn small" type="button" data-iv="' + i + '">▶</button></td></tr>';
       }).join("") + "</table></div>" +
       '<div class="grid2"><div class="card2"><h3>Making intervals bigger or smaller</h3><p>One semitone bigger: minor → major → augmented; perfect → augmented. One semitone smaller: major → minor → diminished; perfect → diminished.</p></div>' +
       '<div class="card2"><h3>Inverting an interval</h3><p>Move the lower note up an octave. The numbers add up to 9 (a 3rd becomes a 6th); major ↔ minor, augmented ↔ diminished, perfect stays perfect.</p></div>' +
@@ -303,7 +307,7 @@
 
 
   /* ---------- 7. speed games: 60 seconds against the clock ---------- */
-  var GAMES = [["keys", "Key signature sprint", "See a key signature, name the key."], ["notes", "Note-naming sprint", "Name notes in the treble, bass and alto clefs."], ["ivs", "Interval sprint", "Name the interval between two notes."]];
+  var GAMES = [["keys", "Key signature sprint", "See a key signature, name the key."], ["notes", "Note-naming sprint", "Name notes in the treble, bass and alto clefs."], ["ivs", "Interval sprint", "Name the interval between two notes."], ["maths", "Note maths sprint", "Add up note values in crotchet beats."]];
   var G = { id: null, on: false, end: 0, score: 0, tries: 0, q: null, fb: "", timer: 0 };
   var bestOf = function (id) { try { return +(localStorage.getItem("tr-hb-best-" + id) || 0); } catch (e) { return 0; } };
   var setBest = function (id, v) { try { localStorage.setItem("tr-hb-best-" + id, String(v)); } catch (e) {} };
@@ -311,7 +315,14 @@
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function optsFrom(right, pool) { var o = [right]; shuffle(pool).forEach(function (x) { if (o.length < 4 && o.indexOf(x) < 0) o.push(x); }); return shuffle(o); }
   var CLEF_RANGE = { treble: ["G3", "C6"], bass: ["B1", "E4"], alto: ["A2", "D5"] };
+  var NV = [["\u{1D15D}", "semibreve", 4], ["\u{1D15E}.", "dotted minim", 3], ["\u{1D15E}", "minim", 2], ["\u{1D15F}.", "dotted crotchet", 1.5], ["\u{1D15F}", "crotchet", 1], ["\u{1D160}", "quaver", .5], ["\u{1D161}", "semiquaver", .25]];
+  var frac = function (x) { var w = Math.floor(x), f = x - w, t = f === .25 ? "¼" : f === .5 ? "½" : f === .75 ? "¾" : ""; return (w || !t ? String(w) : "") + t; };
   function makeQ(id) {
+    if (id === "maths") {
+      var n = 2 + Math.floor(Math.random() * 2), pick3 = [], sum = 0; for (var q = 0; q < n; q++) { var v = rnd(NV); pick3.push(v); sum += v[2]; }
+      var right = frac(sum), pool = [sum - 1, sum + 1, sum - .5, sum + .5, sum * 2, sum + .25].filter(function (x) { return x > 0; }).map(frac);
+      return { ask: "How many crotchet beats altogether? (" + pick3.map(function (v) { return v[1]; }).join(" + ") + ")", svg: '<div class="glyph" style="font-size:64px;line-height:1.3;letter-spacing:.15em">' + pick3.map(function (v) { return v[0]; }).join(" + ") + "</div>", right: right, opts: optsFrom(right, pool) };
+    }
     if (id === "keys") {
       var k = Math.floor(Math.random() * 15) - 7, mode = Math.random() < .5 ? "major" : "minor", clef = rnd(["treble", "bass"]), name = (mode === "major" ? MAJ : MIN)[String(k)] + " " + mode;
       var pool = Object.keys(MAJ).map(function (x) { return (mode === "major" ? MAJ : MIN)[x] + " " + mode; });

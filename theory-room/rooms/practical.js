@@ -227,6 +227,63 @@
     }, 100);
   }
 
+
+  /* ---------- metronome ---------- */
+  const MT = { on: false, bpm: 80, beats: 4, sub: 1, next: 0, beat: 0, timer: 0 };
+  const TEMPI = [[40, "Grave"], [52, "Largo"], [60, "Adagio"], [72, "Andante"], [92, "Moderato"], [112, "Allegretto"], [132, "Allegro"], [168, "Vivace"], [184, "Presto"]];
+  const tempoWord = b => { let w = TEMPI[0][1]; TEMPI.forEach(t => { if (b >= t[0]) w = t[1]; }); return w; };
+  function metro() {
+    return `<section class="panel" style="text-align:center"><h3 style="margin-top:0">Metronome</h3>
+      <div style="font-size:3.4rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1" id="mtBpm">${MT.bpm}</div><div class="muted">beats a minute · about <i>${tempoWord(MT.bpm)}</i></div>
+      <input type="range" id="mtRange" min="30" max="220" value="${MT.bpm}" aria-label="Speed" style="width:min(420px,90%);margin:14px auto;display:block">
+      <div class="row" style="justify-content:center;gap:6px">${[-5, -1, 1, 5].map(d => `<button class="gbtn" data-mt-d="${d}" style="min-width:56px">${d > 0 ? "+" : ""}${d}</button>`).join("")}<button class="gbtn" data-mt-tap="1">Tap tempo</button></div>
+      <div class="row" style="justify-content:center;gap:6px;margin-top:10px"><span style="font-weight:700">Beats in a bar</span>${[2, 3, 4, 5, 6].map(b => `<button class="gbtn" data-mt-b="${b}" aria-pressed="${b === MT.beats}" style="min-width:48px">${b}</button>`).join("")}</div>
+      <div class="row" style="justify-content:center;gap:6px;margin-top:8px"><span style="font-weight:700">Clicks per beat</span>${[[1, "♩"], [2, "♫"], [3, "triplets"], [4, "♬"]].map(([v, t]) => `<button class="gbtn" data-mt-s="${v}" aria-pressed="${v === MT.sub}" style="min-width:48px">${t}</button>`).join("")}</div>
+      <div id="mtDots" style="display:flex;justify-content:center;gap:12px;margin:18px 0">${Array.from({ length: MT.beats }, (_, i) => `<span style="width:28px;height:28px;border-radius:50%;background:var(--line);display:inline-block" data-dot="${i}"></span>`).join("")}</div>
+      <button class="btn primary" data-pc="${MT.on ? "mtStop" : "mtStart"}" style="min-width:160px">${MT.on ? "■ Stop" : "▶ Start"}</button>
+      <p class="muted" style="margin:.8em 0 0;font-size:.9rem">Start slowly, then nudge it up a few beats at a time once a passage is secure. The first beat of each bar is accented.</p></section>`;
+  }
+  function metroTick() {
+    const ctx = AU.ctx; if (!ctx || !MT.on) return;
+    const spb = 60 / MT.bpm / MT.sub;
+    while (MT.next < ctx.currentTime + 0.12) {
+      const n = MT.beat, inBeat = n % MT.sub, beatNo = Math.floor(n / MT.sub) % MT.beats;
+      click(MT.next, inBeat === 0 && beatNo === 0, inBeat === 0 ? 1 : .45);
+      if (inBeat === 0) { const when = (MT.next - ctx.currentTime) * 1000; setTimeout(() => { document.querySelectorAll("#mtDots [data-dot]").forEach((d, i) => { d.style.background = i === beatNo ? (beatNo === 0 ? "var(--rose)" : "var(--teal)") : "var(--line)"; }); }, Math.max(0, when)); }
+      MT.next += spb; MT.beat = (MT.beat + 1) % (MT.sub * MT.beats);
+    }
+  }
+  function metroStart() { const ctx = audioInit(); if (!ctx) return; MT.on = true; MT.beat = 0; MT.next = ctx.currentTime + .08; clearInterval(MT.timer); MT.timer = setInterval(metroTick, 25); }
+  function metroStop() { MT.on = false; clearInterval(MT.timer); }
+  const taps = [];
+
+  /* ---------- tuner ---------- */
+  const TU = { on: false, timer: 0, err: "" };
+  function tuner(p) {
+    const inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin");
+    return `<section class="panel" style="text-align:center"><h3 style="margin-top:0">Tuner</h3>
+      <div class="row" style="justify-content:center;gap:10px;margin-bottom:8px">${instSelect(p, inst)}</div>
+      <div id="tuNote" style="font-size:4rem;font-weight:800;line-height:1.1">–</div>
+      <div class="muted" id="tuSub">${TU.on ? "Play or sing a long note" : "Press Start, then play a long note"}</div>
+      <div style="position:relative;height:46px;max-width:420px;margin:16px auto;border-radius:999px;background:linear-gradient(90deg,var(--rose-soft),var(--ok-soft) 42%,var(--ok-soft) 58%,var(--rose-soft))"><span style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--ink);opacity:.4"></span><span id="tuNeedle" style="position:absolute;top:6px;width:10px;height:34px;border-radius:6px;background:var(--ink);left:calc(50% - 5px);transition:left .08s;opacity:.25"></span></div>
+      <div class="row" style="justify-content:space-between;max-width:420px;margin:0 auto;font-size:.85rem" aria-hidden="true"><span>flat</span><span>in tune</span><span>sharp</span></div>
+      <div style="margin-top:14px"><button class="btn primary" data-pc="${TU.on ? "tuStop" : "tuStart"}" style="min-width:160px">${TU.on ? "■ Stop" : "🎤 Start"}</button></div>
+      ${TU.err ? `<div class="feedback show info" style="margin-top:12px">${TU.err}</div>` : ""}
+      <p class="muted" style="margin:.8em 0 0;font-size:.9rem">${inst.tr ? "It shows the note as written for your " + esc(inst.name) + " (and the sounding note underneath)." : "It shows the note you play and how many cents sharp or flat it is."} Within 5 cents is in tune.</p></section>`;
+  }
+  function tuneLoop() {
+    if (!TU.on || !MIC.an) return;
+    MIC.an.getFloatTimeDomainData(MIC.buf); const r = yin(MIC.buf, MIC.ctx.sampleRate);
+    const note = document.getElementById("tuNote"), sub = document.getElementById("tuSub"), nd = document.getElementById("tuNeedle"); if (!note) return;
+    if (!r.f) { nd.style.opacity = .25; return; }
+    const m = hzToMidi(r.f), rm = Math.round(m), cents = Math.round((m - rm) * 100), inst = instOf(P().readInst || "violin");
+    note.textContent = midiName(rm - inst.tr).replace(/-?\d+$/, ""); note.style.color = Math.abs(cents) <= 5 ? "var(--ok)" : "var(--ink)";
+    sub.textContent = (cents === 0 ? "in tune" : Math.abs(cents) + " cents " + (cents > 0 ? "sharp" : "flat")) + " · " + r.f.toFixed(1) + " Hz" + (inst.tr ? " · sounding " + midiName(rm).replace(/\d+$/, "") : "");
+    nd.style.opacity = 1; nd.style.left = "calc(" + (50 + Math.max(-50, Math.min(50, cents)) * .9) + "% - 5px)";
+  }
+  async function tunerStart() { TU.err = ""; const ok = await micOpen(); if (!ok) { TU.err = (MIC.err === "NotAllowedError" || MIC.err === "SecurityError" ? "The microphone was blocked." : "This browser can't use the microphone.") + " Open the page in a normal browser (Chrome, Safari or Edge) and allow the microphone."; render(); return; } TU.on = true; render(); clearInterval(TU.timer); TU.timer = setInterval(tuneLoop, 60); }
+  function tunerStop() { TU.on = false; clearInterval(TU.timer); try { micClose(); } catch (e) {} }
+
   /* ---------- views ---------- */
   function instSelect(p, inst) { return `<label for="pcInst" style="font-weight:700">Instrument</label><select id="pcInst" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${INST.map(i => `<option value="${esc(i.id)}"${i.id === inst.id ? " selected" : ""}>${esc(i.name)}</option>`).join("")}</select>`; }
   function playRow() {
@@ -318,17 +375,18 @@
   }
   function view() {
     const p = P(), inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin");
-    const tabs = [["coach", "Scales coach"], ["exam", "Examiner mode"], ["pieces", "My pieces"], ["know", "Questions on my piece"], ["improv", "Improvise"], ["diary", "Practice diary"]];
+    const tabs = [["coach", "Scales coach"], ["exam", "Examiner mode"], ["pieces", "My pieces"], ["know", "Questions on my piece"], ["improv", "Improvise"], ["metro", "Metronome"], ["tuner", "Tuner"], ["diary", "Practice diary"]];
     return `<h2>Practical exam</h2><p class="muted" style="margin-top:0">Scales and arpeggios for your instrument, an examiner who asks for them, your exam pieces, questions about them, improvising, and a practice diary. Sight-reading and aural have their own tabs.</p>
       <div class="gradebar" role="tablist" aria-label="Practical">${tabs.map(([id, t]) => `<button class="gbtn" data-pc-mode="${id}" aria-pressed="${S.mode === id}">${t}</button>`).join("")}</div>
       ${S.mode === "coach" || S.mode === "exam" ? `<div class="row" style="gap:10px;margin:0 0 10px">${instSelect(p, inst)}</div>` : ""}
-      ${S.mode === "coach" ? coach(p, inst) : S.mode === "exam" ? examiner(p, inst) : S.mode === "pieces" ? pieces(p) : S.mode === "know" ? know(p) : S.mode === "improv" ? improv(p) : diary(p)}`;
+      ${S.mode === "coach" ? coach(p, inst) : S.mode === "exam" ? examiner(p, inst) : S.mode === "pieces" ? pieces(p) : S.mode === "know" ? know(p) : S.mode === "improv" ? improv(p) : S.mode === "metro" ? metro() : S.mode === "tuner" ? tuner(p) : diary(p)}`;
   }
 
   /* ---------- the tab ---------- */
   const render0 = render;
   render = function () {
     render0();
+    if (VIEW.tab !== "prac" && (MT.on || TU.on)) { metroStop(); tunerStop(); }
     if (VIEW.tab === "prac") { $$(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === "prac"))); $("#main").innerHTML = view(); }
   };
   const nav = document.querySelector("nav.tabs");
@@ -343,21 +401,23 @@
   function paintBox() { const b = document.getElementById("pcbox"); if (b) b.innerHTML = playRow(); }
   setInterval(() => { if (!S.tm.on) return; const el = document.getElementById("pctime"); if (el) el.textContent = fmt(elapsed()); }, 500);
 
+  document.addEventListener("input", e => { if (e.target.id === "mtRange") { MT.bpm = +e.target.value; const b = document.getElementById("mtBpm"); if (b) b.textContent = MT.bpm; } });
   document.addEventListener("change", e => {
     if (VIEW.tab !== "prac") return; const p = P();
     if (e.target.dataset && e.target.dataset.pcTricky != null) { pcs(p)[+e.target.dataset.pcTricky].tricky = e.target.value.slice(0, 120); save(); }
     if (e.target.dataset && e.target.dataset.pcTempoNow != null) { pcs(p)[+e.target.dataset.pcTempoNow].now = +e.target.value || null; save(); }
     if (e.target.dataset && e.target.dataset.pcTempoGoal != null) { pcs(p)[+e.target.dataset.pcTempoGoal].goal = +e.target.value || null; save(); }
     if (e.target.id === "ivKey" || e.target.id === "ivStyle" || e.target.id === "ivProg") { stopAll(); clearInterval(IV_.timer); IV_.on = false; const I = S.iv; if (e.target.id === "ivKey") { I.key = +e.target.value; I.prog = 0; } if (e.target.id === "ivStyle") I.style = +e.target.value; if (e.target.id === "ivProg") I.prog = +e.target.value; render(); return; }
+    if (e.target.id === "mtRange") { MT.bpm = +e.target.value; render(); return; }
     if (e.target.id === "pcInst") { p.readInst = e.target.value; save(); render(); }
     if (e.target.id === "pcType") { S.sc.type = e.target.value; S.phase = "idle"; S.res = null; render(); }
     if (e.target.id === "pcKey") { S.sc.v = e.target.value; S.phase = "idle"; S.res = null; render(); }
   });
   document.addEventListener("click", async e => {
     if (VIEW.tab !== "prac") return;
-    const b = e.target.closest("[data-pc-kg],[data-pc-play],[data-pc-stage],[data-pc-del],[data-pc],[data-pc-mode],[data-pc-oct],[data-pc-tempo],[data-pc-self],[data-pc-st],[data-pc-sacc],[data-pc-soct],[data-pc-cat],[data-pc-goal]"); if (!b) return;
+    const b = e.target.closest("[data-mt-d],[data-mt-b],[data-mt-s],[data-mt-tap],[data-pc-kg],[data-pc-play],[data-pc-stage],[data-pc-del],[data-pc],[data-pc-mode],[data-pc-oct],[data-pc-tempo],[data-pc-self],[data-pc-st],[data-pc-sacc],[data-pc-soct],[data-pc-cat],[data-pc-goal]"); if (!b) return;
     const p = P(), inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin"), d = b.dataset;
-    if (d.pcMode) { try { stopAll(); clearInterval(IV_.timer); IV_.on = false; } catch (err) {} S.mode = d.pcMode; S.phase = "idle"; S.res = null; try { micClose(); } catch (err) {} render(); return; }
+    if (d.pcMode) { try { stopAll(); clearInterval(IV_.timer); IV_.on = false; metroStop(); tunerStop(); } catch (err) {} S.mode = d.pcMode; S.phase = "idle"; S.res = null; try { micClose(); } catch (err) {} render(); return; }
     if (d.pcOct) { S.sc.oct = +d.pcOct; S.phase = "idle"; S.res = null; render(); return; }
     if (d.pcTempo) { S.tempo = +d.pcTempo; render(); return; }
     if (d.pcSt) { const st = set(p), i = st.types.indexOf(d.pcSt); if (i >= 0) st.types.splice(i, 1); else st.types.push(d.pcSt); S.ask = null; save(); render(); return; }
@@ -408,6 +468,14 @@
     if (act === "kNextPiece") { S.kp = (S.kp || 0) + 1; render(); return; }
     if (act === "ivPlay") { audioInit(); ivPlay(); logMinutes("other", 0); return; }
     if (act === "ivStop") { stopAll(); clearInterval(IV_.timer); IV_.on = false; render(); return; }
+    if (d.mtD) { MT.bpm = Math.max(30, Math.min(220, MT.bpm + +d.mtD)); render(); return; }
+    if (d.mtB) { MT.beats = +d.mtB; MT.beat = 0; render(); return; }
+    if (d.mtS) { MT.sub = +d.mtS; MT.beat = 0; render(); return; }
+    if (d.mtTap) { const now = performance.now(); taps.push(now); while (taps.length > 5) taps.shift(); if (taps.length >= 2 && now - taps[taps.length - 2] < 2000) { const iv = (taps[taps.length - 1] - taps[0]) / (taps.length - 1); MT.bpm = Math.max(30, Math.min(220, Math.round(60000 / iv))); render(); } else if (taps.length >= 2) { taps.splice(0, taps.length - 1); } return; }
+    if (act === "mtStart") { metroStart(); render(); return; }
+    if (act === "mtStop") { metroStop(); render(); return; }
+    if (act === "tuStart") { await tunerStart(); return; }
+    if (act === "tuStop") { tunerStop(); render(); return; }
     if (act === "addPiece") { const t = (document.getElementById("pcNewT").value || "").trim(); if (!t) { toast("Type the piece's title first."); return; } pcs(p).push({ t, list: document.getElementById("pcNewL").value, stage: 0, days: {} }); save(); render(); return; }
     if (act === "addMins") { const v = +(document.getElementById("pcMins") || {}).value; if (!(v > 0 && v <= 240)) { toast("Type the minutes first (1 to 240)."); return; } logMinutes(S.tm.cat, v); toast("Added."); render(); return; }
   });

@@ -65,7 +65,7 @@
     var plan = s.plan ? (s.plan.board === "trinity" ? "Trinity" : "ABRSM") + " Grade " + s.plan.g + " theory on " + esc(s.plan.date) : "None yet (set one in Theory → Revision)";
     var next = s.weak.length ? s.weak.map(function (w) { return esc(F.lessonTitle(w.id)) + " (" + Math.round(100 * w.acc) + "%)"; }).join("; ") : (s.q ? "Nothing stands out: keep going with today's review." : "Start with Today's 15 minutes.");
     var target = '<select id="rt-' + esc(l.id) + '" aria-label="Sticker days to earn it">' + [1, 2, 3, 4, 5, 6, 7].map(function (n) { return '<option value="' + n + '"' + (n === rw.target ? " selected" : "") + ">" + n + " sticker day" + (n > 1 ? "s" : "") + "</option>"; }).join("") + "</select>";
-    return '<section class="kidcard" style="--kc:' + pr.c + '"><div class="head"><span class="av">' + pr.a + '</span><h2 style="font-size:28px;margin-right:auto">' + esc(l.name) + '</h2><a class="btn small noprint" href="rooms/aural.html?learner=' + encodeURIComponent(l.id) + '&tab=progress">Full progress</a></div>' +
+    return '<section class="kidcard" style="--kc:' + pr.c + '"><div class="head"><span class="av">' + pr.a + '</span><h2 style="font-size:28px;margin-right:auto">' + esc(l.name) + '</h2><button class="btn small noprint" type="button" data-cert="' + esc(l.id) + '">🏅 Certificate</button><a class="btn small noprint" href="rooms/aural.html?learner=' + encodeURIComponent(l.id) + '&tab=progress">Full progress</a></div>' +
       '<div class="today"><span>Today:</span>' + F.TASKS.map(function (k) { return '<span class="' + (t.tasks[k.k] ? "y" : "") + '">' + (t.tasks[k.k] ? "✓ " : "") + k.t + "</span>"; }).join("") + "</div>" +
       '<div class="stats"><div class="stat"><b>' + s.active + '/7</b><span>days practised this week</span></div><div class="stat"><b>' + s.stickers + '</b><span>sticker days (all three tasks)</span></div><div class="stat"><b>' + s.q + '</b><span>' + (s.q ? "questions · " + acc + " right" : "questions answered") + '</span></div><div class="stat"><b>' + Math.round(s.prac) + '</b><span>minutes on their instrument</span></div></div>' +
       '<div class="rows">' +
@@ -79,6 +79,26 @@
       '<form class="inline noprint" data-reward="' + esc(l.id) + '"><label class="kicker" style="flex-basis:100%" for="rw-' + esc(l.id) + '">This week\'s reward</label><input id="rw-' + esc(l.id) + '" maxlength="60" placeholder="e.g. choose Friday\'s film" value="' + esc(rw.text) + '"><span>for</span>' + target + '<button class="btn small go" type="submit">Save</button><span class="msg" id="m-' + esc(l.id) + '"></span></form>' +
       '<form class="inline noprint" data-rename="' + esc(l.id) + '"><label class="kicker" style="flex-basis:100%" for="rn-' + esc(l.id) + '">Name</label><input id="rn-' + esc(l.id) + '" maxlength="30" value="' + esc(l.name) + '"><button class="btn small" type="submit">Rename</button>' + (TR.learners.length > 1 ? '<button class="btn small" type="button" data-remove="' + esc(l.id) + '">Remove</button>' : "") + "</form></section>";
   }
+
+  async function certificate(id, btn) {
+    var l = TR.learners.filter(function (x) { return x.id === id; })[0]; if (!l) return;
+    var pr = F.prof(id), p = await F.player(id), s = F.weekSummary(p), wk = F.weekDays(), tro = F.trophies(p).filter(function (t) { return t[3]; });
+    var nice = function (d) { return new Date(d + "T12:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long" }); };
+    var line = s.stickers >= 5 ? "Superstar practiser!" : s.stickers >= 3 ? "Brilliant practising!" : s.active >= 3 ? "Great effort this week!" : "Well done for practising!";
+    var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Certificate: ' + esc(l.name) + '</title><style>' +
+      '@page{size:A4 landscape;margin:12mm}body{margin:0;font-family:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;color:#241a4a;background:#fff}' +
+      '.c{margin:20px auto;max-width:1000px;aspect-ratio:1.414;border:14px solid transparent;border-radius:28px;background:linear-gradient(#fffdf7,#fffdf7) padding-box,linear-gradient(90deg,#ff6b6b,#ff922b,#ffd43b,#69db7c,#4dabf7,#9775fa,#f06595) border-box;display:grid;place-items:center;text-align:center;padding:30px;box-sizing:border-box}' +
+      'h1{font-size:54px;margin:0;background:linear-gradient(90deg,#6d3fe0,#d6336c,#f76707);-webkit-background-clip:text;background-clip:text;color:transparent}.av{font-size:90px;line-height:1}.name{font-size:56px;font-weight:800;margin:4px 0;color:' + pr.c + '}' +
+      '.stats{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;font-size:20px;margin:14px 0}.stats b{display:block;font-size:40px}.tro{font-size:40px;letter-spacing:.15em}.sig{display:flex;justify-content:space-around;margin-top:24px;font-size:16px;color:#625a85}.sig span{border-top:2px solid #241a4a;padding-top:6px;min-width:220px}' +
+      '.bar{text-align:center;margin:10px}.bar button{font:600 16px system-ui;padding:10px 18px;border-radius:10px;border:0;background:#6d3fe0;color:#fff;cursor:pointer}@media print{.bar{display:none}.c{margin:0}}</style></head><body>' +
+      '<div class="bar"><button onclick="window.print()">Print or save as PDF</button></div><div class="c"><div><h1>Certificate of Practice</h1><div class="av">' + pr.a + '</div><div class="name">' + esc(l.name) + '</div>' +
+      '<div style="font-size:24px;font-weight:700">' + line + '</div><div style="font-size:18px;color:#625a85">The week of ' + nice(wk[0]) + " to " + nice(wk[6]) + "</div>" +
+      '<div class="stats"><div><b>' + s.stickers + '</b>sticker days</div><div><b>' + s.active + '</b>days practised</div><div><b>' + Math.round(s.prac) + '</b>minutes playing</div><div><b>' + s.q + "</b>questions answered</div></div>" +
+      (tro.length ? '<div class="tro" title="Trophies">' + tro.map(function (t) { return t[0]; }).join(" ") + "</div>" : "") +
+      '<div class="sig"><span>Signed</span><span>Date</span></div></div></div></body></html>';
+    var w = window.open("", "_blank"); if (!w) { if (btn) btn.textContent = "Allow pop-ups, then tap again"; return; }
+    w.document.open(); w.document.write(html); w.document.close();
+  }
   async function draw() {
     var html = ""; for (var i = 0; i < TR.learners.length; i++) html += await card(TR.learners[i]);
     document.getElementById("kids").innerHTML = html || '<p class="muted">No players yet: add one below.</p>';
@@ -90,6 +110,7 @@
     if (f.dataset.rename) { var id2 = f.dataset.rename; await TR.renameLearner(id2, document.getElementById("rn-" + id2).value); }
   });
   document.addEventListener("click", async function (e) {
+    var c = e.target.closest("[data-cert]"); if (c) { certificate(c.dataset.cert, c); return; }
     var b = e.target.closest("[data-remove]"); if (!b) return;
     if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Tap again to remove (their progress goes too)"; return; }
     var id = b.dataset.remove; TR.setLearner(id); await TR.removeLearner(id);
