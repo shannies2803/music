@@ -36,11 +36,11 @@
     [/^N6$/, "the <b>Neapolitan 6th</b>: a major chord on the flattened supertonic, in first inversion. It leads to Ic or V; the flattened note falls."],
     [/^vii°7b?$/, "the <b>diminished 7th</b> on the leading note: a stack of minor 3rds. Every note leans towards a note of the tonic chord."],
     [/^Ger6$/, "the <b>German augmented 6th</b>: flattened 6th in the bass, with the major 3rd, perfect 5th and augmented 6th above. The augmented 6th opens out to an octave on the dominant; it usually goes to Ic first to avoid consecutive 5ths."],
-    [/^It6$/, "the <b>Italian augmented 6th</b>: flattened 6th in the bass, the major 3rd and the augmented 6th. The bass falls a semitone and the top note rises a semitone, opening out to the octave on V."],
+    [/^It6$/, "the <b>Italian augmented 6th</b>: flattened 6th in the bass, the major 3rd and the augmented 6th. The bass falls a semitone and the sharpened note rises a semitone, opening out to the octave on V."],
     [/^V7?b$/, "the dominant (7th) in first inversion: the leading note is in the bass, so it rises to the tonic."]
   ];
   const noteOf = lbl => { for (const [re, t] of NOTES) if (re.test(lbl)) return t; return "a chord of the key."; };
-  const RANGE = [[57, 81, "soprano"], [53, 74, "alto"], [45, 69, "tenor"], [36, 62, "bass"]];
+  const RANGE = [[58, 81, "soprano"], [53, 76, "alto"], [46, 69, "tenor"], [38, 62, "bass"]];   /* the Handbook ranges, a tone either way */
   function checks(chords) {
     const ms = chords.map(c => c.map(midiOf).slice().reverse()), out = [];   /* S A T B */
     let cons = [];
@@ -77,7 +77,7 @@
   }
   function stepText(X, step) {
     const nmN = n => nm(n);
-    if (step === 0) return "<p>Start from the bass. Each figure counts up from the bass note within the key: nothing (or 5 3) is root position, <b>6</b> means first inversion, <b>6 4</b> second inversion, and 7, 6 5, 4 3, 4 2 are the dominant 7th and its inversions. An accidental beside a figure changes that note.</p>";
+    if (step === 0) return "<p>Start from the bass. Each figure counts up from the bass note within the key: nothing (or 5 3) is root position, <b>6</b> means first inversion, <b>6 4</b> second inversion, and 7, 6 5, 4 3, 4 2 are 7th chords and their inversions (most often the dominant 7th). An accidental beside a figure changes that note.</p>";
     if (step === 1) return "<p>Work out each chord from its bass and figures:</p><ol>" + X.labels.map((l, i) => "<li><b>" + esc(l) + "</b> (bass " + nmN(X.chords[i][0]) + (X.figs[i].length ? ", figures " + X.figs[i].join(" ") : "") + "): " + noteOf(l) + "</li>").join("") + "</ol>";
     if (step === 2) return "<p>The melody moves mostly by step and has a clear shape to the cadence. Notice the last two soprano notes: " + nmN(X.chords[X.chords.length - 2][3]) + " to " + nmN(X.chords[X.chords.length - 1][3]) + ". Choose the soprano first, then the inner parts fit between it and the bass.</p>";
     if (step === 3) return "<p>Now the alto and tenor. Keep notes that two chords share in the same part, move the others by the smallest step, and double the root of a major or minor chord where you can. Never double the leading note, and let a 7th fall by step.</p>";
@@ -88,11 +88,11 @@
     const W = VIEW.hw = VIEW.hw || { id: ids[0], step: 0 };
     if (!W.X || W.X.id !== W.id) W.X = pickPassage(W.id);
     const X = W.X, s = W.step;
-    return '<div class="panel" id="hwbox" style="margin-top:10px"><div class="row" style="gap:8px;flex-wrap:wrap"><label for="hwSel" style="font-weight:700">Example</label><select id="hwSel" style="font:inherit;min-height:44px;border-radius:10px;padding:4px 10px">' +
+    return '<div class="panel" id="hwbox" style="margin-top:10px"><div class="row" style="gap:8px;flex-wrap:wrap"><label for="hwSel" style="font-weight:700">Example</label><select id="hwSel" style="font:inherit;min-height:44px;border-radius:10px;padding:4px 10px;max-width:100%;min-width:0">' +
       ids.map(id => '<option value="' + id + '"' + (id === W.id ? " selected" : "") + ">" + esc(TITLES[id] || id) + "</option>").join("") + '</select><button class="btn small ghost" data-hw="key">Another key</button></div>' +
       '<p class="kicker" style="margin:12px 0 4px">' + esc(keyName(X.k, X.mode)) + " · step " + (s + 1) + " of 5: " + STEPS[s] + "</p>" + staves(X, s) +
       '<div class="row" style="gap:6px;margin-top:8px">' + STEPS.map((t, i) => '<button class="gbtn" data-hw-step="' + i + '" aria-pressed="' + (i === s) + '" style="min-height:40px;min-width:44px" aria-label="Step ' + (i + 1) + ": " + t + '">' + (i + 1) + "</button>").join("") +
-      '<button class="btn small" data-hw="next"' + (s >= 4 ? " disabled" : "") + ">Next step →</button><button class=\"btn small ghost\" data-hw=\"play\">▶ Hear " + (s >= 3 ? "it" : "what's there") + "</button></div>" +
+      '' + (s >= 4 ? '<button class="btn small" data-hw="nextEx">Next example →</button>' : '<button class="btn small" data-hw="next">Next step →</button>') + "<button class=\"btn small ghost\" data-hw=\"play\">▶ Hear " + (s >= 3 ? "it" : "what's there") + "</button></div>" +
       '<div style="margin-top:8px">' + stepText(X, s) + "</div></div>";
   }
   const hw = { id: "hw-workshop", g: 7, topic: "Harmony", t: "Harmony workshop: worked examples", gen: "c78pass", p: {}, workshop: true };
@@ -109,7 +109,9 @@
   TGEN.melend = function (p) {
     let pc; for (let i = 0; i < 20; i++) { pc = SIGHTREAD.makePiece(p.g, FLUTE); if (pc.bars >= 4 && given(pc).some(n => !n.rest)) break; }
     const G = given(pc), tpc = pcOf(pc.tonic), kp = keyPcs(tpc, pc.mode), last = G.filter(n => !n.rest).pop().m;
-    const T = nearestPc([tpc], last, last - 7, last + 7), dir = Math.random() < .5 ? 1 : -1, pre = scaleStep(T, dir, kp), first = scaleStep(pre, dir, kp);
+    const T = nearestPc([tpc], last, last - 7, last + 7), dir = Math.random() < .5 ? 1 : -1, pre = scaleStep(T, dir, kp);
+    /* rising to the tonic in a minor key, use the raised 6th (melodic minor), not the augmented 2nd */
+    const first = pc.mode === "minor" && dir < 0 ? pre - 2 : scaleStep(pre, dir, kp);
     const rh = pc.beats === 4 ? [1, 1, 2] : pc.beats === 3 ? [1, 2] : [1, 1];
     const mk = (ms, durs) => ms.map((m, i) => ({ m, d: (durs || rh)[i] }));
     const good = rh.length === 3 ? [first, pre, T] : [pre, T];
@@ -120,7 +122,7 @@
     const preN = fromMidiInKey(pre, pc.k, pc.mode);
     let ch = [1, -1].map(d => ({ m: pre + d, sp: N(preN.L, preN.acc + d, preN.oct) })).find(c => !allPcs.includes(pcOf(c.m)) && Math.abs(c.sp.acc) <= 1);
     if (!ch && rh.length === 3) { const fN = fromMidiInKey(first, pc.k, pc.mode); ch = [1, -1].map(d => ({ m: first + d, sp: N(fN.L, fN.acc + d, fN.oct), onFirst: true })).find(c => !allPcs.includes(pcOf(c.m)) && Math.abs(c.sp.acc) <= 1); }
-    const leapPre = nearestPc(kp, T + (dir > 0 ? 11 : -11), T - 12, T + 12);
+    const leapPre = [11, 10].map(s => T - dir * s).find(m => kp.includes(pcOf(m))) || T - dir * 10;   /* a 7th away, on the far side, so the last step is a leap of a 7th */
     const endings = [
       { k: "good", n: mk(good), why: "Right. It moves by step to the tonic, " + tn + ", and ends on a long note, so the melody sounds finished." },
       { k: "dom", n: mk(good.slice(0, -1).concat([dom])), why: "This ends on " + nameOf(dom) + ", the dominant: it sounds like a question, not an ending." },
@@ -187,6 +189,7 @@
     const a = b.dataset.hw;
     if (a === "next") { W.step = Math.min(4, W.step + 1); render(); }
     if (a === "key") { W.X = null; render(); }
+    if (a === "nextEx") { const ids = Object.keys(window.PASSAGES || {}); VIEW.hw = { id: ids[(ids.indexOf(W.id) + 1) % ids.length], step: 0 }; render(); }
     if (a === "play") { audioInit(); const s = W.step; playEvents(W.X.chords.map((c, j) => ({ m: c.filter((_, v) => v === 0 || (v === 3 && s >= 2) || ((v === 1 || v === 2) && s >= 3)).map(midiOf), t: j * 1.5, d: 1.5 })), 66); }
     const box = document.getElementById("hwbox"); if (box && a !== "play") box.scrollIntoView({ block: "nearest" });
   });

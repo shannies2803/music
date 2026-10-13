@@ -14,6 +14,7 @@
       save();
     } catch (e) {}
   };
+  try { var p0 = P(); if (p0 && p0.pracGoal == null) { p0.pracGoal = 10; save(); } } catch (e) {}
   var q = new URLSearchParams(location.search), tab = q.get("tab");
   Promise.resolve(TR.ready).then(function () {
     setTimeout(function () {

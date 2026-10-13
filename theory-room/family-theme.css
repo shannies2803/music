@@ -123,3 +123,6 @@ html.tr-family:root[data-theme="dark"] .pill { background: #4a3a10; color: #ffe8
 html.tr-family:root[data-theme="dark"] .feedback.good { background: var(--ok-soft); }
 html.tr-family:root[data-theme="dark"] .learner[aria-pressed="true"] { background: var(--accent-soft); }
 html.tr-family:root[data-theme="dark"] .lessons > .lesson .n { background: var(--accent-soft) !important; color: var(--accent) !important; }
+
+/* form controls follow the theme (dark mode too) */
+html.tr-family select, html.tr-family input[type="text"], html.tr-family input:not([type]) { background: var(--paper, var(--sheet)); color: var(--ink, var(--fg)); border: 1.5px solid var(--line, var(--rule)); }

@@ -89,10 +89,10 @@
   "use strict";
   var F = window.FAM, esc = F.esc, V = { look: false, adding: false };
   var PLAY = [
-    ["🔑", "Key signature sprint", "60 seconds: name the keys", "rooms/handbook.html#games", "linear-gradient(135deg,#7048e8,#9775fa)", "keys"],
-    ["🎼", "Note-naming sprint", "Treble, bass and alto", "rooms/handbook.html#games", "linear-gradient(135deg,#1c7ed6,#4dabf7)", "notes"],
-    ["📏", "Interval sprint", "How far apart?", "rooms/handbook.html#games", "linear-gradient(135deg,#0ca678,#38d9a9)", "ivs"],
-    ["➕", "Note maths sprint", "Add up the beats", "rooms/handbook.html#games", "linear-gradient(135deg,#f76707,#ffa94d)", "maths"],
+    ["🔑", "Key signature sprint", "60 seconds: name the keys", "rooms/handbook.html#games-keys", "linear-gradient(135deg,#7048e8,#9775fa)", "keys"],
+    ["🎼", "Note-naming sprint", "Treble, bass and alto", "rooms/handbook.html#games-notes", "linear-gradient(135deg,#1c7ed6,#4dabf7)", "notes"],
+    ["📏", "Interval sprint", "How far apart?", "rooms/handbook.html#games-ivs", "linear-gradient(135deg,#0ca678,#38d9a9)", "ivs"],
+    ["➕", "Note maths sprint", "Add up the beats", "rooms/handbook.html#games-maths", "linear-gradient(135deg,#f76707,#ffa94d)", "maths"],
     ["👂", "Ear Gym", "5 minutes of listening games", "rooms/aural.html?learner={L}&tab=gym", "linear-gradient(135deg,#d6336c,#f783ac)", null],
     ["🥁", "Rhythm tapping", "Read a rhythm, tap it in time", "rooms/aural.html?learner={L}&tab=theory&lesson=g1-rread", "linear-gradient(135deg,#e8590c,#ff922b)", null],
     ["🎺", "Instrument quiz", "Which instrument is that?", "rooms/instruments.html", "linear-gradient(135deg,#2f9e44,#69db7c)", null],
@@ -129,7 +129,7 @@
       cal += '<div class="d ' + (x.active ? "on " : "") + (i === 0 ? "today" : "") + '" title="' + ds + '">' + (x.sticker ? F.STICKERS[si % F.STICKERS.length] : x.active ? "⭐" : "") + "<small>" + "SMTWTFS"[d.getDay()] + "</small></div>"; }
     var slots = Math.max(30, Math.ceil((stk.length + 1) / 10) * 10), book = "";
     for (var j = 0; j < slots; j++) book += j < stk.length ? '<span class="got" title="' + stk[j] + '">' + F.STICKERS[j % F.STICKERS.length] + "</span>" : '<span class="no">' + (j + 1) + "</span>";
-    var look = V.look ? '<div class="card"><b>Choose your animal</b><div class="pick">' + F.AVATARS.map(function (a) { return '<button data-av="' + a + '" aria-pressed="' + (a === pr.a) + '">' + a + "</button>"; }).join("") + '</div><b>Choose your colour</b><div class="pick">' + F.COLOURS.map(function (c) { return '<button class="sw" data-col="' + c + '" style="background:' + c + '" aria-label="colour ' + c + '" aria-pressed="' + (c === pr.c) + '"></button>'; }).join("") + '</div><button class="btn small" data-act="look">Done</button></div>' : "";
+    var look = V.look ? '<div class="card"><b>Choose your animal</b><div class="pick">' + F.AVATARS.map(function (a) { return '<button data-av="' + a + '" aria-pressed="' + (a === pr.a) + '">' + a + "</button>"; }).join("") + '</div><b>Choose your colour</b><div class="pick">' + F.COLOURS.map(function (c) { return '<button class="sw" data-col="' + c + '" style="background:' + c + '" aria-label="colour ' + c + '" aria-pressed="' + (c === pr.c) + '"></button>'; }).join("") + '</div><form id="nameForm" class="inline" style="margin:10px 0"><label for="myName"><b>Your name</b></label> <input id="myName" maxlength="30" value="' + esc(L.name) + '"> <button class="btn small" type="submit">Save name</button></form><button class="btn small" data-act="look">Done</button></div>' : "";
     app.innerHTML =
       '<div class="kids" role="group" aria-label="Who is practising?">' + kids + "</div>" + add +
       '<div class="hero"><button class="av big" data-act="look" aria-label="Change my animal and colour" style="border:0;cursor:pointer">' + pr.a + '</button><div><h1>Hi, ' + esc(L.name) + '!</h1><div class="chips"><span class="chip">🔥 ' + st + "-day streak</span><span class=\"chip\">⭐ " + t.done + " of 3 today</span><span class=\"chip\">🏅 " + stk.length + " sticker" + (stk.length === 1 ? "" : "s") + "</span>" + ((p.badges && Object.keys(p.badges).length) ? '<span class="chip">🎖️ ' + Object.keys(p.badges).length + " badges</span>" : "") + "</div></div></div>" + look +
@@ -156,6 +156,7 @@
     if (a === "cancel") { V.adding = false; draw(); }
   });
   document.addEventListener("submit", async function (e) {
+    if (e.target.id === "nameForm") { e.preventDefault(); var nn = document.getElementById("myName").value.trim(); if (nn) { await TR.renameLearner(TR.learner.id, nn); draw(); } return; }
     if (e.target.id !== "addForm") return; e.preventDefault();
     var n = document.getElementById("newName").value.trim(); if (!n) return;
     try { await TR.addLearner(n); V.adding = false; TR.setLearner(TR.learners[TR.learners.length - 1].id); } catch (err) { V.err = err.message; draw(); }

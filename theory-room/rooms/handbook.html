@@ -35,6 +35,7 @@
   .cof { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   @media (max-width: 820px) { .cof { grid-template-columns: 1fr; } }
   .cof svg.circle { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+  .cof > * { min-width: 0; } .panel2 { min-width: 0; overflow-wrap: anywhere; } .staves, .cof .staff { max-width: 100%; }
   .orn .tg { font-family: "Noto Music", "Segoe UI Symbol", serif; font-style: normal; font-weight: 400; font-size: 84px; text-anchor: middle; }
   .cof .seg { cursor: pointer; }
   .cof .seg circle { fill: var(--page); stroke: var(--line); stroke-width: 1.5; }
@@ -82,7 +83,8 @@
   "use strict";
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
   var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["chords", "Chords & harmony"], ["style", "Form & style"], ["score", "Instruments in scores"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
-  var tab = (location.hash || "").slice(1) || "dict";
+  var tab = (location.hash || "").slice(1) || "dict", startGame = null;
+  if (/^games-/.test(tab)) { startGame = tab.slice(6); tab = "games"; }
   if (!TABS.some(function (t) { return t[0] === tab; })) tab = "dict";
 
   /* ---------- notes and staves ---------- */
@@ -214,7 +216,7 @@
     "augmented 4th": "Maria (West Side Story)", "diminished 5th": "Maria (West Side Story)", "perfect 5th": "Twinkle, Twinkle, Little Star", "minor 6th": "The Entertainer (the leap up)", "major 6th": "My Bonnie Lies Over the Ocean",
     "minor 7th": "Somewhere (West Side Story); the Star Trek theme", "major 7th": "Take On Me (the chorus)", "perfect octave": "Somewhere Over the Rainbow" };
   function intervals() {
-    return '<div class="panel2"><p style="margin:0">Count the <b>letters</b> for the number (C up to E: C D E = a 3rd), then count the <b>semitones</b> for the type. Here is every interval up from middle C, with the opening of a well-known tune that starts with it, to help you recognise it by ear:</p>' +
+    return '<div class="panel2"><p style="margin:0">Count the <b>letters</b> for the number (C up to E: C D E = a 3rd), then count the <b>semitones</b> for the type. Here is every interval up from middle C, with a well-known tune that uses it (usually its first two notes), to help you recognise it by ear:</p>' +
       '<div style="overflow-x:auto"><table class="t"><tr><th>Interval</th><th>Semitones</th><th>From C</th><th>Remember it by</th><th></th></tr>' + IV.map(function (v, i) {
         var top = parse(v[1]);
         return "<tr><td><b>" + esc(v[0]) + "</b></td><td>" + v[2] + "</td><td>" + stave({ clef: "treble", notes: [{ n: parse("C4") }, { n: top, showAcc: top.acc !== 0 }], gap: 40, h: 96, w: 170, label: "C up to " + nm(top) }) + '</td><td class="muted" style="font-size:15px">' + esc(SONGS[v[0]] || "") + '</td><td><button class="btn small" type="button" data-iv="' + i + '">▶</button></td></tr>';
@@ -254,9 +256,9 @@
   var CADS = [["Perfect", "V – I", "Sounds finished, like a full stop.", [["G3", "B3", "D4", "G4"], ["C3", "C4", "E4", "G4"]]],
     ["Plagal", "IV – I", "The 'Amen' at the end of a hymn: finished, but softer.", [["F3", "A3", "C4", "F4"], ["C3", "G3", "C4", "E4"]]],
     ["Imperfect", "any chord – V", "Ends on V, like a comma or a question.", [["C3", "G3", "C4", "E4"], ["G2", "G3", "B3", "D4"]]],
-    ["Interrupted", "V – VI", "Sounds as if it's going home, then surprises you.", [["G3", "B3", "D4", "G4"], ["A3", "C4", "E4", "A4"]]],
-    ["Phrygian (minor keys)", "ivb – V", "A special imperfect cadence: the bass falls a semitone to the dominant.", [["F3", "A3", "D4", "F4"], ["E3", "G#3", "B3", "E4"]]]];
-  var RULES = [["Ranges", "Soprano: about C4–G5 · Alto: G3–D5 · Tenor: C3–G4 · Bass: E2–C4."], ["Spacing", "No more than an octave between soprano and alto, or alto and tenor. The tenor and bass can be further apart."], ["Doubling", "In root-position major and minor chords, double the root. Never double the leading note. In a 6/4 chord, double the bass."], ["Consecutives", "No two parts may move in parallel perfect 5ths or octaves (or unisons)."], ["Leading note and 7ths", "The leading note rises to the tonic, especially in the outer parts. The 7th of a 7th chord falls by step."], ["Smooth inner parts", "Keep notes the chords share in the same part. Alto and tenor move by step or stay still where they can."], ["Second inversions", "Use 6/4 chords only in set patterns: the cadential 6/4 (Ic–V), the passing 6/4 (I–Vc–Ib) and the auxiliary 6/4 (I–IVc–I)."]];
+    ["Interrupted", "V – VI", "Sounds as if it's going home, then surprises you.", [["G2", "D3", "B3", "G4"], ["A2", "C3", "C4", "E4"]]],
+    ["Phrygian (minor keys)", "ivb – V", "A special imperfect cadence: the bass falls a semitone to the dominant.", [["F3", "A3", "D4", "A4"], ["E3", "G#3", "B3", "B4"]]]];
+  var RULES = [["Ranges", "Soprano: about C4–G5 · Alto: G3–D5 · Tenor: C3–G4 · Bass: E2–C4. A note or two beyond is fine now and then, but keep each part mostly inside its range."], ["Spacing", "No more than an octave between soprano and alto, or alto and tenor. The tenor and bass can be further apart."], ["Doubling", "In root-position major and minor chords, double the root. Never double the leading note. In a 6/4 chord, double the bass."], ["Consecutives", "No two parts may move in parallel perfect 5ths or octaves (or unisons)."], ["Leading note and 7ths", "The leading note rises to the tonic, especially in the outer parts. The 7th of a 7th chord falls by step."], ["Smooth inner parts", "Keep notes the chords share in the same part. Alto and tenor move by step or stay still where they can."], ["Second inversions", "Use 6/4 chords only in set patterns: the cadential 6/4 (Ic–V), the passing 6/4 (I–Vc–Ib) and the auxiliary 6/4 (I–IVc–I)."]];
   function chordsTab() {
     var row = function (list, k, clef) { return stave({ clef: clef || "treble", k: k || 0, notes: list.map(function (x) { return { ns: P_(x[2]), label: x[0] }; }), gap: 50, h: 136, label: "chords" }); };
     return '<div class="panel2"><p style="margin:0">A <b>triad</b> is three notes, each a 3rd apart: the root, 3rd and 5th. Build one on every note of the scale and you get the chords of the key, numbered with Roman numerals.</p>' +
@@ -380,7 +382,7 @@
     }
     if ((b = e.target.closest(".seg"))) { K.k = +b.dataset.k; K.mode = b.dataset.mode; render(); return; }
     if ((b = e.target.closest("[data-mode]"))) { K.mode = b.dataset.mode; render(); return; }
-    if ((b = e.target.closest("[data-scale]"))) { var mode = K.mode, kinds = mode === "major" ? [null] : ["natural", "harmonic", "melodic"], sc = scale(K.k, mode, kinds[+b.dataset.scale]); play(sc.map(midi).concat(sc.slice(0, 7).reverse().map(midi)), .32); return; }
+    if ((b = e.target.closest("[data-scale]"))) { var mode = K.mode, kinds = mode === "major" ? [null] : ["natural", "harmonic", "melodic"], sc = scale(K.k, mode, kinds[+b.dataset.scale]), down = kinds[+b.dataset.scale] === "melodic" ? scale(K.k, mode, "natural") : sc; play(sc.map(midi).concat(down.slice(0, 7).reverse().map(midi)), .32); return; }
     if ((b = e.target.closest("[data-iv]"))) { var v = IV[+b.dataset.iv]; play([60, midi(parse(v[1]))], .55); setTimeout(function () { play([60, midi(parse(v[1]))], 0, true); }, 1300); return; }
   });
   document.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest(".seg")) { e.preventDefault(); e.target.closest(".seg").dispatchEvent(new MouseEvent("click", { bubbles: true })); } });
@@ -388,6 +390,7 @@
   document.addEventListener("change", function (e) { if (e.target.id === "dg") { D.g = +e.target.value; D.flash = null; render(); } });
   window.HANDBOOK = { entries: ENTRIES, scale: scale, sigAcc: sigAcc, parse: parse, midi: midi, nm: nm, stave: stave, makeQ: makeQ };
   render();
+  if (startGame) { var gb = document.querySelector('[data-game="' + startGame + '"]'); if (gb) gb.click(); }
 })();
 </script>
 </body>

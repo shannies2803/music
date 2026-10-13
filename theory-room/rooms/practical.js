@@ -198,14 +198,14 @@
   function improv(p) {
     const I = S.iv = S.iv || { key: 0, prog: 0, style: 0, loops: 2 }, [mode, k] = IKEYS[I.key], progs = PROGS[mode], pr = progs[I.prog % progs.length], st = STYLES[I.style];
     const chords = pr.map(sym => chordOf(mode, k, sym));
-    const scaleNames = scaleOf(mode === "minor" ? minorTonic(k) : majorTonic(k), mode === "minor" ? "natural" : "major").slice(0, 7).map(nm).join(" ");
+    const scaleNames = scaleOf(mode === "minor" ? minorTonic(k) : majorTonic(k), mode === "minor" ? "harmonic" : "major").slice(0, 7).map(nm).join(" ");
     return `<section class="panel"><h3 style="margin-top:0">Improvise over a backing</h3><p class="muted" style="margin-top:0">Trinity's improvisation test (one of the supporting tests) gives you a short backing or idea to improvise on. Practise here: pick a key, style and chord pattern, look at the chords, then play your own tune while the backing plays. Check your syllabus for exactly what's set at your grade.</p>
       <div class="row" style="gap:8px;flex-wrap:wrap"><label for="ivKey" style="font-weight:700">Key</label><select id="ivKey" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${IKEYS.map((x, i) => `<option value="${i}"${i === I.key ? " selected" : ""}>${esc(keyName(x[1], x[0]))}</option>`).join("")}</select>
        <label for="ivStyle" style="font-weight:700">Style</label><select id="ivStyle" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${STYLES.map((x, i) => `<option value="${i}"${i === I.style ? " selected" : ""}>${x[1]}</option>`).join("")}</select>
        <label for="ivProg" style="font-weight:700">Chords</label><select id="ivProg" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${progs.map((x, i) => `<option value="${i}"${i === I.prog % progs.length ? " selected" : ""}>${x.map(s => chordOf(mode, k, s).roman).join(" – ")}</option>`).join("")}</select></div>
       <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px">${chords.map((c, i) => `<div class="stat" id="ivBar${i}" style="text-align:center"><b style="font-size:1.6rem">${esc(c.name)}</b><span>${c.roman} · ${c.notes.map(nm).join(" ")}</span></div>`).join("")}</div>
       <div class="row" style="margin-top:12px;gap:8px">${IV_.on ? `<button class="btn" data-pc="ivStop">Stop</button>` : `<button class="btn primary" data-pc="ivPlay">▶ Play the backing (${I.loops * 4} bars)</button>`}<span class="muted">One bar of clicks first. The highlighted box shows the chord now.</span></div>
-      <div class="feedback show info" style="margin-top:12px"><b>Notes of the key:</b> ${esc(scaleNames)}. Every one of them fits somewhere; the notes in each box fit best over that chord.<br><b>To make it sound like music:</b> start with a short idea (three or four notes), repeat it and change it a little; keep a steady beat; leave some gaps; and end on the keynote, ${esc(nm(mode === "minor" ? minorTonic(k) : majorTonic(k)))}, as the last chord sounds.</div></section>`;
+      <div class="feedback show info" style="margin-top:12px"><b>Notes of the key:</b> ${esc(scaleNames)}. Every one of them fits somewhere; the notes in each box fit best over that chord.<br><b>To make it sound like music:</b> start with a short idea (three or four notes), repeat it and change it a little; keep a steady beat; leave some gaps; and end on the keynote, ${esc(nm(mode === "minor" ? minorTonic(k) : majorTonic(k)))}, as the backing finishes on the home chord.</div></section>`;
   }
   function ivPlay() {
     const I = S.iv, [mode, k] = IKEYS[I.key], pr = PROGS[mode][I.prog % PROGS[mode].length], st = STYLES[I.style], beats = st[2], bpm = st[3];
@@ -216,7 +216,7 @@
       if (st[0] === "march") { ev.push({ m: bass, t: t0, d: 1, v: .7 }, { m: tri, t: t0 + 1, d: .8, v: .45 }, { m: bass + 7 > 55 ? bass - 5 : bass + 7, t: t0 + 2, d: 1, v: .6 }, { m: tri, t: t0 + 3, d: .8, v: .45 }); }
       else if (st[0] === "waltz") { ev.push({ m: bass, t: t0, d: 1, v: .7 }, { m: tri, t: t0 + 1, d: .8, v: .4 }, { m: tri, t: t0 + 2, d: .8, v: .4 }); }
       else ev.push({ m: [bass].concat(tri), t: t0, d: beats, v: .5 });
-      if (i === bars.length - 1) ev.push({ m: [bass].concat(tri), t: t0 + beats, d: 2, v: .5 });
+      if (i === bars.length - 1) { const F = chordOf(mode, k, "I"), fr = midiOf(F.root); let fb = fr; while (fb > 52) fb -= 12; while (fb < 40) fb += 12; ev.push({ m: [fb].concat(F.notes.map(n => { let m = midiOf(n); while (m < 55) m += 12; while (m > 67) m -= 12; return m; })), t: t0 + beats, d: 2, v: .5 }); }
     });
     const secs = playEvents(ev, bpm), spb = 60 / bpm; IV_.on = true; IV_.t0 = performance.now(); render();
     clearInterval(IV_.timer);
@@ -230,7 +230,7 @@
 
   /* ---------- metronome ---------- */
   const MT = { on: false, bpm: 80, beats: 4, sub: 1, next: 0, beat: 0, timer: 0 };
-  const TEMPI = [[40, "Grave"], [52, "Largo"], [60, "Adagio"], [72, "Andante"], [92, "Moderato"], [112, "Allegretto"], [132, "Allegro"], [168, "Vivace"], [184, "Presto"]];
+  const TEMPI = [[30, "Grave"], [46, "Largo"], [66, "Adagio"], [76, "Andante"], [108, "Moderato"], [116, "Allegretto"], [132, "Allegro"], [160, "Vivace"], [176, "Presto"]];
   const tempoWord = b => { let w = TEMPI[0][1]; TEMPI.forEach(t => { if (b >= t[0]) w = t[1]; }); return w; };
   function metro() {
     return `<section class="panel" style="text-align:center"><h3 style="margin-top:0">Metronome</h3>

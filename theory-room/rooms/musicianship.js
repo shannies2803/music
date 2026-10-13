@@ -34,8 +34,12 @@
     if (kind === 0) { const f = pick(P.f); return { prompt: "Which period of music is known for " + f + "?", options: P_.map(x => opt(x.n)), answer: P.n, explain: "<b>" + P.n + "</b> (" + P.d + "): " + P.f.slice(0, 3).join("; ") + "." }; }
     if (kind === 1) { const c = pick(P.c); return { prompt: "Which period does " + c + " belong to?", options: P_.map(x => opt(x.n)), answer: P.n, explain: c + " is a <b>" + P.n + "</b> composer, like " + P.c.filter(x => x !== c).slice(0, 3).join(", ") + "." }; }
     if (kind === 2) return { prompt: "Roughly when was the " + P.n + " period?", options: shuffle(P_.map(x => opt(x.d))), answer: P.d, explain: "The " + P.n + " period: <b>" + P.d + "</b>. Dates are only a guide: styles overlap." };
-    const wrong = pick(pick(others).f);
-    return { prompt: "Which of these is <b>not</b> typical of " + P.n + " music?", options: shuffle(shuffle(P.f).slice(0, 3).concat([wrong])).map(x => opt(x)), answer: wrong, explain: "“" + wrong + "” belongs to the " + P_.find(x => x.f.indexOf(wrong) >= 0).n + " period." };
+    const NOT = { "Baroque": ["rubato and expressive changes of tempo", "an Alberti bass in the left hand", "irregular and changing time signatures", "jazz influences"],
+      "Classical": ["a basso continuo part throughout", "irregular and changing time signatures", "whole-tone scales", "jazz influences"],
+      "Romantic": ["a basso continuo part throughout", "terraced dynamics only, with no gradual changes", "jazz influences", "music with no key at all"],
+      "20th century": ["a basso continuo part throughout", "strictly balanced four-bar phrases everywhere"] };
+    const wrong = pick(NOT[P.n]);
+    return { prompt: "Which of these is <b>not</b> typical of " + P.n + " music?", options: shuffle(shuffle(P.f).slice(0, 3).concat([wrong])).map(x => opt(x)), answer: wrong, explain: "“" + wrong + "” isn't typical of " + P.n + " music. Typical: " + P.f.slice(0, 3).join("; ") + "." };
   };
   /* ---------- form ---------- */
   TGEN.form = function () {
@@ -56,7 +60,7 @@
     if (kind === "key") {
       const rel = pc.mode === "major" ? keyName(pc.k, "minor") : keyName(pc.k, "major"), near = [pc.k + 1, pc.k - 1, pc.k + 2].filter(x => Math.abs(x) <= 7).map(x => keyName(x, pc.mode));
       return Object.assign(base, { prompt: "Which key is this piece in?", options: four(key, [rel].concat(near)), answer: key,
-        explain: "The key signature fits " + key + " and " + rel + ". The piece " + (pc.mode === "minor" ? "uses the raised 7th and " : "") + "ends on " + nm(sp(ns[ns.length - 1])) + ", so it's <b>" + key + "</b>." });
+        explain: "The key signature fits " + key + " and " + rel + ". The piece " + (pc.mode === "minor" && ns.some(n => nm(sp(n)) === nm(upBy(minorTonic(pc.k), 7, "M"))) ? "uses the raised 7th and " : "") + "ends on " + nm(sp(ns[ns.length - 1])) + ", so it's <b>" + key + "</b>." });
     }
     if (kind === "beats") return Object.assign(base, { prompt: "The time signature is " + pc.beats + "/4. What does it mean?", options: four(pc.beats + " crotchet beats in a bar", [pc.beats + " minim beats in a bar", (pc.beats === 3 ? 4 : 3) + " crotchet beats in a bar", pc.beats + " quaver beats in a bar"]), answer: pc.beats + " crotchet beats in a bar", explain: "The top number counts the beats; the 4 underneath means each beat is a crotchet." });
     if (kind === "bars") return Object.assign(base, { prompt: "How many bars long is this piece?", options: four(String(pc.bars), [pc.bars - 1, pc.bars + 1, pc.bars * 2, pc.bars + 2].map(String)), answer: String(pc.bars), explain: "Count the bar numbers or the barlines: <b>" + pc.bars + "</b> bars." });

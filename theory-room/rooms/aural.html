@@ -2655,7 +2655,7 @@ function heroHTML(p){
   return `<section class="hero">
     <div class="panel"><div class="kicker">${hello()}, ${esc(p.name)}</div>
       <h2>Grade ${p.auralGrade || 5} aural, one test at a time</h2>
-      <p class="muted" style="margin:.2em 0 .8em">Today’s Ear Gym is tuned to your trickiest skills: <b style="color:var(--ink)">${weakSkills(p).join(" and ")}</b>. Five minutes, then a task for your ${esc(p.inst[0])}.</p>
+      <p class="muted" style="margin:.2em 0 .8em">Today’s Ear Gym is tuned to your trickiest skills: <b style="color:var(--ink)">${weakSkills(p).join(" and ")}</b>. Five minutes, then a task for ${/^your /.test(p.inst[0]) ? "" : "your "}${esc(p.inst[0])}.</p>
       <div class="row"><button class="btn primary" data-act="tab" data-arg="gym">Start Daily Ear Gym</button><button class="btn ghost" data-act="tab" data-arg="theory">Theory course</button></div></div>
     <div class="panel goal">${ringSVG(t.q/GOAL)}<div><div class="kicker">Daily goal</div><b class="disp" style="font-size:1.4rem">${Math.min(t.q,GOAL)} / ${GOAL}</b> <span class="muted">questions</span>
       <div class="row" style="margin-top:6px"><span class="pill">${streak(p)}-day streak</span><span class="pill t">${starsTotal(p)} stars</span></div></div></div>
@@ -2938,7 +2938,7 @@ function gymView(){
   const rows = GYM_SKILLS.map(id => { const s = p.sk[id]; const a = s && s.a ? s.c/s.a : null; return [id, a, s ? s.a : 0]; }).sort((x,y) => (x[1]==null?.5:x[1]) - (y[1]==null?.5:y[1]));
   return `<h2 style="margin-top:18px">Daily Ear Gym</h2>
   <div class="cols2"><div class="panel"><div class="kicker">5-minute mixed workout</div><h3>Tuned to ${esc(p.name)}’s weakest skills</h3>
-   <p>Questions come from all the auto-marked aural skills, weighted towards the ones you find hardest, at the highest level you’ve unlocked. Finish with a real task for your ${esc(p.inst.join(" or "))}.</p>
+   <p>Questions come from all the auto-marked aural skills, weighted towards the ones you find hardest, at the highest level you’ve unlocked. Finish with a real task for ${/^your /.test(p.inst[0]) ? "" : "your "}${esc(p.inst.join(" or "))}.</p>
    <button class="btn primary" data-act="gymStart" style="min-height:56px;font-size:1.1rem">Start 5 minutes</button>
    <p class="muted" style="margin-bottom:0">Sessions done: ${p.gym.n} · best score: ${p.gym.best}</p></div>
    <div class="panel"><div class="kicker">Focus list</div>${rows.map(([id,a,n]) => `<div class="barrow"><span>${esc(AURAL_BY[id].name)}</span><div class="bar"><i class="${a==null?"":a<.6?"lo":a<.8?"mid":""}" style="width:${a==null?4:Math.round(a*100)}%"></i></div><span class="muted" style="font-size:.85rem">${a==null?"new":Math.round(a*100)+"%"}</span></div>`).join("")}</div></div>

@@ -23,7 +23,7 @@
     return '<div style="width:100%;max-width:340px">' + staffSVG({ clef: "treble", time: sig, events: ev.concat([{ bar: "end" }]), prop: false, spacing: 26, aria: "a bar of quavers" }).replace("<svg ", '<svg style="max-width:none!important;width:100%" ') + "</div>";
   }
   TGEN.grouping = function (p) {
-    const sigs = Object.keys(GROUP).filter(s => p.g >= 4 || !/9\/8/.test(s)).filter(s => p.g >= 3 || !/8$/.test(s)), sig = pick(sigs), G = GROUP[sig];
+    const sigs = Object.keys(GROUP).filter(s => p.g >= 3 || !/8$/.test(s)), sig = pick(sigs), G = GROUP[sig];
     const good = pick(G.ok), wrongs = shuffle(G.bad).slice(0, 3), all = shuffle([good].concat(wrongs));
     return { wide: true, prompt: "Which bar of " + sig + " is grouped (beamed) correctly?", options: all.map(g => Object.assign(opt(g.join("+"), groupSVG(sig, g)), { svg: true })), answer: good.join("+"),
       explain: G.rule + " The right answer groups them " + good.join(" + ") + "." };
