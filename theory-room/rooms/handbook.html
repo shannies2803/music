@@ -66,7 +66,7 @@
     <div style="display:grid;gap:10px">
       <p class="kicker">Room 6 · Handbook · free</p>
       <h1 style="font-size:clamp(34px,5.4vw,56px)">The theory handbook</h1>
-      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, chords and cadences, form and style, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
+      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, chords and cadences, form and style, instrument names in scores, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
     </div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <section id="view"></section>
@@ -76,11 +76,12 @@
 <script src="instruments.js"></script>
 <script src="instruments-more.js"></script>
 <script src="musicianship.js"></script>
+<script src="scorereading.js"></script>
 <script>
 (function () {
   "use strict";
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["chords", "Chords & harmony"], ["style", "Form & style"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
+  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["chords", "Chords & harmony"], ["style", "Form & style"], ["score", "Instruments in scores"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
   var tab = (location.hash || "").slice(1) || "dict";
   if (!TABS.some(function (t) { return t[0] === tab; })) tab = "dict";
 
@@ -274,6 +275,16 @@
       '<p class="note">Practise these in the Theory tab under Musicianship.</p></div>';
   }
 
+
+  /* ---------- 6d. instruments in scores ---------- */
+  function scoreTab() {
+    var O = window.TR_SCORE || [];
+    return '<div class="panel2"><p style="margin:0">Scores often use Italian names, and sometimes German or French. Instruments are listed in <b>score order</b>, top to bottom: woodwind, brass, percussion, harp, strings, each section from highest to lowest.</p>' +
+      '<div style="overflow-x:auto"><table class="t"><tr><th>English</th><th>Italian</th><th>German</th><th>French</th><th>Abbr.</th><th>Sounds</th></tr>' +
+      O.map(function (x, i) { var fam = i === 0 || O[i - 1][5] !== x[5]; return (fam ? '<tr><td colspan="6" style="font-family:var(--f-display);color:var(--accent);font-size:18px;padding-top:14px">' + esc(x[5]) + "</td></tr>" : "") + "<tr><td><b>" + esc(x[0]) + "</b></td><td><i>" + esc(x[1]) + "</i></td><td>" + esc(x[2]) + "</td><td>" + esc(x[3]) + '</td><td style="font-family:var(--f-mono)">' + esc(x[4]) + '</td><td class="muted">' + esc(x[6]) + "</td></tr>"; }).join("") + "</table></div>" +
+      '<p class="note">Abbreviations vary between editions (a horn may be <i>Cor.</i> or <i>Hn.</i>, a trumpet <i>Tr.</i> or <i>Tpt.</i>). Practise these in the Theory tab under Musicianship: Reading a score.</p></div>';
+  }
+
   /* ---------- 6. ornaments ---------- */
   var ORN = [
     ["Trill (shake)", '<text x="4" y="28">tr</text><path d="M30 20 q4-8 8 0 t8 0 t8 0 t8 0"/>', "Alternate quickly between the written note and the note above. In Baroque music it usually starts on the note above.", "Written D: E D E D E D… (or D E D E… in later music)"],
@@ -337,7 +348,7 @@
   /* ---------- page ---------- */
   function render() {
     document.getElementById("tabs").innerHTML = TABS.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + esc(t[1]) + "</button>"; }).join("");
-    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, chords: chordsTab, style: styleTab, ornaments: ornaments, games: games }[tab]();
+    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, chords: chordsTab, style: styleTab, score: scoreTab, ornaments: ornaments, games: games }[tab]();
   }
   document.addEventListener("click", function (e) {
     var b;

@@ -153,6 +153,80 @@
     return ["Slowly, hands (or sections) separately, with the right fingering from the start.", "Work on dynamics, articulation and phrasing, a few bars at a time.", "Now play it through without stopping, and to someone else.", "Keep it fresh: one run-through a day, and practise starting calmly."][st];
   }
 
+
+  /* ---------- questions about your piece (Trinity's musical knowledge test) ---------- */
+  const KQ = [
+    [1, "What key is your piece in? How can you tell?", "The key signature, and the note the piece ends on (usually the keynote)."],
+    [1, "What does the time signature mean?", "How many beats are in each bar (the top number) and what kind of beat (the bottom number)."],
+    [1, "Point to a dynamic marking. What does it mean, and how do you play it?", "Its Italian name and meaning (for example <i>piano</i>, quietly), and what you do on your instrument to make that sound."],
+    [1, "What does the title tell you about the mood or character?", "The mood in one or two words, and one thing in the music that creates it (speed, articulation, dynamics)."],
+    [1, "Find a note value the examiner points to. What is it called, and how long does it last?", "The British name (crotchet, quaver…) and the number of beats."],
+    [1, "What does this sign mean (a repeat, a pause, a slur or a tie)?", "Its name and exactly what you do when you see it."],
+    [2, "What does the Italian term at the start mean?", "The term and its meaning (for example <i>Allegretto</i>, fairly quick), and how it sets your speed."],
+    [2, "Name an articulation marking and show how you play it.", "Staccato, accent, tenuto or slur, with a short demonstration or description."],
+    [3, "Name the interval between two notes the examiner points to.", "Count the letters for the number, then the semitones for the type: for example a major 3rd."],
+    [3, "Describe the structure. Which sections come back?", "Letters for the sections (ABA, AB…), with bar numbers if you can."],
+    [4, "Does the music change key anywhere? Where, and to which key?", "The bar where a new accidental appears and stays, and the name of the new key (often the dominant or relative)."],
+    [4, "Name the chord or cadence at the end of a phrase.", "Perfect, imperfect, plagal or interrupted, and the two chords if you can (V–I…)."],
+    [5, "When was the piece written, and what in the music shows its style?", "The period (Baroque, Classical…) and two features you can point to on the page."],
+    [5, "Tell the examiner something about the composer.", "When they lived, where they worked, and one other piece they wrote."],
+    [5, "How have you chosen your speed, dynamics or ornaments?", "What the markings say, what suits the style, and what you decided."]
+  ];
+  function know(p) {
+    const list = pcs(p), g = S.kg || 1, pool = KQ.filter(q => q[0] <= g), q = S.kq != null ? KQ[S.kq] : null;
+    return `<section class="panel"><h3 style="margin-top:0">Questions about your piece</h3><p class="muted" style="margin-top:0">In Trinity's musical knowledge test (Initial to Grade 5), the examiner asks about one of the pieces you've just played, with the music in front of you. Practise answering out loud with your own copy. The same questions help any player understand their pieces.</p>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><span style="font-weight:700">Grade</span>${[1, 2, 3, 4, 5].map(n => `<button class="gbtn" data-pc-kg="${n}" aria-pressed="${n === g}" style="min-width:44px">${n}</button>`).join("")}</div>
+      ${list.length ? `<p style="margin:.6em 0 0">Your piece: <b>${esc(list[(S.kp || 0) % list.length].t)}</b>${list.length > 1 ? ` <button class="btn small ghost" data-pc="kNextPiece">Another piece</button>` : ""}</p>` : `<p class="muted" style="margin:.6em 0 0">Tip: add your pieces under My pieces, and they'll appear here.</p>`}
+      <div class="row" style="margin-top:10px"><button class="btn primary" data-pc="kAsk">${q ? "Next question" : "Ask me a question"}</button><span class="muted">${pool.length} questions up to Grade ${g}</span></div></section>
+      ${q ? `<section class="panel" style="margin-top:12px;border:2px solid var(--teal)"><div class="kicker">The examiner asks</div><h2 style="margin:.2em 0">${q[1]}</h2>
+        ${S.kshow ? `<div class="feedback show info" style="margin:8px 0 0"><b>A good answer includes:</b> ${q[2]}</div>` : `<button class="btn ghost" data-pc="kShow">Show what a good answer includes</button>`}</section>` : ""}`;
+  }
+
+  /* ---------- improvise over a backing (in the style of Trinity's improvisation test) ---------- */
+  const PROGS = { major: [["I", "IV", "V", "I"], ["I", "VI", "IV", "V"], ["I", "IV", "I", "V"], ["I", "II", "V", "I"]], minor: [["I", "IV", "V", "I"], ["I", "VI", "IV", "V"], ["I", "IV", "I", "V"]] };
+  const DEG = { I: 0, II: 1, IV: 3, V: 4, VI: 5 };
+  const IKEYS = [["major", 0], ["major", 1], ["major", -1], ["major", 2], ["major", -2], ["minor", 0], ["minor", 1], ["minor", -1]];
+  const STYLES = [["march", "March (4/4)", 4, 112], ["waltz", "Waltz (3/4)", 3, 132], ["ballad", "Ballad (4/4, slow)", 4, 72]];
+  function chordOf(mode, k, sym) {
+    const ton = mode === "minor" ? minorTonic(k) : majorTonic(k), sc = scaleOf(ton, mode === "minor" ? "harmonic" : "major"), d = DEG[sym], root = sc[d];
+    const third = sc[(d + 2) % 7], fifth = sc[(d + 4) % 7];
+    const q = (midiOf(third) - midiOf(root) + 12) % 12 === 4 ? "" : "m";
+    const nameQ = mode === "minor" && sym === "II" ? "dim" : q;
+    return { root, notes: [root, third, fifth], name: nm(root) + (nameQ === "dim" ? "dim" : nameQ), roman: mode === "minor" ? (nameQ === "" ? sym : sym.toLowerCase()) : (q ? sym.toLowerCase() : sym) };
+  }
+  const IV_ = { on: false, t0: 0, timer: 0, bar: -1 };
+  function improv(p) {
+    const I = S.iv = S.iv || { key: 0, prog: 0, style: 0, loops: 2 }, [mode, k] = IKEYS[I.key], progs = PROGS[mode], pr = progs[I.prog % progs.length], st = STYLES[I.style];
+    const chords = pr.map(sym => chordOf(mode, k, sym));
+    const scaleNames = scaleOf(mode === "minor" ? minorTonic(k) : majorTonic(k), mode === "minor" ? "natural" : "major").slice(0, 7).map(nm).join(" ");
+    return `<section class="panel"><h3 style="margin-top:0">Improvise over a backing</h3><p class="muted" style="margin-top:0">Trinity's improvisation test (one of the supporting tests) gives you a short backing or idea to improvise on. Practise here: pick a key, style and chord pattern, look at the chords, then play your own tune while the backing plays. Check your syllabus for exactly what's set at your grade.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><label for="ivKey" style="font-weight:700">Key</label><select id="ivKey" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${IKEYS.map((x, i) => `<option value="${i}"${i === I.key ? " selected" : ""}>${esc(keyName(x[1], x[0]))}</option>`).join("")}</select>
+       <label for="ivStyle" style="font-weight:700">Style</label><select id="ivStyle" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${STYLES.map((x, i) => `<option value="${i}"${i === I.style ? " selected" : ""}>${x[1]}</option>`).join("")}</select>
+       <label for="ivProg" style="font-weight:700">Chords</label><select id="ivProg" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${progs.map((x, i) => `<option value="${i}"${i === I.prog % progs.length ? " selected" : ""}>${x.map(s => chordOf(mode, k, s).roman).join(" – ")}</option>`).join("")}</select></div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px">${chords.map((c, i) => `<div class="stat" id="ivBar${i}" style="text-align:center"><b style="font-size:1.6rem">${esc(c.name)}</b><span>${c.roman} · ${c.notes.map(nm).join(" ")}</span></div>`).join("")}</div>
+      <div class="row" style="margin-top:12px;gap:8px">${IV_.on ? `<button class="btn" data-pc="ivStop">Stop</button>` : `<button class="btn primary" data-pc="ivPlay">▶ Play the backing (${I.loops * 4} bars)</button>`}<span class="muted">One bar of clicks first. The highlighted box shows the chord now.</span></div>
+      <div class="feedback show info" style="margin-top:12px"><b>Notes of the key:</b> ${esc(scaleNames)}. Every one of them fits somewhere; the notes in each box fit best over that chord.<br><b>To make it sound like music:</b> start with a short idea (three or four notes), repeat it and change it a little; keep a steady beat; leave some gaps; and end on the keynote, ${esc(nm(mode === "minor" ? minorTonic(k) : majorTonic(k)))}, as the last chord sounds.</div></section>`;
+  }
+  function ivPlay() {
+    const I = S.iv, [mode, k] = IKEYS[I.key], pr = PROGS[mode][I.prog % PROGS[mode].length], st = STYLES[I.style], beats = st[2], bpm = st[3];
+    const ev = []; for (let b = 0; b < beats; b++) ev.push({ click: true, accent: b === 0, t: b });
+    const bars = []; for (let l = 0; l < I.loops; l++) pr.forEach(s => bars.push(chordOf(mode, k, s)));
+    bars.forEach((c, i) => {
+      const t0 = beats * (i + 1), r = midiOf(c.root), bass = (() => { let b = r; while (b > 52) b -= 12; while (b < 40) b += 12; return b; })(), tri = c.notes.map(n => { let m = midiOf(n); while (m < 55) m += 12; while (m > 67) m -= 12; return m; }).sort((a, b) => a - b);
+      if (st[0] === "march") { ev.push({ m: bass, t: t0, d: 1, v: .7 }, { m: tri, t: t0 + 1, d: .8, v: .45 }, { m: bass + 7 > 55 ? bass - 5 : bass + 7, t: t0 + 2, d: 1, v: .6 }, { m: tri, t: t0 + 3, d: .8, v: .45 }); }
+      else if (st[0] === "waltz") { ev.push({ m: bass, t: t0, d: 1, v: .7 }, { m: tri, t: t0 + 1, d: .8, v: .4 }, { m: tri, t: t0 + 2, d: .8, v: .4 }); }
+      else ev.push({ m: [bass].concat(tri), t: t0, d: beats, v: .5 });
+      if (i === bars.length - 1) ev.push({ m: [bass].concat(tri), t: t0 + beats, d: 2, v: .5 });
+    });
+    const secs = playEvents(ev, bpm), spb = 60 / bpm; IV_.on = true; IV_.t0 = performance.now(); render();
+    clearInterval(IV_.timer);
+    IV_.timer = setInterval(() => {
+      const t = (performance.now() - IV_.t0) / 1000 / spb - beats, bar = t < 0 ? -1 : Math.floor(t / beats) % 4;
+      document.querySelectorAll("[id^=ivBar]").forEach((el, i) => { el.style.outline = i === bar ? "3px solid var(--teal)" : ""; });
+      if ((performance.now() - IV_.t0) / 1000 > secs) { clearInterval(IV_.timer); IV_.on = false; if (VIEW.tab === "prac" && S.mode === "improv") render(); }
+    }, 100);
+  }
+
   /* ---------- views ---------- */
   function instSelect(p, inst) { return `<label for="pcInst" style="font-weight:700">Instrument</label><select id="pcInst" style="font:inherit;min-height:40px;border-radius:10px;padding:4px 10px">${INST.map(i => `<option value="${esc(i.id)}"${i.id === inst.id ? " selected" : ""}>${esc(i.name)}</option>`).join("")}</select>`; }
   function playRow() {
@@ -244,11 +318,11 @@
   }
   function view() {
     const p = P(), inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin");
-    const tabs = [["coach", "Scales coach"], ["exam", "Examiner mode"], ["pieces", "My pieces"], ["diary", "Practice diary"]];
-    return `<h2>Practical exam</h2><p class="muted" style="margin-top:0">Scales and arpeggios for your instrument, an examiner who asks for them, and a practice diary. Sight-reading and aural have their own tabs.</p>
+    const tabs = [["coach", "Scales coach"], ["exam", "Examiner mode"], ["pieces", "My pieces"], ["know", "Questions on my piece"], ["improv", "Improvise"], ["diary", "Practice diary"]];
+    return `<h2>Practical exam</h2><p class="muted" style="margin-top:0">Scales and arpeggios for your instrument, an examiner who asks for them, your exam pieces, questions about them, improvising, and a practice diary. Sight-reading and aural have their own tabs.</p>
       <div class="gradebar" role="tablist" aria-label="Practical">${tabs.map(([id, t]) => `<button class="gbtn" data-pc-mode="${id}" aria-pressed="${S.mode === id}">${t}</button>`).join("")}</div>
       ${S.mode === "coach" || S.mode === "exam" ? `<div class="row" style="gap:10px;margin:0 0 10px">${instSelect(p, inst)}</div>` : ""}
-      ${S.mode === "coach" ? coach(p, inst) : S.mode === "exam" ? examiner(p, inst) : S.mode === "pieces" ? pieces(p) : diary(p)}`;
+      ${S.mode === "coach" ? coach(p, inst) : S.mode === "exam" ? examiner(p, inst) : S.mode === "pieces" ? pieces(p) : S.mode === "know" ? know(p) : S.mode === "improv" ? improv(p) : diary(p)}`;
   }
 
   /* ---------- the tab ---------- */
@@ -274,15 +348,16 @@
     if (e.target.dataset && e.target.dataset.pcTricky != null) { pcs(p)[+e.target.dataset.pcTricky].tricky = e.target.value.slice(0, 120); save(); }
     if (e.target.dataset && e.target.dataset.pcTempoNow != null) { pcs(p)[+e.target.dataset.pcTempoNow].now = +e.target.value || null; save(); }
     if (e.target.dataset && e.target.dataset.pcTempoGoal != null) { pcs(p)[+e.target.dataset.pcTempoGoal].goal = +e.target.value || null; save(); }
+    if (e.target.id === "ivKey" || e.target.id === "ivStyle" || e.target.id === "ivProg") { stopAll(); clearInterval(IV_.timer); IV_.on = false; const I = S.iv; if (e.target.id === "ivKey") { I.key = +e.target.value; I.prog = 0; } if (e.target.id === "ivStyle") I.style = +e.target.value; if (e.target.id === "ivProg") I.prog = +e.target.value; render(); return; }
     if (e.target.id === "pcInst") { p.readInst = e.target.value; save(); render(); }
     if (e.target.id === "pcType") { S.sc.type = e.target.value; S.phase = "idle"; S.res = null; render(); }
     if (e.target.id === "pcKey") { S.sc.v = e.target.value; S.phase = "idle"; S.res = null; render(); }
   });
   document.addEventListener("click", async e => {
     if (VIEW.tab !== "prac") return;
-    const b = e.target.closest("[data-pc-play],[data-pc-stage],[data-pc-del],[data-pc],[data-pc-mode],[data-pc-oct],[data-pc-tempo],[data-pc-self],[data-pc-st],[data-pc-sacc],[data-pc-soct],[data-pc-cat],[data-pc-goal]"); if (!b) return;
+    const b = e.target.closest("[data-pc-kg],[data-pc-play],[data-pc-stage],[data-pc-del],[data-pc],[data-pc-mode],[data-pc-oct],[data-pc-tempo],[data-pc-self],[data-pc-st],[data-pc-sacc],[data-pc-soct],[data-pc-cat],[data-pc-goal]"); if (!b) return;
     const p = P(), inst = instOf(p.readInst || (p.inst && p.inst[0]) || "violin"), d = b.dataset;
-    if (d.pcMode) { S.mode = d.pcMode; S.phase = "idle"; S.res = null; try { micClose(); } catch (err) {} render(); return; }
+    if (d.pcMode) { try { stopAll(); clearInterval(IV_.timer); IV_.on = false; } catch (err) {} S.mode = d.pcMode; S.phase = "idle"; S.res = null; try { micClose(); } catch (err) {} render(); return; }
     if (d.pcOct) { S.sc.oct = +d.pcOct; S.phase = "idle"; S.res = null; render(); return; }
     if (d.pcTempo) { S.tempo = +d.pcTempo; render(); return; }
     if (d.pcSt) { const st = set(p), i = st.types.indexOf(d.pcSt); if (i >= 0) st.types.splice(i, 1); else st.types.push(d.pcSt); S.ask = null; save(); render(); return; }
@@ -327,6 +402,12 @@
     if (d.pcPlay) { const x = pcs(p)[+d.pcPlay]; x.days = x.days || {}; x.days[todayStr()] = 1; logMinutes("pieces", 0); save(); toast("Ticked. Well done!"); render(); return; }
     if (d.pcStage) { const [i, j] = d.pcStage.split(":").map(Number); pcs(p)[i].stage = j; save(); render(); return; }
     if (d.pcDel) { const i = +d.pcDel; modal("Remove this piece?", "<p>" + esc(pcs(p)[i].t) + " and its record will go.</p>", [["Keep it", "ghost"], ["Remove", "primary", () => { pcs(p).splice(i, 1); save(); render(); }]]); return; }
+    if (d.pcKg) { S.kg = +d.pcKg; S.kq = null; render(); return; }
+    if (act === "kAsk") { const pool = KQ.map((q, i) => [q, i]).filter(x => x[0][0] <= (S.kg || 1) && x[1] !== S.kq); S.kq = pick(pool)[1]; S.kshow = false; render(); return; }
+    if (act === "kShow") { S.kshow = true; render(); return; }
+    if (act === "kNextPiece") { S.kp = (S.kp || 0) + 1; render(); return; }
+    if (act === "ivPlay") { audioInit(); ivPlay(); logMinutes("other", 0); return; }
+    if (act === "ivStop") { stopAll(); clearInterval(IV_.timer); IV_.on = false; render(); return; }
     if (act === "addPiece") { const t = (document.getElementById("pcNewT").value || "").trim(); if (!t) { toast("Type the piece's title first."); return; } pcs(p).push({ t, list: document.getElementById("pcNewL").value, stage: 0, days: {} }); save(); render(); return; }
     if (act === "addMins") { const v = +(document.getElementById("pcMins") || {}).value; if (!(v > 0 && v <= 240)) { toast("Type the minutes first (1 to 240)."); return; } logMinutes(S.tm.cat, v); toast("Added."); render(); return; }
   });

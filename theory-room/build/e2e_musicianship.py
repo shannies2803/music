@@ -34,7 +34,7 @@ async def main():
             for x in r["out"]: bad(x)
             await pg.click("nav.tabs [data-tab=theory]"); await pg.wait_for_timeout(200)
             if "Musicianship" not in await pg.inner_text("#main"): bad("no musicianship section")
-            for lid in ["ms-piece-g5", "ms-spot-g2", "ms-periods", "ms-form", "ms-group-g4", "ms-complete-g3", "ms-ornaments", "ms-hear-g2"]:
+            for lid in ["ms-piece-g5", "ms-spot-g2", "ms-periods", "ms-form", "ms-group-g4", "ms-complete-g3", "ms-ornaments", "ms-hear-g2", "ms-score"]:
                 await pg.click(f"[data-arg={lid}]"); await pg.click("[data-act=startLesson]"); await pg.wait_for_selector("#ex .opt")
                 await pg.click("#ex .opt >> nth=0"); await pg.wait_for_selector("#fb.show")
                 await pg.screenshot(path=f"{SHOTS}/{lid}.png", full_page=True)
@@ -47,9 +47,33 @@ async def main():
             st = await pg.evaluate("() => P().pieces[0]")
             if st.get("stage") != 2 or not st.get("days") or st.get("tricky") != "bars 9-12": bad("pieces tracker: " + str(st))
             await pg.screenshot(path=f"{SHOTS}/pieces.png", full_page=True)
+            # questions on my piece
+            await pg.click("[data-pc-mode=know]"); await pg.click("[data-pc-kg='3']"); await pg.click("[data-pc=kAsk]"); await pg.click("[data-pc=kShow]")
+            if "A good answer includes" not in await pg.inner_text("#main"): bad("knowledge cards")
+            await pg.screenshot(path=f"{SHOTS}/know.png", full_page=True)
+            # improvise: every key and pattern names real chords; the backing plays and highlights bars
+            ch = await pg.evaluate("""() => { const out = []; document.querySelectorAll('#ivKey option').length; return out; }""")
+            await pg.click("[data-pc-mode=improv]")
+            for ki in range(8):
+                await pg.select_option("#ivKey", str(ki))
+                n = await pg.locator("#ivProg option").count()
+                for pi in range(n):
+                    await pg.select_option("#ivProg", str(pi))
+                    t = await pg.inner_text("#main")
+                    if "undefined" in t or "NaN" in t: bad(f"improv key {ki} prog {pi}: broken")
+            await pg.select_option("#ivKey", "0"); await pg.select_option("#ivStyle", "1")
+            await pg.click("[data-pc=ivPlay]"); await pg.wait_for_timeout(2600)
+            lit = await pg.evaluate("() => [...document.querySelectorAll('[id^=ivBar]')].filter(e => e.style.outline).length")
+            if lit != 1: bad(f"improv highlight: {lit}")
+            names = await pg.evaluate("() => [...document.querySelectorAll('[id^=ivBar] b')].map(b => b.textContent).join(' ')")
+            print("C major chords:", names)
+            await pg.screenshot(path=f"{SHOTS}/improv.png", full_page=True)
+            await pg.click("[data-pc=ivStop]")
             await pg.goto(URL + "rooms/handbook.html#style"); await pg.wait_for_timeout(600)
             t = await pg.inner_text("#view")
             if "Baroque" not in t or "Rondo" not in t: bad("handbook form & style")
+            await pg.click("[data-tab=score]"); await pg.wait_for_timeout(300)
+            if "Fagotto" not in await pg.inner_text("#view"): bad("handbook scores tab")
             for e in errs: bad("page error: " + e)
             await b.close()
     finally: srv.terminate()
