@@ -396,7 +396,11 @@
     ".tr-up{border:1px dashed #a3541c;background:rgba(163,84,28,.08);border-radius:12px;padding:12px 14px;margin:12px 0;line-height:1.5}.tr-up a{color:#a3541c;font-weight:700;margin-left:6px}";
   if (family) css.textContent += ".tr-up,a[href$='#plans'],a[href*='app.html#plans'],#plans,.fam-hide,html.tr-family details:has(#joinForm),html.tr-family nav a[href='./']{display:none!important}";
   (document.head || document.documentElement).appendChild(css);
-  if (family) document.documentElement.classList.add("tr-family");
+  if (family) {
+    document.documentElement.classList.add("tr-family");
+    var th = document.createElement("link"); th.rel = "stylesheet"; th.href = BASE + "family-theme.css";
+    (document.head || document.documentElement).appendChild(th);
+  }
 
   async function start() {
     try { if (configured) await initSupabase(); else initPreview(); }

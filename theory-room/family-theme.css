@@ -1,0 +1,125 @@
+/* The Theory Room, family edition: a brighter "playroom" look.
+   Loaded by tr.js only when config.familyEdition is on. It overrides the colour tokens of every page
+   (site pages, the aural/theory room, the guided courses and the repertoire room) and adds a little colour. */
+
+/* ---------- light ---------- */
+html.tr-family:root {
+  /* site pages */
+  --page: #fff9f2; --sheet: #ffffff; --ink: #241a4a; --muted: #625a85; --line: #e9def7;
+  --accent: #6d3fe0; --accent-soft: #efe7ff; --brass: #e8590c; --warn: #b35c00;
+  /* the rooms */
+  --bg: #fff9f2; --paper: #ffffff; --paper2: #f7f1ff; --fg: #241a4a;
+  --teal: #6d3fe0; --teal-soft: #efe7ff; --brass-strong: #f27a1a; --brass-soft: #ffe9d3;
+  --rose: #e3427d; --rose-soft: #ffe0ec; --ok: #1f8f62; --ok-soft: #d9f6e9; --onaccent: #ffffff;
+  --shadow: 0 1px 0 rgba(60, 30, 120, .06), 0 10px 26px rgba(109, 63, 224, .10);
+  /* the guided courses */
+  --surface: #ffffff; --sunk: #f7f1ff; --body: #3b3366; --on-accent: #ffffff;
+  /* the repertoire room */
+  --rule: #e9def7; --rule-soft: #f4edfc; --rosin: #e3427d; --rosin-soft: #ffe0ec;
+  --fam-sun: #ffd43b; --fam-sky: #4dabf7; --fam-mint: #38d9a9; --fam-coral: #ff6b6b; --fam-grape: #9775fa; --fam-pink: #f06595; --fam-orange: #ff922b;
+}
+
+/* ---------- dark ---------- */
+@media (prefers-color-scheme: dark) {
+  html.tr-family:root:not([data-theme="light"]) {
+    --page: #17122e; --sheet: #221b42; --ink: #f4f0ff; --muted: #b9b0dd; --line: #3a3068;
+    --accent: #b49bff; --accent-soft: #352a6b; --brass: #ffb366; --warn: #ffc078;
+    --bg: #17122e; --paper: #221b42; --paper2: #2a2150; --fg: #f4f0ff;
+    --teal: #b49bff; --teal-soft: #352a6b; --brass-strong: #ffa94d; --brass-soft: #4a2f14;
+    --rose: #ff86b0; --rose-soft: #4a1f33; --ok: #6fe0ad; --ok-soft: #173a2c; --onaccent: #17122e;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .35), 0 10px 26px rgba(0, 0, 0, .4);
+    --surface: #221b42; --sunk: #2a2150; --body: #ddd6f5; --on-accent: #17122e;
+    --rule: #3a3068; --rule-soft: #2a2150; --rosin: #ff86b0; --rosin-soft: #4a1f33;
+  }
+}
+html.tr-family:root[data-theme="dark"] {
+  --page: #17122e; --sheet: #221b42; --ink: #f4f0ff; --muted: #b9b0dd; --line: #3a3068;
+  --accent: #b49bff; --accent-soft: #352a6b; --brass: #ffb366; --warn: #ffc078;
+  --bg: #17122e; --paper: #221b42; --paper2: #2a2150; --fg: #f4f0ff;
+  --teal: #b49bff; --teal-soft: #352a6b; --brass-strong: #ffa94d; --brass-soft: #4a2f14;
+  --rose: #ff86b0; --rose-soft: #4a1f33; --ok: #6fe0ad; --ok-soft: #173a2c; --onaccent: #17122e;
+  --shadow: 0 1px 0 rgba(0, 0, 0, .35), 0 10px 26px rgba(0, 0, 0, .4);
+  --surface: #221b42; --sunk: #2a2150; --body: #ddd6f5; --on-accent: #17122e;
+  --rule: #3a3068; --rule-soft: #2a2150; --rosin: #ff86b0; --rosin-soft: #4a1f33;
+}
+
+/* ---------- a little colour ---------- */
+html.tr-family body {
+  background:
+    radial-gradient(circle at 6% 10%, rgba(255, 212, 59, .22), transparent 26%),
+    radial-gradient(circle at 94% 6%, rgba(151, 117, 250, .18), transparent 28%),
+    radial-gradient(circle at 90% 90%, rgba(240, 101, 149, .12), transparent 30%),
+    radial-gradient(circle at 4% 92%, rgba(56, 217, 169, .14), transparent 26%),
+    var(--page, var(--bg));
+  background-attachment: fixed;
+}
+html.tr-family body::before {
+  content: ""; display: block; height: 6px;
+  background: linear-gradient(90deg, #ff6b6b, #ff922b, #ffd43b, #69db7c, #4dabf7, #9775fa, #f06595);
+}
+html.tr-family #tr-roombar { background: linear-gradient(90deg, #4c2a9e, #8f2d86 60%, #c2255c); }
+html.tr-family #tr-roombar a { color: #ffe066; }
+
+/* headings with a rainbow edge */
+html.tr-family h1 {
+  background: linear-gradient(90deg, #6d3fe0, #d6336c 55%, #f76707);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+html.tr-family .kicker { color: var(--accent); }
+
+/* buttons */
+html.tr-family .btn.go, html.tr-family .btn.primary {
+  background: linear-gradient(135deg, #7048e8, #d6336c); border-color: transparent; color: #fff;
+  box-shadow: 0 6px 16px rgba(214, 51, 108, .25);
+}
+html.tr-family .btn.go:hover, html.tr-family .btn.primary:hover { filter: brightness(1.08); color: #fff; }
+html.tr-family .btn.brass { background: linear-gradient(135deg, #ff922b, #fab005); border-color: transparent; color: #2b1a00; }
+
+/* room cards on the home page, each its own colour */
+html.tr-family .room { border-top: 7px solid var(--c, var(--accent)); border-radius: 20px; box-shadow: 0 8px 22px rgba(109, 63, 224, .09); transition: transform .15s ease, box-shadow .15s ease; }
+html.tr-family a.room:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(109, 63, 224, .16); }
+html.tr-family .rooms > .room:nth-child(7n+1) { --c: var(--fam-coral); }
+html.tr-family .rooms > .room:nth-child(7n+2) { --c: var(--fam-orange); }
+html.tr-family .rooms > .room:nth-child(7n+3) { --c: var(--fam-sun); }
+html.tr-family .rooms > .room:nth-child(7n+4) { --c: var(--fam-mint); }
+html.tr-family .rooms > .room:nth-child(7n+5) { --c: var(--fam-sky); }
+html.tr-family .rooms > .room:nth-child(7n+6) { --c: var(--fam-grape); }
+html.tr-family .rooms > .room:nth-child(7n+7) { --c: var(--fam-pink); }
+html.tr-family .room .door { color: var(--c, var(--accent)); filter: saturate(1.2) brightness(.8); font-weight: 700; }
+html.tr-family .state.open { color: var(--accent); }
+html.tr-family .learner[aria-pressed="true"] { background: linear-gradient(135deg, #efe7ff, #ffe0ec); border-color: #9775fa; }
+
+/* inside the rooms */
+html.tr-family .panel { border-radius: 20px; }
+html.tr-family .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: #f76707; }
+html.tr-family .gbtn[aria-pressed="true"] { background: linear-gradient(135deg, #7048e8, #d6336c); border-color: transparent; color: #fff; }
+html.tr-family .lesson .n { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+html.tr-family .lessons > .lesson:nth-child(6n+1) .n { background: #ffe3e3; color: #c92a2a; }
+html.tr-family .lessons > .lesson:nth-child(6n+2) .n { background: #fff0db; color: #d9480f; }
+html.tr-family .lessons > .lesson:nth-child(6n+3) .n { background: #fff3bf; color: #946800; }
+html.tr-family .lessons > .lesson:nth-child(6n+4) .n { background: #d3f9d8; color: #2b8a3e; }
+html.tr-family .lessons > .lesson:nth-child(6n+5) .n { background: #d0ebff; color: #1864ab; }
+html.tr-family .lessons > .lesson:nth-child(6n+6) .n { background: #f3d9fa; color: #9c36b5; }
+html.tr-family .lesson.done { background: linear-gradient(90deg, var(--ok-soft), transparent 70%); }
+html.tr-family .stars, html.tr-family .stars .off { letter-spacing: .05em; }
+html.tr-family .stars { color: #fab005; }
+html.tr-family .pill { background: #fff3bf; color: #5c3d00; }
+html.tr-family .stat { border-radius: 18px; border-top: 5px solid var(--fam-grape); }
+html.tr-family .statgrid > .stat:nth-child(4n+2) { border-top-color: var(--fam-orange); }
+html.tr-family .statgrid > .stat:nth-child(4n+3) { border-top-color: var(--fam-mint); }
+html.tr-family .statgrid > .stat:nth-child(4n+4) { border-top-color: var(--fam-sky); }
+html.tr-family .opt { border-radius: 14px; }
+html.tr-family .feedback.good { background: #d3f9d8; }
+html.tr-family .card2, html.tr-family .panel2 { border-radius: 20px; }
+
+/* dark mode: keep the small coloured tags readable */
+@media (prefers-color-scheme: dark) {
+  html.tr-family:root:not([data-theme="light"]) .pill { background: #4a3a10; color: #ffe8a1; }
+  html.tr-family:root:not([data-theme="light"]) .feedback.good { background: var(--ok-soft); }
+  html.tr-family:root:not([data-theme="light"]) .learner[aria-pressed="true"] { background: var(--accent-soft); }
+  html.tr-family:root:not([data-theme="light"]) .lessons > .lesson .n { background: var(--accent-soft) !important; color: var(--accent) !important; }
+}
+html.tr-family:root[data-theme="dark"] .pill { background: #4a3a10; color: #ffe8a1; }
+html.tr-family:root[data-theme="dark"] .feedback.good { background: var(--ok-soft); }
+html.tr-family:root[data-theme="dark"] .learner[aria-pressed="true"] { background: var(--accent-soft); }
+html.tr-family:root[data-theme="dark"] .lessons > .lesson .n { background: var(--accent-soft) !important; color: var(--accent) !important; }

@@ -15,6 +15,12 @@
   gradeAuralOpen = function (p, g) { return TR.can("aural", g) && auralOpen0(p, g); };
   var theoryOpen0 = gradeOpen;
   gradeOpen = function (p, g) { return TR.can("theory", g) && theoryOpen0(p, g); };
+  /* the family edition opens every grade and every level from the start */
+  if (TR.C && TR.C.familyEdition && !TR.configured) {
+    gradeAuralOpen = function () { return true; };
+    gradeOpen = function () { return true; };
+    if (typeof auralOpen === "function") auralOpen = function () { return true; };
+  }
 
   function lockGradeButtons(html, act, room) {
     return html.replace(new RegExp('<button class="gbtn" data-act="' + act + '" data-arg="(\\d)" aria-pressed="false" disabled>Grade \\d · locked</button>', "g"), function (m, g) {

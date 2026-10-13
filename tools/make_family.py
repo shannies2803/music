@@ -22,6 +22,7 @@ for a, b in [("Saving and checking programmes comes with the Family plan.", "Sav
              ("Open: free for everyone →", "Open →"), ('"Preview: not signed in"', '"Everything is open. Progress is saved on this device, for each player."'), ('href: "repertoire/"', 'href: "repertoire/index.html"')]:
     app = app.replace(a, b)
 open(os.path.join(OUT, "app.html"), "w", encoding="utf-8").write(app)
+open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(app)   # a home page for static hosts
 
 # the page to publish: the rooms list, without the document wrapper (the host adds its own)
 entry = re.sub(r'^<!doctype html>\s*<html[^>]*>\s*<head>\s*<meta charset="utf-8">\s*<meta name="viewport"[^>]*>\s*', "", app, flags=re.I)
