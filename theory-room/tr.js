@@ -7,6 +7,8 @@
   var me = document.currentScript;
   var BASE = me && me.src ? me.src.replace(/tr\.js(\?.*)?$/, "") : "./";
   var configured = !!(C.supabaseUrl && C.supabaseAnonKey);
+  /* a family edition: everything open, kept on this device, with no plans, prices or locks */
+  var family = !!C.familyEdition && !configured;
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
@@ -44,6 +46,7 @@
     return false; // repertoire saving, composers, free practice: family plan only
   };
   TR.planLabel = function () {
+    if (family) return "Family edition";
     if (TR.access.teacher) return "Teacher licence" + (TR.access.seats ? " · " + TR.access.seats + " student places" : "");
     if (!TR.access.pro && TR.learner && TR.inClass(TR.learner.id)) return "In " + TR.classesFor(TR.learner.id)[0].class_name;
     if (TR.access.pro) return "Family plan" + (TR.access.until && !TR.preview ? " · open until " + new Date(TR.access.until).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "");
@@ -51,6 +54,7 @@
     return "Free";
   };
   TR.upsellHTML = function (what) {
+    if (family) return "";
     return '<div class="tr-up"><b>' + TR.esc(what || "This part comes with a plan.") + '</b> <a href="' + BASE + 'app.html#plans" target="_top">See plans</a></div>';
   };
 
@@ -76,7 +80,7 @@
   function savePreviewLearners() { store.set("tr-preview-learners", JSON.stringify(TR.learners)); }
   TR.addLearner = async function (name) {
     name = String(name || "").trim().slice(0, 40); if (!name) return;
-    if (TR.learners.length >= (C.maxLearners || 3)) throw new Error("A family plan has room for " + (C.maxLearners || 3) + " learners.");
+    if (TR.learners.length >= (C.maxLearners || 3)) throw new Error("There's room for " + (C.maxLearners || 3) + " learners.");
     if (!configured) { TR.learners.push({ id: "l" + Date.now().toString(36), name: name }); savePreviewLearners(); }
     else { var r = await TR.sb.from("learners").insert({ user_id: TR.user.id, name: name }).select("id,name,created_at").single(); if (r.error) throw r.error; TR.learners.push(r.data); }
     emit();
@@ -306,19 +310,20 @@
     teacher: { label: "Teacher", pro: true, teacher: true, packs: {} }
   };
   function initPreview() {
-    TR.preview = PREVIEWS[store.get("tr-preview")] ? store.get("tr-preview") : "free";
+    TR.preview = family ? "paid" : PREVIEWS[store.get("tr-preview")] ? store.get("tr-preview") : "free";
+    TR.family = family;
     var a = PREVIEWS[TR.preview];
     TR.user = { id: "preview", email: "preview@example.com" };
     TR.access = { pro: a.pro, family: a.pro && !a.teacher, until: a.pro ? "2099-01-01" : null, packs: Object.assign({}, a.packs), plan: a.pro && !a.teacher ? "monthly" : null,
       teacher: !!a.teacher, teacherUntil: a.teacher ? "2099-01-01" : null, seats: a.teacher ? 15 : null };
     TR.classes = pv("tr-preview-joined", []);
     try { TR.learners = JSON.parse(store.get("tr-preview-learners") || "null"); } catch (e) { TR.learners = null; }
-    if (!Array.isArray(TR.learners) || !TR.learners.length) TR.learners = [{ id: "l1", name: "Learner 1" }];
+    if (!Array.isArray(TR.learners) || !TR.learners.length) TR.learners = [{ id: "l1", name: family ? "Player 1" : "Learner 1" }];
     pickLearner();
   }
   TR.setPreview = function (k) { store.set("tr-preview", k); location.reload(); };
   function previewBar() {
-    if (configured || window.self !== window.top || document.getElementById("tr-preview")) return;
+    if (configured || family || window.self !== window.top || document.getElementById("tr-preview")) return;
     var b = document.createElement("div"); b.id = "tr-preview";
     b.setAttribute("role", "region"); b.setAttribute("aria-label", "Preview mode");
     b.innerHTML = "<span><b>Preview mode</b>: no logins or payments yet. View as:</span>" +
@@ -389,7 +394,9 @@
     "#tr-preview button[aria-pressed=true]{background:#f6f3ee;color:#5a3a12;font-weight:700}" +
     "#tr-roombar a{color:#f6c995;font-weight:700;text-decoration:none;margin-right:auto}#tr-roombar span{opacity:.9}" +
     ".tr-up{border:1px dashed #a3541c;background:rgba(163,84,28,.08);border-radius:12px;padding:12px 14px;margin:12px 0;line-height:1.5}.tr-up a{color:#a3541c;font-weight:700;margin-left:6px}";
+  if (family) css.textContent += ".tr-up,a[href$='#plans'],a[href*='app.html#plans'],#plans,.fam-hide,html.tr-family details:has(#joinForm),html.tr-family nav a[href='./']{display:none!important}";
   (document.head || document.documentElement).appendChild(css);
+  if (family) document.documentElement.classList.add("tr-family");
 
   async function start() {
     try { if (configured) await initSupabase(); else initPreview(); }
