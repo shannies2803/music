@@ -17,6 +17,12 @@ ALL = r"""() => {
     if (/\bundefined\b|NaN|\[object/.test(txt)) out.push(id + ": broken text");
     if (h.includes("Worked example")) wex++;
   }
+  const lacking = Object.values(LESSON_BY).filter(l => !l.mock && !l.review && !/^ms-|^hw-|^c[78]-|mixed$/.test(l.id) && l.gen !== "rread" && !/lplus/.test(l.h || "")).map(l => l.id);
+  lacking.forEach(id => out.push(id + ": no steps/example/watch-out"));
+  const guides = Object.keys(LESSON_BY).filter(id => /^guide-/.test(id));
+  if (guides.length < 15) out.push("only " + guides.length + " topic guides");
+  for (const id of guides) for (let n = 0; n < 20; n++) { VIEW.round = { i: 0, mockFrom: [] }; let q; try { q = TGEN.topicmix(LESSON_BY[id].p); } catch (e) { out.push(id + ": THROW " + e.message); break; } if (!q || !q.prompt) out.push(id + ": no question"); }
+  VIEW.round = null;
   const plus = Object.keys(TR_LESSONS_PLUS).filter(id => LESSON_BY[id] && !LESSON_BY[id].h.includes("lplus"));
   plus.forEach(id => out.push(id + ": fuller explanation missing"));
   VIEW.lesson = null; VIEW.wex = null;
@@ -37,6 +43,19 @@ async def main():
             await pg.evaluate("() => { VIEW.lesson = 'g4-intervals'; render(); }")
             await pg.click("[data-wex]"); await pg.wait_for_selector("#wexBox")
             await pg.screenshot(path=f"{SHOTS}/lesson-plus.png", full_page=True)
+            await pg.evaluate("() => { VIEW.lesson = null; render(); }")
+            await pg.click("[data-arg=guide-abrsm-intervals]"); await pg.wait_for_timeout(200)
+            t = await pg.inner_text("#main")
+            if "Grade 1" not in t or "Grade 5" not in t or "Mixed round" not in t: bad("intervals guide: " + t[:200])
+            await pg.screenshot(path=f"{SHOTS}/guide.png", full_page=True)
+            await pg.click("[data-act=startLesson]")
+            for i in range(10):
+                await pg.wait_for_selector("#ex .opt:not([disabled]), #ex [data-act=barCheck]", timeout=4000)
+                if await pg.locator("#ex .opt:not([disabled])").count(): await pg.click("#ex .opt >> nth=0")
+                else: await pg.click("#ex [data-act=barCheck]")
+                await pg.click("#nextrow button")
+            credited = await pg.evaluate("() => Object.keys(P().tl).filter(id => /intervals/.test(id) && P().tl[id].a > 0).length")
+            if credited < 2: bad("guide round didn't credit the lessons: %d" % credited)
             for e in errs: bad("page error: " + e)
             await b.close()
     finally: srv.terminate()

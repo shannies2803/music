@@ -15,7 +15,7 @@
   "use strict";
   if (typeof TGEN === "undefined" || typeof LESSON_BY === "undefined") return;
   const strip = h => String(h == null ? "" : h).replace(/<svg[\s\S]*?<\/svg>/g, " [music] ").replace(/<br\s*\/?>/g, " ").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, " ").trim();
-  const real = l => l && !/mixed$|^c[78]-|^mock-|^review-|^hw-/.test(l.id) && l.gen !== "rread" && l.gen !== "mix" && l.gen !== "mockmix" && l.gen !== "revmix" && !l.mock;
+  const real = l => l && !/mixed$|^c[78]-|^mock-|^review-|^hw-|^guide-/.test(l.id) && l.gen !== "rread" && l.gen !== "topicmix" && l.gen !== "mix" && l.gen !== "mockmix" && l.gen !== "revmix" && !l.mock;
   const boardOf = l => l.board === "trinity" ? "trinity" : "abrsm";
   const lessonsOf = (board, g) => (board === "trinity" ? (window.TRINITY_LESSONS || []) : LESSONS.filter(l => !l.board)).filter(l => l.g === g && real(l));
   const can = g => !window.TR || TR.can("theory", g);

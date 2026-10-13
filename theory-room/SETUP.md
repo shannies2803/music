@@ -113,7 +113,9 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 
 ## Fuller lessons
 
-- `rooms/lessons-plus.js` adds *How to do it*, an example and *Watch out* notes to 72 ABRSM lessons, and a *Show me a worked example* button to every lesson.
+- `rooms/lessons-plus.js` adds *How to do it*, an example and *Watch out* notes to every ABRSM and Trinity lesson, and a *Show me a worked example* button to every lesson.
+
+- `rooms/topics.js`: topic guides that follow each topic through the grades for each board, with a mixed round.
 
 ## Musicianship
 

@@ -11,7 +11,7 @@
   "use strict";
   if (typeof TGEN === "undefined" || typeof LESSON_BY === "undefined") return;
   var N_Q = 30, LETTERS = "ABCDEFGH";
-  var usable = function (l) { return l && !/mixed$|^c[78]-|^mock-|^hw-/.test(l.id) && l.gen !== "mix" && l.gen !== "rread"; };
+  var usable = function (l) { return l && !/mixed$|^c[78]-|^mock-|^hw-|^guide-/.test(l.id) && l.gen !== "mix" && l.gen !== "rread"; };
   function source(board) { return board === "trinity" ? (window.TRINITY_LESSONS || []) : LESSONS.filter(function (l) { return !l.board; }); }
   function pools(board, g) { var src = source(board).filter(usable); return { cur: src.filter(function (l) { return l.g === g; }), prev: src.filter(function (l) { return l.g < g; }) }; }
 
