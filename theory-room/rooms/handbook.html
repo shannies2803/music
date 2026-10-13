@@ -66,7 +66,7 @@
     <div style="display:grid;gap:10px">
       <p class="kicker">Room 6 · Handbook · free</p>
       <h1 style="font-size:clamp(34px,5.4vw,56px)">The theory handbook</h1>
-      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, chords and cadences, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
+      <p class="lede">Everything you keep looking up: every term on the ABRSM and Trinity lists, every key signature, intervals, chords and cadences, form and style, note values, clefs and ornaments, plus 60-second speed games. Free for everyone.</p>
     </div>
     <div class="tabs" role="tablist" id="tabs"></div>
     <section id="view"></section>
@@ -75,11 +75,12 @@
 <script src="handbook-terms.js"></script>
 <script src="instruments.js"></script>
 <script src="instruments-more.js"></script>
+<script src="musicianship.js"></script>
 <script>
 (function () {
   "use strict";
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["chords", "Chords & harmony"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
+  var TABS = [["dict", "Terms dictionary"], ["keys", "Keys & the circle of fifths"], ["intervals", "Intervals"], ["values", "Notes & rests"], ["clefs", "Clefs"], ["chords", "Chords & harmony"], ["style", "Form & style"], ["ornaments", "Ornaments"], ["games", "Speed games"]];
   var tab = (location.hash || "").slice(1) || "dict";
   if (!TABS.some(function (t) { return t[0] === tab; })) tab = "dict";
 
@@ -263,6 +264,16 @@
       '<p class="note">Chord names: ABRSM uses Roman numerals with a, b, c for inversions (IIb, V7c). You may also see chord symbols such as C, Dm, G7 and C/E (C major with E in the bass). The Harmony workshop in the Theory tab builds passages step by step.</p></div>';
   }
 
+
+  /* ---------- 6c. form and style ---------- */
+  function styleTab() {
+    var S = window.TR_STYLE || { PERIODS: [], FORMS: [] };
+    return '<div class="panel2"><p style="margin:0">The four big periods in exam music, and the forms (plans) pieces are built on. Dates are a guide: styles overlap, and some composers belong to two periods.</p>' +
+      '<div class="grid2">' + S.PERIODS.map(function (p) { return '<div class="card2"><h3>' + esc(p.n) + '</h3><span class="muted">' + esc(p.d) + "</span><p style=\"margin:0\"><b>Composers:</b> " + esc(p.c.join(", ")) + "</p><ul style=\"margin:0;padding-left:1.2em\">" + p.f.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul></div>"; }).join("") + "</div>" +
+      '<h3>Form</h3><div style="overflow-x:auto"><table class="t"><tr><th>Form</th><th>Plan</th><th>What happens</th></tr>' + S.FORMS.map(function (f) { return "<tr><td><b>" + esc(f[0]) + '</b></td><td style="font-family:var(--f-mono);white-space:nowrap">' + esc(f[1]) + "</td><td>" + esc(f[2]) + "</td></tr>"; }).join("") + "</table></div>" +
+      '<p class="note">Practise these in the Theory tab under Musicianship.</p></div>';
+  }
+
   /* ---------- 6. ornaments ---------- */
   var ORN = [
     ["Trill (shake)", '<text x="4" y="28">tr</text><path d="M30 20 q4-8 8 0 t8 0 t8 0 t8 0"/>', "Alternate quickly between the written note and the note above. In Baroque music it usually starts on the note above.", "Written D: E D E D E D… (or D E D E… in later music)"],
@@ -326,7 +337,7 @@
   /* ---------- page ---------- */
   function render() {
     document.getElementById("tabs").innerHTML = TABS.map(function (t) { return '<button type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + esc(t[1]) + "</button>"; }).join("");
-    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, chords: chordsTab, ornaments: ornaments, games: games }[tab]();
+    document.getElementById("view").innerHTML = { dict: dict, keys: keys, intervals: intervals, values: values, clefs: clefs, chords: chordsTab, style: styleTab, ornaments: ornaments, games: games }[tab]();
   }
   document.addEventListener("click", function (e) {
     var b;

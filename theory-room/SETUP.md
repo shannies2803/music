@@ -111,6 +111,10 @@ Lemon Squeezy is the seller of record: it charges the card, adds the right sales
 - `rooms/harmony.js`: the Harmony workshop (twelve worked examples from `rooms/passages.js`, built up in five steps in any key, with a rule check worked out from the notes), *Finish the melody* (Trinity Grades 4–5, ABRSM Grade 6) and *Rhythm reading* (tap at sight, Grades 1–8). Rhythm reading is left out of mocks, reviews and worksheets because it's tapped, not chosen.
 - The Progress tab can print a weekly report; Examiner mode can print the scale set as a chart; written mock papers have a *Start the clock* button.
 
+## Musicianship
+
+- `rooms/musicianship.js`: questions on a piece (Grades 1–8), spot the mistake (Grades 1–5), periods and styles, and form. The periods and forms data also feeds the Handbook's *Form & style* tab.
+
 ## The Practical tab and the exam guide
 
 - The aural room's **Practical** tab (`rooms/practical.js`, free) has a scales and arpeggios coach for 15 instruments, an examiner mode that asks for scales from a chosen set, and a practice diary. Scale lists differ by board and instrument, so the page asks learners to check their syllabus.
@@ -145,7 +149,7 @@ Run every command below from the top of this repository.
 - **Tests**:
   - `node build/test_backend.mjs`: payment rules and the course gate
   - `sh build/test_db.sh`: the database set-up and who can see what (needs Postgres)
-  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`, `e2e_instruments.py`, `e2e_handbook.py`, `e2e_mocks.py`, `e2e_revision.py`, `e2e_harmony.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
+  - `python3 build/e2e_preview.py`, `e2e_accounts.py`, `e2e_composers.py`, `e2e_boards.py`, `e2e_sightread.py`, `e2e_trinity_theory.py`, `e2e_course78.py`, `e2e_worksheets.py`, `e2e_instruments.py`, `e2e_handbook.py`, `e2e_mocks.py`, `e2e_revision.py`, `e2e_harmony.py`, `e2e_musicianship.py`: every page in a browser, including sight-reading marked from a recording, every Trinity theory lesson and every day of the Grade 7 and 8 courses
 
 ## Not built yet
 
