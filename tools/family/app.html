@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Family Music Room</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  main { padding-block: 10px 60px; }
+  .kids { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .kid { display: inline-flex; align-items: center; gap: 8px; font: 700 16px var(--f-body); padding: 6px 16px 6px 6px; border-radius: 999px; border: 2px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; min-height: 52px; }
+  .kid[aria-pressed="true"] { border-color: var(--kc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--kc) 25%, transparent); }
+  .av { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kc); font-size: 24px; line-height: 1; flex: none; }
+  .av.big { width: 96px; height: 96px; font-size: 58px; box-shadow: 0 10px 24px color-mix(in srgb, var(--kc) 35%, transparent); }
+  .hero { display: flex; flex-wrap: wrap; gap: 18px 24px; align-items: center; margin: 22px 0 8px; }
+  .hero h1 { font-size: clamp(36px, 6vw, 58px); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip { font-weight: 700; padding: 6px 14px; border-radius: 999px; background: var(--sheet); border: 1.5px solid var(--line); }
+  .tasks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 760px) { .tasks { grid-template-columns: 1fr; } }
+  .task { position: relative; display: grid; gap: 8px; align-content: start; padding: 18px; border-radius: 22px; background: var(--sheet); border: 2px solid var(--line); border-top: 8px solid var(--tc); text-decoration: none; color: var(--ink); transition: transform .15s ease; }
+  .task:hover { transform: translateY(-3px); }
+  .task .ic { font-size: 40px; line-height: 1; }
+  .task h3 { font-size: 22px; }
+  .task .go { justify-self: start; margin-top: 4px; font-weight: 700; color: #fff; background: var(--tc); border-radius: 999px; padding: 8px 18px; }
+  .task.done { background: color-mix(in srgb, #40c057 12%, var(--sheet)); border-color: #8ce99a; }
+  .task.done .go { background: #40c057; }
+  .task .tick { position: absolute; top: 12px; right: 14px; font-size: 30px; }
+  .bar { height: 14px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ff922b, #f06595, #845ef7); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+  .card { background: var(--sheet); border: 1.5px solid var(--line); border-radius: 22px; padding: 18px; display: grid; gap: 12px; align-content: start; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; text-align: center; }
+  .cal .d { display: grid; place-items: center; aspect-ratio: 1; border-radius: 14px; background: var(--page); border: 1.5px solid var(--line); font-size: 22px; position: relative; }
+  .cal .d small { position: absolute; bottom: 2px; font-size: 10px; color: var(--muted); }
+  .cal .d.on { background: color-mix(in srgb, var(--kc) 22%, var(--sheet)); border-color: var(--kc); }
+  .cal .d.today { outline: 3px solid var(--kc); outline-offset: 1px; }
+  .book { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+  .book span { display: grid; place-items: center; aspect-ratio: 1; border-radius: 12px; font-size: 26px; background: var(--page); border: 1.5px dashed var(--line); }
+  .book span.got { border-style: solid; border-color: #ffd43b; background: #fff9db; }
+  .book span.no { font-size: 15px; color: var(--muted); }
+  .rooms2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .rm { display: grid; gap: 4px; padding: 16px; border-radius: 20px; background: var(--sheet); border: 1.5px solid var(--line); text-decoration: none; color: var(--ink); }
+  .rm:hover { border-color: var(--accent); }
+  .rm b { font-size: 17px; } .rm .e { font-size: 30px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pick button { font-size: 26px; width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: var(--sheet); cursor: pointer; }
+  .pick button[aria-pressed="true"] { border-color: var(--accent); }
+  .pick .sw { width: 40px; height: 40px; border-radius: 50%; }
+  .party { text-align: center; font-size: 20px; padding: 14px; border-radius: 18px; background: linear-gradient(90deg, #fff3bf, #ffdeeb, #e5dbff); color: #2b1a4a; font-weight: 700; }
+  .top .grown { font-weight: 700; }
+  form.add { display: flex; gap: 8px; flex-wrap: wrap; }
+  form.add input { font: inherit; min-height: 44px; padding: 6px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--page); color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="logo" href="app.html" aria-label="Family Music Room, home"><span style="font-size:30px">🎵</span> Family Music Room</a>
+  <nav aria-label="Main"><a class="grown" href="parent.html">For grown-ups</a></nav>
+</header>
+<main><div class="wrap" id="app"><p class="muted">Opening…</p></div></main>
+<footer class="site"><div class="wrap"><p class="muted">Progress is saved on this device. Not affiliated with ABRSM or Trinity College London.</p></div></footer>
+<script src="rooms/catalog.js"></script>
+<script src="config.js"></script>
+<script src="tr.js"></script>
+<script src="family.js"></script>
+<script>
+(function () {
+  "use strict";
+  var F = window.FAM, esc = F.esc, V = { look: false, adding: false };
+  var ROOMS = [
+    ["🎼", "Theory & aural", "Lessons, drills, aural tests, mocks", "rooms/aural.html", true],
+    ["📘", "Course: Grades 1–5", "Day by day, with picture lessons", "rooms/theory-g1-5.html", true],
+    ["📗", "Course: Grade 6", "Harmony, figured bass, composing", "rooms/theory-g6.html", true],
+    ["📙", "Courses: Grades 7–8", "Inside the theory room", "rooms/aural.html", "tab=theory&course=g7"],
+    ["🎹", "Practical", "Scales coach, my pieces, practice diary", "rooms/aural.html", "tab=prac"],
+    ["🎬", "Composer films", "One-minute films and quizzes", "rooms/composers.html", false],
+    ["🎺", "Instruments", "Hear each instrument, then a quiz", "rooms/instruments.html", false],
+    ["📖", "Handbook", "Every term and sign, speed games", "rooms/handbook.html", false],
+    ["🃏", "Card game", "Print and play Range Trumps", "rooms/cards.html", false],
+    ["📚", "Exam pieces", "Every ABRSM and Trinity list", "repertoire/index.html", false],
+    ["🧭", "Exam guide", "What happens in the exam", "rooms/exam-guide.html", false]
+  ];
+  async function draw() {
+    var L = TR.learner, app = document.getElementById("app"); if (!L) { app.innerHTML = '<p class="muted">Opening…</p>'; return; }
+    var pr = F.prof(L.id), p = await F.player(L.id), today = F.day(), t = F.info(p, today), st = F.streak(p), stk = F.stickerDays(p), rw = F.reward(L.id);
+    var wk = F.weekDays(), wkSt = wk.filter(function (d) { return F.info(p, d).sticker; }).length;
+    document.documentElement.style.setProperty("--kc", pr.c);
+    var kids = TR.learners.map(function (l) { var q = F.prof(l.id); return '<button class="kid" style="--kc:' + q.c + '" data-kid="' + esc(l.id) + '" aria-pressed="' + (l.id === L.id) + '"><span class="av">' + q.a + "</span>" + esc(l.name) + "</button>"; }).join("") +
+      (TR.learners.length < 6 ? '<button class="kid" data-act="add" aria-label="Add a player" style="padding:6px 16px">＋</button>' : "");
+    var add = V.adding ? '<form class="add" id="addForm"><input id="newName" maxlength="30" placeholder="First name or nickname" aria-label="Name" required><button class="btn go small" type="submit">Add player</button><button class="btn small" type="button" data-act="cancel">Cancel</button>' + (V.err ? '<span class="muted">' + esc(V.err) + "</span>" : "") + "</form>" : "";
+    var taskCards = F.TASKS.map(function (k) {
+      var done = t.tasks[k.k], extra = k.k === "prac" ? " · " + Math.round(t.prac) + " of 10 min" : "";
+      return '<a class="task ' + (done ? "done" : "") + '" style="--tc:' + k.col + '" href="' + F.link(L.id, k.q) + '">' + (done ? '<span class="tick" aria-label="done">✅</span>' : "") + '<span class="ic">' + k.icon + "</span><h3>" + k.t + '</h3><span class="muted">' + k.d + extra + '</span><span class="go">' + (done ? "Done! Again?" : "Start") + "</span></a>";
+    }).join("");
+    var stickerToday = t.sticker ? F.STICKERS[(stk.indexOf(today) >= 0 ? stk.indexOf(today) : stk.length - 1) % F.STICKERS.length] : "";
+    var cal = ""; for (var i = 13; i >= 0; i--) { var d = F.addDays(new Date(), -i), ds = F.day(d), x = F.info(p, ds), si = stk.indexOf(ds);
+      cal += '<div class="d ' + (x.active ? "on " : "") + (i === 0 ? "today" : "") + '" title="' + ds + '">' + (x.sticker ? F.STICKERS[si % F.STICKERS.length] : x.active ? "⭐" : "") + "<small>" + "SMTWTFS"[d.getDay()] + "</small></div>"; }
+    var slots = Math.max(30, Math.ceil((stk.length + 1) / 10) * 10), book = "";
+    for (var j = 0; j < slots; j++) book += j < stk.length ? '<span class="got" title="' + stk[j] + '">' + F.STICKERS[j % F.STICKERS.length] + "</span>" : '<span class="no">' + (j + 1) + "</span>";
+    var look = V.look ? '<div class="card"><b>Choose your animal</b><div class="pick">' + F.AVATARS.map(function (a) { return '<button data-av="' + a + '" aria-pressed="' + (a === pr.a) + '">' + a + "</button>"; }).join("") + '</div><b>Choose your colour</b><div class="pick">' + F.COLOURS.map(function (c) { return '<button class="sw" data-col="' + c + '" style="background:' + c + '" aria-label="colour ' + c + '" aria-pressed="' + (c === pr.c) + '"></button>'; }).join("") + '</div><button class="btn small" data-act="look">Done</button></div>' : "";
+    app.innerHTML =
+      '<div class="kids" role="group" aria-label="Who is practising?">' + kids + "</div>" + add +
+      '<div class="hero"><button class="av big" data-act="look" aria-label="Change my animal and colour" style="border:0;cursor:pointer">' + pr.a + '</button><div><h1>Hi, ' + esc(L.name) + '!</h1><div class="chips"><span class="chip">🔥 ' + st + "-day streak</span><span class=\"chip\">⭐ " + t.done + " of 3 today</span><span class=\"chip\">🏅 " + stk.length + " sticker" + (stk.length === 1 ? "" : "s") + "</span>" + ((p.badges && Object.keys(p.badges).length) ? '<span class="chip">🎖️ ' + Object.keys(p.badges).length + " badges</span>" : "") + "</div></div></div>" + look +
+      '<h2 style="margin:18px 0 10px">Today\'s 15 minutes</h2><div class="bar" aria-label="' + t.done + ' of 3 done"><i style="width:' + Math.round(100 * t.done / 3) + '%"></i></div>' +
+      (t.sticker ? '<div class="party" style="margin-top:12px">All three done! You earned today\'s sticker: <span style="font-size:34px;vertical-align:middle">' + stickerToday + "</span></div>" : '<p class="muted" style="margin:8px 0 0">Do all three to earn today\'s sticker.</p>') +
+      '<div class="tasks" style="margin-top:14px">' + taskCards + "</div>" +
+      '<div class="cols" style="margin-top:22px"><div class="card"><h3>Your last two weeks</h3><div class="cal">' + cal + '</div><p class="muted" style="margin:0">⭐ = practised · a sticker = all three done</p></div>' +
+      '<div class="card"><h3>This week\'s reward</h3>' + (rw.text ? '<p style="margin:0;font-size:20px"><b>' + esc(rw.text) + '</b></p><div class="bar"><i style="width:' + Math.min(100, Math.round(100 * wkSt / rw.target)) + '%"></i></div><p style="margin:0">' + wkSt + " of " + rw.target + " sticker days this week" + (wkSt >= rw.target ? " 🎉 You've earned it!" : "") + "</p>" : '<p class="muted" style="margin:0">Ask a grown-up to set a reward for this week on the grown-ups page.</p><p style="margin:0">' + wkSt + " sticker day" + (wkSt === 1 ? "" : "s") + " so far this week.</p>") + "</div></div>" +
+      '<div class="card" style="margin-top:16px"><h3>Sticker book · ' + stk.length + '</h3><div class="book">' + book + "</div></div>" +
+      '<h2 style="margin:26px 0 10px">All the rooms</h2><div class="rooms2">' + ROOMS.map(function (r) { var href = r[4] === true ? r[3] + "?learner=" + encodeURIComponent(L.id) : typeof r[4] === "string" ? r[3] + "?learner=" + encodeURIComponent(L.id) + "&" + r[4] : r[3]; return '<a class="rm" href="' + href + '"><span class="e">' + r[0] + "</span><b>" + r[1] + '</b><span class="muted" style="font-size:14px">' + r[2] + "</span></a>"; }).join("") + "</div>";
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-kid],[data-act],[data-av],[data-col]"); if (!b) return;
+    if (b.dataset.kid) { TR.setLearner(b.dataset.kid); return; }
+    if (b.dataset.av) { F.setProf(TR.learner.id, { a: b.dataset.av }); draw(); return; }
+    if (b.dataset.col) { F.setProf(TR.learner.id, { c: b.dataset.col }); draw(); return; }
+    var a = b.dataset.act;
+    if (a === "look") { V.look = !V.look; draw(); }
+    if (a === "add") { V.adding = true; draw(); setTimeout(function () { var i = document.getElementById("newName"); i && i.focus(); }, 30); }
+    if (a === "cancel") { V.adding = false; draw(); }
+  });
+  document.addEventListener("submit", async function (e) {
+    if (e.target.id !== "addForm") return; e.preventDefault();
+    var n = document.getElementById("newName").value.trim(); if (!n) return;
+    try { await TR.addLearner(n); V.adding = false; TR.setLearner(TR.learners[TR.learners.length - 1].id); } catch (err) { V.err = err.message; draw(); }
+  });
+  TR.onChange(draw);
+  TR.ready.then(draw);
+  window.addEventListener("pageshow", function () { if (TR.learner) draw(); });
+})();
+</script>
+</body>
+</html>

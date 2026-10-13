@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>For grown-ups · Family Music Room</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  main { padding-block: 10px 60px; }
+  .kidcard { background: var(--sheet); border: 1.5px solid var(--line); border-top: 8px solid var(--kc); border-radius: 22px; padding: 18px; display: grid; gap: 14px; margin-top: 16px; }
+  .head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .av { display: inline-grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: var(--kc); font-size: 32px; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 700px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .stat { background: var(--page); border-radius: 16px; padding: 10px 12px; border: 1px solid var(--line); }
+  .stat b { display: block; font-family: var(--f-display); font-size: 26px; }
+  .stat span { font-size: 14px; color: var(--muted); }
+  .rows { display: grid; gap: 6px; }
+  .rows > div { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+  @media (max-width: 600px) { .rows > div { grid-template-columns: 1fr; gap: 2px; } }
+  .rows > div > span:first-child { font-weight: 700; }
+  form.inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  form.inline input, form.inline select { font: inherit; min-height: 42px; padding: 4px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--page); color: var(--ink); }
+  .today { display: flex; gap: 6px; flex-wrap: wrap; }
+  .today span { padding: 4px 10px; border-radius: 999px; background: var(--page); border: 1px solid var(--line); font-size: 14px; }
+  .today span.y { background: #d3f9d8; border-color: #8ce99a; color: #1b5e20; }
+  .msg { min-height: 1.2em; color: var(--accent); font-weight: 700; }
+  @media print { header, .noprint { display: none !important; } .kidcard { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="logo" href="app.html"><span style="font-size:30px">🎵</span> Family Music Room</a>
+  <nav aria-label="Main"><a href="app.html">← Kids' home</a></nav>
+</header>
+<main><div class="wrap">
+  <p class="kicker">For grown-ups</p>
+  <h1 style="font-size:clamp(34px,5vw,52px)">This week at a glance</h1>
+  <p class="lede" style="margin-top:8px">Each child's week: what they practised, how accurate they were, mocks, practice minutes and what to work on next. Set a weekly reward to aim for. Everything here stays on this device.</p>
+  <div class="row noprint" style="margin-top:12px"><button class="btn small" onclick="window.print()">Print this page</button></div>
+  <div id="kids"><p class="muted">Opening…</p></div>
+  <section class="kidcard noprint" style="--kc:var(--accent)">
+    <h2 style="font-size:24px">Players</h2>
+    <form class="inline" id="addForm"><label for="newName" class="kicker" style="flex-basis:100%">Add a player (first name or nickname)</label><input id="newName" maxlength="30" required><button class="btn small go" type="submit">Add</button></form>
+    <p class="muted" style="margin:0">Up to six players. Each keeps their own progress, avatar and colour. To rename or remove a player, use the buttons on their card above.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><p class="muted">Progress is saved in this browser on this device. Not affiliated with ABRSM or Trinity College London.</p></div></footer>
+<script src="rooms/catalog.js"></script>
+<script src="config.js"></script>
+<script src="tr.js"></script>
+<script src="family.js"></script>
+<script>
+(function () {
+  "use strict";
+  var F = window.FAM, esc = F.esc;
+  async function card(l) {
+    var pr = F.prof(l.id), p = await F.player(l.id), s = F.weekSummary(p), t = F.info(p, F.day()), rw = F.reward(l.id);
+    var acc = s.q ? Math.round(100 * s.c / s.q) + "%" : "–";
+    var plan = s.plan ? (s.plan.board === "trinity" ? "Trinity" : "ABRSM") + " Grade " + s.plan.g + " theory on " + esc(s.plan.date) : "None yet (set one in Theory → Revision)";
+    var next = s.weak.length ? s.weak.map(function (w) { return esc(F.lessonTitle(w.id)) + " (" + Math.round(100 * w.acc) + "%)"; }).join("; ") : (s.q ? "Nothing stands out: keep going with today's review." : "Start with Today's 15 minutes.");
+    var target = '<select id="rt-' + esc(l.id) + '" aria-label="Sticker days to earn it">' + [1, 2, 3, 4, 5, 6, 7].map(function (n) { return '<option value="' + n + '"' + (n === rw.target ? " selected" : "") + ">" + n + " sticker day" + (n > 1 ? "s" : "") + "</option>"; }).join("") + "</select>";
+    return '<section class="kidcard" style="--kc:' + pr.c + '"><div class="head"><span class="av">' + pr.a + '</span><h2 style="font-size:28px;margin-right:auto">' + esc(l.name) + '</h2><a class="btn small noprint" href="rooms/aural.html?learner=' + encodeURIComponent(l.id) + '&tab=progress">Full progress</a></div>' +
+      '<div class="today"><span>Today:</span>' + F.TASKS.map(function (k) { return '<span class="' + (t.tasks[k.k] ? "y" : "") + '">' + (t.tasks[k.k] ? "✓ " : "") + k.t + "</span>"; }).join("") + "</div>" +
+      '<div class="stats"><div class="stat"><b>' + s.active + '/7</b><span>days practised this week</span></div><div class="stat"><b>' + s.stickers + '</b><span>sticker days (all three tasks)</span></div><div class="stat"><b>' + s.q + '</b><span>' + (s.q ? "questions · " + acc + " right" : "questions answered") + '</span></div><div class="stat"><b>' + Math.round(s.prac) + '</b><span>minutes on their instrument</span></div></div>' +
+      '<div class="rows">' +
+        "<div><span>Timed theory mocks</span><span>" + (s.mocks.length ? s.mocks.map(function (m) { return esc(F.lessonTitle(m.id).replace(/mock-(abrsm|trinity)-g(\d)/, function (_, b, g) { return (b === "trinity" ? "Trinity" : "ABRSM") + " Grade " + g; })) + ": <b>" + m.pct + "%</b>"; }).join("; ") : "None this week") + "</span></div>" +
+        "<div><span>Aural mocks (best)</span><span>" + (s.auralMocks.length ? s.auralMocks.join(" · ") : "Not tried yet") + "</span></div>" +
+        "<div><span>Work on next</span><span>" + next + "</span></div>" +
+        "<div><span>Mistakes to fix</span><span>" + (s.miss ? s.miss + " waiting in Fix my mistakes" : "None waiting") + "</span></div>" +
+        "<div><span>Lessons starred</span><span>" + s.starred + "</span></div>" +
+        "<div><span>Scales secure</span><span>" + s.scales + "</span></div>" +
+        "<div><span>Exam plan</span><span>" + plan + "</span></div></div>" +
+      '<form class="inline noprint" data-reward="' + esc(l.id) + '"><label class="kicker" style="flex-basis:100%" for="rw-' + esc(l.id) + '">This week\'s reward</label><input id="rw-' + esc(l.id) + '" maxlength="60" placeholder="e.g. choose Friday\'s film" value="' + esc(rw.text) + '"><span>for</span>' + target + '<button class="btn small go" type="submit">Save</button><span class="msg" id="m-' + esc(l.id) + '"></span></form>' +
+      '<form class="inline noprint" data-rename="' + esc(l.id) + '"><label class="kicker" style="flex-basis:100%" for="rn-' + esc(l.id) + '">Name</label><input id="rn-' + esc(l.id) + '" maxlength="30" value="' + esc(l.name) + '"><button class="btn small" type="submit">Rename</button>' + (TR.learners.length > 1 ? '<button class="btn small" type="button" data-remove="' + esc(l.id) + '">Remove</button>' : "") + "</form></section>";
+  }
+  async function draw() {
+    var html = ""; for (var i = 0; i < TR.learners.length; i++) html += await card(TR.learners[i]);
+    document.getElementById("kids").innerHTML = html || '<p class="muted">No players yet: add one below.</p>';
+  }
+  document.addEventListener("submit", async function (e) {
+    var f = e.target; e.preventDefault();
+    if (f.id === "addForm") { var n = document.getElementById("newName").value.trim(); if (n) { try { await TR.addLearner(n); document.getElementById("newName").value = ""; } catch (err) {} } return; }
+    if (f.dataset.reward) { var id = f.dataset.reward; F.setReward(id, { text: document.getElementById("rw-" + id).value.trim(), target: +document.getElementById("rt-" + id).value }); var m = document.getElementById("m-" + id); if (m) m.textContent = "Saved"; return; }
+    if (f.dataset.rename) { var id2 = f.dataset.rename; await TR.renameLearner(id2, document.getElementById("rn-" + id2).value); }
+  });
+  document.addEventListener("click", async function (e) {
+    var b = e.target.closest("[data-remove]"); if (!b) return;
+    if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Tap again to remove (their progress goes too)"; return; }
+    var id = b.dataset.remove; TR.setLearner(id); await TR.removeLearner(id);
+  });
+  TR.onChange(draw);
+  TR.ready.then(draw);
+})();
+</script>
+</body>
+</html>

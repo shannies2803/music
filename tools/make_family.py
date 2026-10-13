@@ -17,18 +17,23 @@ cfg = cfg.replace('siteName: "The Theory Room",', 'siteName: "The Theory Room",\
 assert "familyEdition: true" in cfg
 open(os.path.join(OUT, "config.js"), "w", encoding="utf-8").write(cfg)
 
+FAM = os.path.join(os.path.dirname(os.path.abspath(__file__)), "family")
+# the kids' home, the grown-ups page and their shared code replace the plan-based dashboard
+for name in ("app.html", "parent.html", "family.js"):
+    shutil.copy2(os.path.join(FAM, name), os.path.join(OUT, name))
 app = open(os.path.join(OUT, "app.html"), encoding="utf-8").read()
-for a, b in [("Saving and checking programmes comes with the Family plan.", "Save and check exam programmes."),
-             ("Open: free for everyone →", "Open →"), ('"Preview: not signed in"', '"Everything is open. Progress is saved on this device, for each player."'), ('href: "repertoire/"', 'href: "repertoire/index.html"')]:
-    app = app.replace(a, b)
-open(os.path.join(OUT, "app.html"), "w", encoding="utf-8").write(app)
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(app)   # a home page for static hosts
+# the room notes each day's Ear Gym and review (for stickers) and opens the tab a link asks for
+shutil.copy2(os.path.join(FAM, "family-room.js"), os.path.join(OUT, "rooms", "family-room.js"))
+au = open(os.path.join(OUT, "rooms", "aural.html"), encoding="utf-8").read()
+assert "</body>" in au
+au = au.replace("</body>", '<script src="family-room.js"></script>\n</body>', 1)
+open(os.path.join(OUT, "rooms", "aural.html"), "w", encoding="utf-8").write(au)
 
-# the page to publish: the rooms list, without the document wrapper (the host adds its own)
+# the page to publish: the kids' home, without the document wrapper (the host adds its own)
 entry = re.sub(r'^<!doctype html>\s*<html[^>]*>\s*<head>\s*<meta charset="utf-8">\s*<meta name="viewport"[^>]*>\s*', "", app, flags=re.I)
 entry = entry.replace("</head>", "").replace("<body>", "")
 entry = re.sub(r"</body>\s*</html>\s*$", "", entry)
-entry = re.sub(r"<title>[^<]*</title>", "<title>Family Music Room</title>", entry, count=1)
 open(os.path.join(OUT, "music-room.html"), "w", encoding="utf-8").write(entry)
 
 # nothing private goes in
